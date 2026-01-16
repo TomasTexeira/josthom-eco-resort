@@ -45,7 +45,7 @@ export default function AboutSection({ content }) {
               {content?.title || "Un refugio donde el tiempo se detiene"}
             </h2>
             <p className="text-lg text-stone-600 leading-relaxed mb-8">
-              {content?.content || "Josthom Eco Resort se encuentra en un entorno natural y agreste, ideal para el descanso y la desconexión. Desde las cabañas se puede apreciar el Arroyo Sagastume, que bordea el predio, y estamos a solo 10 minutos en lancha del Río Uruguay."}
+              {content?.content || "Josthom Eco Resort se encuentra en un entorno natural y agreste, ideal para el descanso y la desconexión. Estamos ubicados a 12 km de la Ruta Provincial 46 y a 22 km del centro comercial de Villa Paranacito. Desde las cabañas se aprecia el Arroyo Sagastume, que bordea todo el predio, y nos encontramos a tan solo 10 minutos en lancha del Río Uruguay."}
             </p>
 
             <div className="space-y-6">
