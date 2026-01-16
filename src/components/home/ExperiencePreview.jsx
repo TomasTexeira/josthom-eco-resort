@@ -7,19 +7,19 @@ import { createPageUrl } from '@/utils';
 export default function ExperiencePreview() {
   const experiences = [
     {
-      image: "https://images.unsplash.com/photo-1529040181623-e04ebc611e25?w=600&q=80",
-      title: "Carne de pastoreo",
-      desc: "Directa del campo a tu mesa"
+      image: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80",
+      title: "Río Uruguay",
+      desc: "A 10 minutos en lancha"
     },
     {
-      image: "https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=600&q=80",
-      title: "Animales libres",
-      desc: "Caballos, vacas y ovejas"
+      image: "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80",
+      title: "Arroyo Sagastume",
+      desc: "Vista desde las cabañas"
     },
     {
       image: "https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=600&q=80",
-      title: "Atardeceres únicos",
-      desc: "Horizontes infinitos"
+      title: "Descanso total",
+      desc: "Tranquilidad absoluta"
     }
   ];
 
@@ -40,9 +40,9 @@ export default function ExperiencePreview() {
               Vivir el campo como debe ser
             </h2>
             <p className="text-stone-400 text-lg leading-relaxed mb-8">
-              En Josthom creemos que la mejor experiencia es la más simple: despertarte con el canto de los pájaros, 
-              caminar entre los animales, disfrutar de un asado con carne que viste pastando el día anterior, 
-              y terminar el día contemplando las estrellas en silencio absoluto.
+              En Josthom creemos que el verdadero descanso está en la naturaleza: despertarte con el canto de los pájaros, 
+              contemplar el Arroyo Sagastume desde tu deck, navegar por el Río Uruguay, 
+              y terminar el día disfrutando de la piscina y el hidromasaje en silencio absoluto.
             </p>
             <Link to={createPageUrl("Experience")}>
               <Button 

@@ -4,9 +4,9 @@ import { Leaf, Sun, Wind } from 'lucide-react';
 
 export default function AboutSection({ content }) {
   const features = [
-    { icon: Leaf, title: "Naturaleza pura", desc: "120 hectáreas de campo virgen" },
+    { icon: Leaf, title: "Naturaleza pura", desc: "Entorno natural y agreste" },
     { icon: Sun, title: "Tranquilidad", desc: "Desconexión total del ruido urbano" },
-    { icon: Wind, title: "Aire puro", desc: "Respira libertad en cada momento" }
+    { icon: Wind, title: "Río Uruguay", desc: "A 10 minutos en lancha" }
   ];
 
   return (
@@ -45,7 +45,7 @@ export default function AboutSection({ content }) {
               {content?.title || "Un refugio donde el tiempo se detiene"}
             </h2>
             <p className="text-lg text-stone-600 leading-relaxed mb-8">
-              {content?.content || "Josthom es más que un lugar para hospedarse. Es una experiencia de reconexión con la naturaleza, donde el silencio del campo, los animales pastando y los atardeceres infinitos te invitan a desacelerar y disfrutar de lo simple."}
+              {content?.content || "Josthom Eco Resort se encuentra en un entorno natural y agreste, ideal para el descanso y la desconexión. Desde las cabañas se puede apreciar el Arroyo Sagastume, que bordea el predio, y estamos a solo 10 minutos en lancha del Río Uruguay."}
             </p>
 
             <div className="space-y-6">

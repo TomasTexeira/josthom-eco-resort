@@ -40,7 +40,7 @@ export default function HeroSection({ content }) {
           </h1>
           
           <p className="text-xl md:text-2xl text-white/80 font-light max-w-2xl mx-auto mb-10 leading-relaxed">
-            {content?.subtitle || "Naturaleza, tranquilidad y la mejor carne de pastoreo en un solo lugar"}
+            {content?.subtitle || "Descanso, naturaleza y río en un entorno de tranquilidad absoluta"}
           </p>
 
           <motion.div

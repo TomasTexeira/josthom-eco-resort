@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Beef, TreePine, Sunrise, Bird, Flame, Moon } from 'lucide-react';
+import { Waves, TreePine, Sunrise, Bird, Palmtree, Moon } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -8,29 +8,29 @@ import { createPageUrl } from '@/utils';
 export default function Experience() {
   const experiences = [
     {
-      icon: Beef,
-      title: "Carne de Pastoreo",
-      description: "Nuestros animales pastan libremente en campos abiertos, alimentándose de pastura natural. El resultado es una carne de sabor inigualable, directa del campo a tu mesa. Una experiencia gastronómica auténtica que define lo que somos."
+      icon: Waves,
+      title: "Río Uruguay",
+      description: "A solo 10 minutos en lancha del Río Uruguay, tenés acceso directo a uno de los ríos más hermosos de la región. Navegá, pescá o simplemente disfrutá del paisaje fluvial."
     },
     {
       icon: TreePine,
-      title: "Naturaleza Pura",
-      description: "120 hectáreas de campo virgen te esperan. Caminos de tierra, arroyos cristalinos, y una vegetación que cambia con las estaciones. Aquí la naturaleza sigue su ritmo, y vos podés ser parte de él."
+      title: "Arroyo Sagastume",
+      description: "El Arroyo Sagastume bordea nuestro predio y se puede apreciar desde las cabañas. Sus aguas tranquilas y la vegetación de ribera crean un ambiente de paz absoluta."
     },
     {
       icon: Sunrise,
       title: "Atardeceres Infinitos",
-      description: "Sin edificios ni luces artificiales, cada atardecer es un espectáculo único. Los colores del cielo se extienden hasta donde alcanza la vista, pintando el campo de tonos naranjas, rosas y dorados."
+      description: "Sin edificios ni luces artificiales, cada atardecer es un espectáculo único. Los colores del cielo se extienden hasta donde alcanza la vista, pintando el agua de tonos naranjas, rosas y dorados."
     },
     {
       icon: Bird,
       title: "Fauna Silvestre",
-      description: "Carpinchos, liebres, ñandúes y cientos de especies de aves habitan nuestros campos. Aquí la vida silvestre convive en armonía con los animales de granja, creando un ecosistema único."
+      description: "Carpinchos, liebres y cientos de especies de aves habitan la zona. Aquí la vida silvestre convive en armonía con el entorno, creando un ecosistema único."
     },
     {
-      icon: Flame,
-      title: "Asados al Aire Libre",
-      description: "Cada cabaña cuenta con su propio espacio de parrilla. Te proporcionamos la leña, la carne y todo lo necesario para que disfrutes de un auténtico asado argentino bajo las estrellas."
+      icon: Palmtree,
+      title: "Piscinas e Hidromasaje",
+      description: "Disfrutá del uso libre de nuestras piscinas y el hidromasaje con vista a la laguna interna. El lugar perfecto para relajarte después de un día al aire libre."
     },
     {
       icon: Moon,
@@ -63,8 +63,8 @@ export default function Experience() {
             La Experiencia Josthom
           </h1>
           <p className="text-xl text-white/80 max-w-2xl mx-auto leading-relaxed">
-            Más que un lugar para hospedarse, Josthom es una invitación a vivir el campo 
-            en su forma más pura y auténtica
+            Más que un lugar para hospedarse, Josthom es una invitación a descansar 
+            en contacto con la naturaleza, el río y la tranquilidad absoluta
           </p>
         </motion.div>
       </section>
@@ -81,16 +81,14 @@ export default function Experience() {
               Nuestra Filosofía
             </h2>
             <p className="text-lg text-stone-600 leading-relaxed mb-6">
-              En Josthom creemos que el verdadero lujo es la simplicidad. No encontrarás 
-              televisores de última generación ni conexión wifi de alta velocidad. Lo que 
-              encontrarás es algo mucho más valioso: silencio, tiempo y espacio para reconectarte 
-              con lo esencial.
+              En Josthom creemos que el verdadero descanso está en la desconexión. Encontrarás 
+              un entorno natural y agreste donde el tiempo parece detenerse, rodeado por el 
+              Arroyo Sagastume y a minutos del Río Uruguay.
             </p>
             <p className="text-lg text-stone-600 leading-relaxed">
-              Nuestro compromiso es con la tierra y sus ciclos naturales. Por eso nuestros 
-              animales pastan libremente, nuestros campos se mantienen sin agroquímicos, y 
-              cada experiencia que ofrecemos está diseñada para celebrar la conexión entre 
-              el ser humano y la naturaleza.
+              Nuestro complejo se destaca por su tranquilidad y su contacto directo con la naturaleza. 
+              Cada experiencia que ofrecemos está diseñada para celebrar el descanso, la paz 
+              y la reconexión con lo esencial.
             </p>
           </motion.div>
         </div>
@@ -147,9 +145,9 @@ export default function Experience() {
             viewport={{ once: true }}
           >
             <p className="text-2xl md:text-3xl font-light leading-relaxed mb-8 italic">
-              "El campo no se explica, se vive. Y cuando lo vivís, te cambia para siempre."
+              "La naturaleza no se explica, se vive. Y cuando la vivís, te cambia para siempre."
             </p>
-            <p className="text-amber-400 tracking-wide">— Familia Josthom</p>
+            <p className="text-amber-400 tracking-wide">— Josthom Eco Resort</p>
           </motion.div>
         </div>
       </section>
