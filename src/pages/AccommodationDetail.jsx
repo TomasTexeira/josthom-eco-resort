@@ -185,14 +185,20 @@ export default function AccommodationDetail() {
             <div className="sticky top-28">
               {!showCalendar && !showBookingForm && (
                 <div className="bg-stone-50 rounded-3xl p-8 shadow-lg">
-                  {accommodation.price_per_night && (
-                    <div className="mb-6">
-                      <span className="text-3xl font-light text-stone-800">
-                        ${accommodation.price_per_night.toLocaleString()}
+                  <div className="mb-6">
+                    <div className="mb-2">
+                      <span className="text-2xl font-light text-stone-800">
+                        $180.000
                       </span>
-                      <span className="text-stone-500 ml-2">por noche</span>
+                      <span className="text-stone-500 ml-2">por noche (hasta 2 personas)</span>
                     </div>
-                  )}
+                    <div>
+                      <span className="text-2xl font-light text-stone-800">
+                        $360.000
+                      </span>
+                      <span className="text-stone-500 ml-2">por noche (3-5 personas)</span>
+                    </div>
+                  </div>
 
                   <Button 
                     onClick={() => setShowCalendar(true)}

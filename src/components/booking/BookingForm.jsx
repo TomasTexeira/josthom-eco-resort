@@ -28,6 +28,14 @@ export default function BookingForm({
   });
   const [submitted, setSubmitted] = useState(false);
 
+  // Calculate dynamic price based on number of guests
+  const calculatePrice = (numGuests, nights) => {
+    const pricePerNight = numGuests <= 2 ? 180000 : 360000;
+    return pricePerNight * nights;
+  };
+
+  const currentTotal = calculatePrice(formData.number_of_guests, bookingDetails.nights);
+
   const createBookingMutation = useMutation({
     mutationFn: (bookingData) => base44.entities.Booking.create(bookingData),
     onSuccess: () => {
@@ -47,7 +55,7 @@ export default function BookingForm({
       accommodation_name: accommodationName,
       check_in: bookingDetails.checkIn,
       check_out: bookingDetails.checkOut,
-      total_price: bookingDetails.total,
+      total_price: currentTotal,
       status: 'pending',
       source: 'web',
       ...formData
@@ -103,10 +111,15 @@ export default function BookingForm({
               {format(new Date(bookingDetails.checkOut), "dd 'de' MMMM", { locale: es })}
             </span>
           </div>
+          <div className="text-sm text-stone-600 mb-2">
+            <span>
+              ${(formData.number_of_guests <= 2 ? 180000 : 360000).toLocaleString()} x {bookingDetails.nights} {bookingDetails.nights === 1 ? 'noche' : 'noches'}
+            </span>
+          </div>
           <div className="border-t border-stone-200 pt-3 flex justify-between">
             <span className="font-semibold">Total</span>
             <span className="text-amber-700 font-semibold text-lg">
-              ${bookingDetails.total.toLocaleString()}
+              ${currentTotal.toLocaleString()}
             </span>
           </div>
         </div>
@@ -166,10 +179,14 @@ export default function BookingForm({
               id="number_of_guests"
               type="number"
               min="1"
+              max="5"
               required
               value={formData.number_of_guests}
               onChange={(e) => setFormData({ ...formData, number_of_guests: parseInt(e.target.value) })}
             />
+            <p className="text-xs text-stone-500 mt-1">
+              Capacidad máxima: 5 personas • Precio: {formData.number_of_guests <= 2 ? '$180.000' : '$360.000'} por noche
+            </p>
           </div>
 
           <div>
