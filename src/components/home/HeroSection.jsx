@@ -13,8 +13,8 @@ export default function HeroSection({ content }) {
         <img
           src={content?.image_url || "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80"}
           alt="Josthom Campo"
-          className="w-full h-full object-cover"
-        />
+          className="w-full h-full object-cover" />
+
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/50" />
       </div>
 
@@ -22,22 +22,22 @@ export default function HeroSection({ content }) {
           {/* Content */}
           <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1, ease: "easeOut" }}
-              className="max-w-4xl"
-            >
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          className="max-w-4xl">
+
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.8 }}
-                className="mb-8 w-full flex justify-center" // Se restauran las clases de centrado
-              >
-                <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
-                  alt="Josthom Eco Resort"
-                  className="h-auto max-h-48 md:max-h-64 object-contain brightness-0 invert px-6" // Clases de altura válidas y responsivas
-                />
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="mb-8 w-full flex justify-center" // Se restauran las clases de centrado
+          >
+                <img
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
+              alt="Josthom Eco Resort" className="rounded h-50 max-h-58 md:max-h-64 object-contain brightness-0 invert" />
+
+
               </motion.div>
               
               <p className="text-xl md:text-2xl text-white/80 font-light max-w-2xl mx-auto mb-10 leading-relaxed">
@@ -48,17 +48,24 @@ export default function HeroSection({ content }) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.8 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
+            className="flex flex-col sm:flex-row gap-4 justify-center">
+
             <Link to={createPageUrl("Accommodations")}>
-              <button className="bg-amber-700 hover:bg-amber-800 text-white px-10 py-4 text-base tracking-wide transition-all duration-300 rounded-md w-48">
+              <Button
+                size="lg"
+                className="bg-amber-700 hover:bg-amber-800 text-white px-10 py-6 text-base tracking-wide transition-all duration-300">
+
                 Reservar ahora
-              </button>
+              </Button>
             </Link>
             <Link to={createPageUrl("Experience")}>
-              <button className="border-2 border-white bg-transparent text-white hover:bg-white hover:text-stone-900 px-10 py-4 text-base tracking-wide transition-all duration-300 rounded-md w-48">
+              <Button
+                variant="outline"
+                size="lg"
+                className="border-white/40 text-white hover:bg-white/10 px-10 py-6 text-base tracking-wide backdrop-blur-sm">
+
                 Conocer más
-              </button>
+              </Button>
             </Link>
           </motion.div>
         </motion.div>
@@ -68,16 +75,16 @@ export default function HeroSection({ content }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2"
-        >
+          className="absolute bottom-10 left-1/2 -translate-x-1/2">
+
           <motion.div
             animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          >
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}>
+
             <ChevronDown className="w-8 h-8 text-white/60" />
           </motion.div>
         </motion.div>
       </div>
-    </section>
-  );
+    </section>);
+
 }
