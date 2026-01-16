@@ -44,7 +44,7 @@ export default function Navbar() {
             {/* Logo */}
             <Link to={createPageUrl("Home")} className="flex items-center">
               <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/9410ade64_LogoJosthomBW.png"
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
                 alt="Josthom Eco Resort"
                 className={`h-12 object-contain transition-all duration-300 ${
                   isScrolled || !isHome 
