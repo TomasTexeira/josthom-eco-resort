@@ -10,14 +10,14 @@ export default function Footer() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="lg:col-span-2">
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
+            <img
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/9410ade64_LogoJosthomBW.png"
               alt="Josthom Eco Resort"
-              className="h-32 md:h-36 object-contain brightness-0 invert mb-4"
-            />
-            <p className="text-stone-400 max-w-md leading-relaxed mb-6">
-              Eco-resort de campo donde la naturaleza, la tranquilidad y la mejor carne de pastoreo 
-              se unen para crear una experiencia única.
+              className="h-16 object-contain brightness-0 invert mb-4" />
+
+            <p className="text-stone-400 max-w-md leading-relaxed mb-6">Eco-resort de campo donde la naturaleza, la tranquilidad y los animales se unen para crear una experiencia única.
+
+
             </p>
             <div className="flex gap-4">
               <a href="#" className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-amber-700 transition-colors">
@@ -34,21 +34,21 @@ export default function Footer() {
             <h4 className="font-medium mb-6 text-amber-400">Enlaces</h4>
             <ul className="space-y-3">
               {[
-                { name: 'Alojamientos', page: 'Accommodations' },
-                { name: 'Galería', page: 'Gallery' },
-                { name: 'La Experiencia', page: 'Experience' },
-                { name: 'Ubicación', page: 'Location' },
-                { name: 'Contacto', page: 'Contact' },
-              ].map((link) => (
-                <li key={link.page}>
-                  <Link 
-                    to={createPageUrl(link.page)}
-                    className="text-stone-400 hover:text-white transition-colors"
-                  >
+              { name: 'Alojamientos', page: 'Accommodations' },
+              { name: 'Galería', page: 'Gallery' },
+              { name: 'La Experiencia', page: 'Experience' },
+              { name: 'Ubicación', page: 'Location' },
+              { name: 'Contacto', page: 'Contact' }].
+              map((link) =>
+              <li key={link.page}>
+                  <Link
+                  to={createPageUrl(link.page)}
+                  className="text-stone-400 hover:text-white transition-colors">
+
                     {link.name}
                   </Link>
                 </li>
-              ))}
+              )}
             </ul>
           </div>
 
@@ -58,7 +58,7 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3 text-stone-400">
                 <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0" />
-                <span>Ruta Provincial, Buenos Aires, Argentina</span>
+                <span className="">Arroyo Sagastume S/N, 2823 Villa Paranacito, Entre Ríos</span>
               </li>
               <li>
                 <a href="tel:+5491112345678" className="flex items-center gap-3 text-stone-400 hover:text-white transition-colors">
@@ -80,6 +80,6 @@ export default function Footer() {
           <p>© {new Date().getFullYear()} Josthom Eco-Resort. Todos los derechos reservados.</p>
         </div>
       </div>
-    </footer>
-  );
+    </footer>);
+
 }
