@@ -108,7 +108,7 @@ export default function Contact() {
               La forma más rápida de contactarnos
             </h2>
             <p className="text-green-100 mb-8 max-w-lg mx-auto">
-              Escribinos por WhatsApp y te respondemos al instante. 
+              Escribinos por WhatsApp de Lunes a Domingo de 8 a 18hs. 
               Podés consultar disponibilidad, precios y todo lo que necesites.
             </p>
             <a 

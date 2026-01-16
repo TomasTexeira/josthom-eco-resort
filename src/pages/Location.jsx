@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Car, Clock, Phone, Navigation } from 'lucide-react';
+import { MapPin, Car, MessageCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -20,19 +20,19 @@ export default function Location() {
 
   const directions = [
     {
+      icon: MapPin,
+      title: "Desde Buenos Aires (163 km)",
+      description: "Tomar Panamericana hasta Campana, luego Ruta 9 hacia Zárate. Continuar por Ruta 12 hasta Villa Paranacito. Desde allí, tomar Ruta Provincial 46 y a 12 km encontrarás el acceso a Josthom."
+    },
+    {
       icon: Car,
-      title: "Desde Buenos Aires",
-      description: "Tomá la Ruta 2 hacia Mar del Plata. A la altura del km 180, girá a la derecha por el camino de tierra señalizado. Josthom está a 5 km del desvío."
+      title: "Acceso al complejo",
+      description: "En días de lluvias intensas, el acceso puede ser únicamente en vehículos 4x4. Te recomendamos consultar las condiciones del camino antes de viajar."
     },
     {
-      icon: Clock,
-      title: "Tiempo estimado",
-      description: "Aproximadamente 2 horas y 30 minutos desde Capital Federal, dependiendo del tráfico."
-    },
-    {
-      icon: Navigation,
-      title: "GPS",
-      description: "Podés usar Google Maps o Waze buscando 'Josthom Eco-Resort'. Te llevará directo a nuestra tranquera principal."
+      icon: MessageCircle,
+      title: "¿Necesitás ayuda?",
+      description: "Si tenés dudas sobre cómo llegar, escribinos por WhatsApp y te guiamos paso a paso."
     }
   ];
 
@@ -60,7 +60,7 @@ export default function Location() {
             Ubicación
           </h1>
           <p className="text-white/80 max-w-2xl mx-auto">
-            Un rincón de tranquilidad a solo horas de la ciudad
+            A 163 km de Buenos Aires, en un entorno natural y agreste
           </p>
         </motion.div>
       </section>
@@ -109,9 +109,12 @@ export default function Location() {
                 <div>
                   <h3 className="font-medium text-stone-800 mb-2">Dirección</h3>
                   <p className="text-stone-600">
-                    Ruta Provincial 123, Km 180<br />
-                    Partido de Chascomús, Buenos Aires<br />
-                    Argentina
+                    A 12 km de Ruta Provincial 46<br />
+                    A 22 km de Villa Paranacito, Entre Ríos<br />
+                    A 163 km de Panamericana y General Paz
+                  </p>
+                  <p className="text-stone-600 mt-3 font-medium">
+                    A 10 minutos en lancha del Río Uruguay
                   </p>
                 </div>
               </div>
@@ -143,10 +146,10 @@ export default function Location() {
 
               <div className="mt-10 pt-8 border-t border-stone-200">
                 <p className="text-stone-600 mb-4">¿Necesitás ayuda para llegar?</p>
-                <a href="tel:+5491112345678">
-                  <Button className="bg-amber-700 hover:bg-amber-800 text-white">
-                    <Phone className="w-4 h-4 mr-2" />
-                    Llamanos
+                <a href="https://wa.me/5491112345678">
+                  <Button className="bg-green-600 hover:bg-green-700 text-white">
+                    <MessageCircle className="w-4 h-4 mr-2" />
+                    WhatsApp
                   </Button>
                 </a>
               </div>
@@ -165,16 +168,16 @@ export default function Location() {
             className="text-center mb-12"
           >
             <h2 className="text-3xl font-light text-stone-800 mb-4">
-              Tips para tu viaje
+              Información importante
             </h2>
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-6">
             {[
-              { title: "Mejor momento", desc: "Salí temprano para evitar el tráfico y llegar con luz del día para disfrutar tu primer atardecer." },
-              { title: "Qué traer", desc: "Ropa cómoda, protector solar, repelente y ganas de desconectarte. Nosotros nos encargamos del resto." },
-              { title: "Camino de tierra", desc: "Los últimos 5 km son de tierra. El camino está en buen estado, pero te recomendamos ir despacio." },
-              { title: "Sin señal", desc: "La señal de celular es débil. Avisá a tus contactos que vas a estar desconectado. ¡Es parte de la experiencia!" },
+              { title: "Arroyo Sagastume", desc: "El Arroyo Sagastume bordea el predio y se puede apreciar desde las cabañas. Ideal para disfrutar de la naturaleza y el paisaje fluvial." },
+              { title: "Río Uruguay", desc: "A solo 10 minutos en lancha del Río Uruguay. Punto estratégico para quienes disfrutan del río y la vida al aire libre." },
+              { title: "Villa Paranacito", desc: "A 22 km encontrarás el centro comercial con supermercados, farmacia y todos los servicios que puedas necesitar." },
+              { title: "Pet Friendly", desc: "Somos pet friendly. Tu mascota es bienvenida para disfrutar junto a vos de la naturaleza y el descanso." },
             ].map((tip, index) => (
               <motion.div
                 key={index}
