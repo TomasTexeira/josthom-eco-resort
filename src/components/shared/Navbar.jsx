@@ -40,14 +40,14 @@ export default function Navbar() {
     <>
       <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${bgClass}`}>
         <div className="max-w-7xl mx-auto px-6">
-          <div className={`flex items-center ${isHome && !isScrolled ? 'h-24 justify-center' : 'h-28 justify-between'}`}>
+          <div className={`flex items-center ${isHome && !isScrolled ? 'h-20 justify-center' : 'h-20 justify-between'}`}>
             {/* Logo - solo visible cuando hay scroll o no es Home */}
             {(isScrolled || !isHome) && (
               <Link to={createPageUrl("Home")} className="flex items-center">
                 <img 
                   src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
                   alt="Josthom Eco Resort"
-                  className="h-24 md:h-28 object-contain transition-all duration-300 brightness-0"
+                  className="h-16 md:h-18 object-contain transition-all duration-300 brightness-0"
                 />
               </Link>
             )}
