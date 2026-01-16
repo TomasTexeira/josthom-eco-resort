@@ -40,7 +40,7 @@ export default function HeroSection({ content }) {
 
               </motion.div>
               
-              <p className="text-xl md:text-2xl text-white/80 font-light max-w-2xl mx-auto mb-10 leading-relaxed">
+              <p className="text-white/80 mb-10 mx-auto text-xl font-normal leading-relaxed md:text-2xl max-w-2xl">
                 {content?.subtitle || "Descanso, naturaleza y río en un entorno de tranquilidad absoluta"}
               </p>
 
@@ -52,8 +52,8 @@ export default function HeroSection({ content }) {
 
             <Link to={createPageUrl("Accommodations")}>
               <Button
-                size="lg"
-                className="bg-amber-700 hover:bg-amber-800 text-white px-10 py-6 text-base tracking-wide transition-all duration-300">
+                size="lg" className="bg-amber-700 text-white px-10 py-6 text-base font-medium tracking-wide rounded-lg inline-flex items-center justify-center gap-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-10 hover:bg-amber-800 transition-all duration-300">
+
 
                 Reservar ahora
               </Button>
@@ -61,8 +61,8 @@ export default function HeroSection({ content }) {
             <Link to={createPageUrl("Experience")}>
               <Button
                 variant="outline"
-                size="lg"
-                className="border-white/40 text-white hover:bg-white/10 px-10 py-6 text-base tracking-wide backdrop-blur-sm">
+                size="lg" className="bg-slate-50 text-slate-900 px-10 py-6 text-base font-medium tracking-wide rounded-lg inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-sm hover:text-accent-foreground h-10 border-white/40 hover:bg-white/10 backdrop-blur-sm">
+
 
                 Conocer más
               </Button>
