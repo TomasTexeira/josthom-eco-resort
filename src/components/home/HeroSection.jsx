@@ -62,7 +62,7 @@ export default function HeroSection({ content }) {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-white/40 text-white hover:bg-white/10 px-10 py-6 text-base tracking-wide backdrop-blur-sm"
+                className="border-2 border-white text-white hover:bg-white hover:text-stone-900 px-10 py-6 text-base tracking-wide transition-all duration-300"
               >
                 Conocer más
               </Button>
