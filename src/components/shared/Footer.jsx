@@ -13,7 +13,7 @@ export default function Footer() {
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
               alt="Josthom Eco Resort"
-              className="h-16 object-contain brightness-0 invert mb-4"
+              className="h-24 object-contain brightness-0 invert mb-4"
             />
             <p className="text-stone-400 max-w-md leading-relaxed mb-6">
               Eco-resort de campo donde la naturaleza, la tranquilidad y la mejor carne de pastoreo 

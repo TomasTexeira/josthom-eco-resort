@@ -26,18 +26,18 @@ export default function HeroSection({ content }) {
           transition={{ duration: 1, ease: "easeOut" }}
           className="max-w-4xl"
         >
-          <motion.p
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className="text-amber-100/90 tracking-[0.3em] uppercase text-sm mb-6 font-light"
+            className="mb-8"
           >
-            Eco-Resort de Campo
-          </motion.p>
-          
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-light text-white mb-6 tracking-tight">
-            {content?.title || "Josthom"}
-          </h1>
+            <img 
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
+              alt="Josthom Eco Resort"
+              className="h-32 md:h-40 lg:h-48 object-contain mx-auto brightness-0 invert"
+            />
+          </motion.div>
           
           <p className="text-xl md:text-2xl text-white/80 font-light max-w-2xl mx-auto mb-10 leading-relaxed">
             {content?.subtitle || "Descanso, naturaleza y río en un entorno de tranquilidad absoluta"}
