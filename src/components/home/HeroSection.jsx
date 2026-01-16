@@ -52,16 +52,14 @@ export default function HeroSection({ content }) {
           >
             <Link to={createPageUrl("Accommodations")}>
               <Button 
-                size="lg" 
-                className="bg-amber-700 hover:bg-amber-800 text-white px-10 py-6 text-base tracking-wide transition-all duration-300"
+                className="bg-amber-700 hover:bg-amber-800 text-white px-10 py-6 text-base tracking-wide transition-all duration-300 h-auto"
               >
                 Reservar ahora
               </Button>
             </Link>
             <Link to={createPageUrl("Experience")}>
               <Button 
-                size="lg"
-                className="border-2 border-white bg-transparent text-white hover:bg-white hover:text-stone-900 px-10 py-6 text-base tracking-wide transition-all duration-300"
+                className="border-2 border-white bg-transparent text-white hover:bg-white hover:text-stone-900 px-10 py-6 text-base tracking-wide transition-all duration-300 h-auto"
               >
                 Conocer más
               </Button>
