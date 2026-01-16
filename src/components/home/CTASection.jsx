@@ -11,8 +11,8 @@ export default function CTASection() {
         <img
           src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1920&q=80"
           alt="Paisaje Josthom"
-          className="w-full h-full object-cover"
-        />
+          className="w-full h-full object-cover" />
+
         <div className="absolute inset-0 bg-stone-900/60" />
       </div>
 
@@ -20,34 +20,34 @@ export default function CTASection() {
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="relative z-10 max-w-4xl mx-auto text-center px-6"
-      >
-        <h2 className="text-4xl md:text-5xl lg:text-6xl font-light text-white mb-6">
-          Tu escape al campo te espera
+        className="relative z-10 max-w-4xl mx-auto text-center px-6">
+
+        <h2 className="text-white mb-6 text-4xl font-normal md:text-5xl lg:text-6xl">Tu escape al campo te espera
+
         </h2>
         <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
           Reserva ahora y vive la experiencia Josthom. Naturaleza, tranquilidad y la mejor carne de pastoreo.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to={createPageUrl("Accommodations")}>
-            <Button 
+            <Button
               size="lg"
-              className="bg-amber-600 hover:bg-amber-700 text-white px-12 py-6 text-lg"
-            >
+              className="bg-amber-600 hover:bg-amber-700 text-white px-12 py-6 text-lg">
+
               Reservar ahora
             </Button>
           </Link>
           <Link to={createPageUrl("Contact")}>
-            <Button 
+            <Button
               variant="outline"
-              size="lg"
-              className="border-white/40 text-white hover:bg-white/10 px-12 py-6 text-lg"
-            >
+              size="lg" className="bg-slate-50 text-slate-900 px-12 py-6 text-lg font-medium rounded-lg inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-sm hover:text-accent-foreground h-10 border-white/40 hover:bg-white/10">
+
+
               Contactarnos
             </Button>
           </Link>
         </div>
       </motion.div>
-    </section>
-  );
+    </section>);
+
 }
