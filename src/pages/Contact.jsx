@@ -14,7 +14,7 @@ export default function Contact() {
       title: "WhatsApp",
       value: "+54 9 11 1234-5678",
       link: "https://wa.me/5491112345678",
-      description: "Respuesta inmediata",
+      description: "Lun a Dom 8 a 18hs",
       color: "bg-green-50 text-green-700"
     },
     {
@@ -22,7 +22,7 @@ export default function Contact() {
       title: "Email",
       value: "info@josthom.com",
       link: "mailto:info@josthom.com",
-      description: "Te respondemos en 24hs",
+      description: "Te respondemos a la brevedad",
       color: "bg-blue-50 text-blue-700"
     },
     {
@@ -30,7 +30,7 @@ export default function Contact() {
       title: "Teléfono",
       value: "+54 9 11 1234-5678",
       link: "tel:+5491112345678",
-      description: "Lunes a viernes 9 a 18hs",
+      description: "Lun a Dom 8 a 18hs",
       color: "bg-amber-50 text-amber-700"
     }
   ];
@@ -194,7 +194,7 @@ export default function Contact() {
               </h2>
               <p className="text-stone-600 mb-8 leading-relaxed">
                 Estamos para ayudarte. Ya sea que quieras consultar disponibilidad, 
-                conocer más sobre nuestras cabañas o simplemente saber más sobre 
+                conocer más sobre nuestras 6 cabañas o simplemente saber más sobre 
                 la experiencia Josthom, escribinos sin compromiso.
               </p>
 
@@ -205,7 +205,8 @@ export default function Contact() {
                   </div>
                   <div>
                     <h3 className="font-medium text-stone-800">Horario de atención</h3>
-                    <p className="text-stone-500 text-sm">Lunes a viernes de 9 a 18hs</p>
+                    <p className="text-stone-500 text-sm">Lunes a Domingo de 8 a 18hs</p>
+                    <p className="text-stone-500 text-sm mt-1">Check-in: 14:00hs • Check-out: 18:00hs</p>
                   </div>
                 </div>
 
@@ -216,9 +217,11 @@ export default function Contact() {
                   <div>
                     <h3 className="font-medium text-stone-800">Ubicación</h3>
                     <p className="text-stone-500 text-sm">
-                      Ruta Provincial 123, Km 180<br />
-                      Buenos Aires, Argentina
+                      A 12 km de Ruta Provincial 46<br />
+                      A 22 km de Villa Paranacito<br />
+                      A 163 km de Panamericana y General Paz
                     </p>
+                    <p className="text-stone-500 text-sm mt-2">🐾 Somos pet friendly</p>
                     <Link 
                       to={createPageUrl("Location")}
                       className="text-amber-700 text-sm hover:underline inline-block mt-1"
