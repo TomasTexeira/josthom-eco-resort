@@ -47,7 +47,7 @@ export default function Navbar() {
                 <img 
                   src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
                   alt="Josthom Eco Resort"
-                  className="h-20 md:h-24 object-contain transition-all duration-300 brightness-0"
+                  className="h-24 md:h-28 object-contain transition-all duration-300 brightness-0"
                 />
               </Link>
             )}
