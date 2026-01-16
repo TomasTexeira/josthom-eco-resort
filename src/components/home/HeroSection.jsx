@@ -60,9 +60,8 @@ export default function HeroSection({ content }) {
             </Link>
             <Link to={createPageUrl("Experience")}>
               <Button 
-                variant="outline" 
                 size="lg"
-                className="border-2 border-white text-white hover:bg-white hover:text-stone-900 px-10 py-6 text-base tracking-wide transition-all duration-300"
+                className="border-2 border-white bg-transparent text-white hover:bg-white hover:text-stone-900 px-10 py-6 text-base tracking-wide transition-all duration-300"
               >
                 Conocer más
               </Button>
