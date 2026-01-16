@@ -34,13 +34,13 @@ export default function HeroSection({ content }) {
             className="mb-8 w-full flex justify-center" // Se restauran las clases de centrado
           >
                 <img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/1f46ff395_image.png"
-              alt="Josthom Eco Resort" className="h-auto max-h-64 md:max-h-96 object-contain brightness-0 invert px-6" />
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
+              alt="Josthom Eco Resort" className="rounded h-50 max-h-58 md:max-h-64 object-contain brightness-0 invert" />
 
 
               </motion.div>
               
-              <p className="text-white/80 mb-10 mx-auto text-xl font-normal leading-relaxed md:text-2xl max-w-2xl">
+              <p className="text-white/80 mb-10 mx-auto text-xl font-medium leading-relaxed md:text-2xl max-w-2xl">
                 {content?.subtitle || "Descanso, naturaleza y río en un entorno de tranquilidad absoluta"}
               </p>
 
