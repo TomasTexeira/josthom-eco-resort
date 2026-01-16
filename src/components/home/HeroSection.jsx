@@ -35,7 +35,7 @@ export default function HeroSection({ content }) {
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
               alt="Josthom Eco Resort"
-              className="h-32 md:h-40 lg:h-48 object-contain mx-auto brightness-0 invert"
+              className="h-40 md:h-56 lg:h-64 object-contain mx-auto brightness-0 invert"
             />
           </motion.div>
           
