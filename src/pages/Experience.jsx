@@ -10,32 +10,32 @@ export default function Experience() {
     {
       icon: Waves,
       title: "Río Uruguay",
-      description: "A solo 10 minutos en lancha del Río Uruguay, tenés acceso directo a uno de los ríos más hermosos de la región. Navegá, pescá o simplemente disfrutá del paisaje fluvial."
+      description: "A solo 10 minutos en lancha del Río Uruguay, tenés acceso directo a uno de los ríos más hermosos de la región. Cada cabaña cuenta con muelle propio para amarrar tu embarcación. Navegá, pescá o simplemente disfrutá del paisaje fluvial."
     },
     {
       icon: TreePine,
       title: "Arroyo Sagastume",
-      description: "El Arroyo Sagastume bordea nuestro predio y se puede apreciar desde las cabañas. Sus aguas tranquilas y la vegetación de ribera crean un ambiente de paz absoluta."
+      description: "El Arroyo Sagastume bordea todo nuestro predio y se aprecia desde las cabañas. Con 200 metros de costa, sus aguas tranquilas y la vegetación de ribera crean un ambiente de paz absoluta. Ideal para la pesca desde la costa."
     },
     {
       icon: Sunrise,
-      title: "Atardeceres Infinitos",
-      description: "Sin edificios ni luces artificiales, cada atardecer es un espectáculo único. Los colores del cielo se extienden hasta donde alcanza la vista, pintando el agua de tonos naranjas, rosas y dorados."
+      title: "Instalaciones Deportivas",
+      description: "Contamos con cancha de fútbol, cancha de beach vóley y gimnasio totalmente equipado con vista a la laguna interna. Mantenete activo mientras disfrutás del entorno natural."
     },
     {
       icon: Bird,
-      title: "Fauna Silvestre",
-      description: "Carpinchos, liebres y cientos de especies de aves habitan la zona. Aquí la vida silvestre convive en armonía con el entorno, creando un ecosistema único."
+      title: "Fauna del Predio",
+      description: "Nuestro amplio campo rural alberga vacas, caballos, ñandú, pavos reales, gallinas y conejos. El predio cuenta con sector de granja y espacios abiertos donde la naturaleza se vive de cerca."
     },
     {
       icon: Palmtree,
       title: "Piscinas e Hidromasaje",
-      description: "Disfrutá del uso libre de nuestras piscinas y el hidromasaje con vista a la laguna interna. El lugar perfecto para relajarte después de un día al aire libre."
+      description: "Disfrutá del uso libre de nuestras piscinas y el hidromasaje con vista a la laguna interna. El lugar perfecto para relajarte después de un día al aire libre. (Horario: 8 a 20 hs)"
     },
     {
       icon: Moon,
-      title: "Noches Estrelladas",
-      description: "Lejos de la contaminación lumínica, nuestros cielos nocturnos revelan miles de estrellas. Ideal para quienes buscan reconectarse con el universo y la inmensidad del cosmos."
+      title: "Conectividad Starlink",
+      description: "Mantenete conectado con Wifi de alta calidad mediante tecnología Starlink en todas las cabañas y espacios comunes. Equilibrio perfecto entre naturaleza y conectividad."
     }
   ];
 
@@ -83,12 +83,13 @@ export default function Experience() {
             <p className="text-lg text-stone-600 leading-relaxed mb-6">
               En Josthom creemos que el verdadero descanso está en la desconexión. Encontrarás 
               un entorno natural y agreste donde el tiempo parece detenerse, rodeado por el 
-              Arroyo Sagastume y a minutos del Río Uruguay.
+              Arroyo Sagastume y a solo 10 minutos en lancha del Río Uruguay.
             </p>
             <p className="text-lg text-stone-600 leading-relaxed">
-              Nuestro complejo se destaca por su tranquilidad y su contacto directo con la naturaleza. 
-              Cada experiencia que ofrecemos está diseñada para celebrar el descanso, la paz 
-              y la reconexión con lo esencial.
+              Nuestro complejo cuenta con 6 cabañas iguales, todas con muelle propio y equipadas 
+              para tu máximo confort. Ofrecemos instalaciones deportivas, gimnasio, kayaks, bote 
+              lagunero, y un entorno único donde conviven animales de granja en un predio de campo 
+              auténtico con 200 metros de costa sobre el arroyo.
             </p>
           </motion.div>
         </div>
