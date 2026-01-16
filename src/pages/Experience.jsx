@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Waves, TreePine, CircleDot, Bird, Palmtree, Moon } from 'lucide-react';
+import { Waves, TreePine, CircleDot, Bird, Palmtree, Wifi } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -33,7 +33,7 @@ export default function Experience() {
       description: "Disfrutá del uso libre de nuestras piscinas y el hidromasaje con vista a la laguna interna. El lugar perfecto para relajarte después de un día al aire libre. (Horario: 8 a 20 hs)"
     },
     {
-      icon: Moon,
+      icon: Wifi,
       title: "Conectividad Starlink",
       description: "Mantenete conectado con Wifi de alta calidad mediante tecnología Starlink en todas las cabañas y espacios comunes. Equilibrio perfecto entre naturaleza y conectividad."
     }
