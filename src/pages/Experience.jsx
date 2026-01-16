@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Waves, TreePine, Sunrise, Bird, Palmtree, Moon } from 'lucide-react';
+import { Waves, TreePine, CircleDot, Bird, Palmtree, Moon } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -18,7 +18,7 @@ export default function Experience() {
       description: "El Arroyo Sagastume bordea todo nuestro predio y se aprecia desde las cabañas. Con 200 metros de costa, sus aguas tranquilas y la vegetación de ribera crean un ambiente de paz absoluta. Ideal para la pesca desde la costa."
     },
     {
-      icon: Sunrise,
+      icon: Football,
       title: "Instalaciones Deportivas",
       description: "Contamos con cancha de fútbol, cancha de beach vóley y gimnasio totalmente equipado con vista a la laguna interna. Mantenete activo mientras disfrutás del entorno natural."
     },
