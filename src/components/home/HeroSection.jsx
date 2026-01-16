@@ -51,18 +51,14 @@ export default function HeroSection({ content }) {
             className="flex flex-col sm:flex-row gap-4 justify-center"
           >
             <Link to={createPageUrl("Accommodations")}>
-              <Button 
-                className="bg-amber-700 hover:bg-amber-800 text-white px-10 py-6 text-base tracking-wide transition-all duration-300 h-auto"
-              >
+              <button className="bg-amber-700 hover:bg-amber-800 text-white px-10 py-6 text-base tracking-wide transition-all duration-300 rounded-md">
                 Reservar ahora
-              </Button>
+              </button>
             </Link>
             <Link to={createPageUrl("Experience")}>
-              <Button 
-                className="border-2 border-white bg-transparent text-white hover:bg-white hover:text-stone-900 px-10 py-6 text-base tracking-wide transition-all duration-300 h-auto"
-              >
+              <button className="border-2 border-white bg-transparent text-white hover:bg-white hover:text-stone-900 px-10 py-6 text-base tracking-wide transition-all duration-300 rounded-md">
                 Conocer más
-              </Button>
+              </button>
             </Link>
           </motion.div>
         </motion.div>
