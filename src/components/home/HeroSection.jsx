@@ -18,30 +18,31 @@ export default function HeroSection({ content }) {
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/50" />
       </div>
 
-      {/* Content */}
-      <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="max-w-4xl"
-        >
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className=""
-          >
-            <img 
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
-              alt="Josthom Eco Resort"
-              className="h-50 md:h-sm lg:h-sm mx-auto brightness-0 invert"
-            />
-          </motion.div>
-          
-          <p className="text-xl md:text-2xl text-white/80 font-light max-w-2xl mx-auto mb-10 leading-relaxed">
-            {content?.subtitle || "Descanso, naturaleza y río en un entorno de tranquilidad absoluta"}
-          </p>
+      
+          {/* Content */}
+          <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, ease: "easeOut" }}
+              className="max-w-4xl"
+            >
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.3, duration: 0.8 }}
+                className="mb-8 w-full flex justify-center" // Se restauran las clases de centrado
+              >
+                <img 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
+                  alt="Josthom Eco Resort"
+                  className="h-auto max-h-48 md:max-h-64 object-contain brightness-0 invert px-6" // Clases de altura válidas y responsivas
+                />
+              </motion.div>
+              
+              <p className="text-xl md:text-2xl text-white/80 font-light max-w-2xl mx-auto mb-10 leading-relaxed">
+                {content?.subtitle || "Descanso, naturaleza y río en un entorno de tranquilidad absoluta"}
+              </p>
 
           <motion.div
             initial={{ opacity: 0, y: 20 }}
