@@ -34,8 +34,8 @@ export default function HeroSection({ content }) {
             className="mb-8 w-full flex justify-center" // Se restauran las clases de centrado
           >
                 <img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
-              alt="Josthom Eco Resort" className="rounded h-50 max-h-58 md:max-h-64 object-contain brightness-0 invert" />
+              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/1f46ff395_image.png"
+              alt="Josthom Eco Resort" className="h-auto max-h-48 md:max-h-64 object-contain brightness-0 invert" />
 
 
               </motion.div>
