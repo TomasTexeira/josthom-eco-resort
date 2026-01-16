@@ -42,8 +42,16 @@ export default function Navbar() {
         <div className="max-w-7xl mx-auto px-6">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
-            <Link to={createPageUrl("Home")} className={`text-2xl font-light tracking-wider ${textClass}`}>
-              JOSTHOM
+            <Link to={createPageUrl("Home")} className="flex items-center">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/9410ade64_LogoJosthomBW.png"
+                alt="Josthom Eco Resort"
+                className={`h-12 object-contain transition-all duration-300 ${
+                  isScrolled || !isHome 
+                    ? 'brightness-0' 
+                    : 'brightness-0 invert'
+                }`}
+              />
             </Link>
 
             {/* Desktop Navigation */}
