@@ -30,12 +30,12 @@ export default function HeroSection({ content }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className="mb-8"
+            className="mb-8 w-full flex justify-center"
           >
             <img 
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
               alt="Josthom Eco Resort"
-              className="h-64 md:h-80 lg:h-96 object-contain mx-auto brightness-0 invert"
+              className="w-full max-w-3xl md:max-w-4xl lg:max-w-5xl h-auto object-contain brightness-0 invert px-6"
             />
           </motion.div>
           
