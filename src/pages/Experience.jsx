@@ -18,7 +18,7 @@ export default function Experience() {
       description: "El Arroyo Sagastume bordea todo nuestro predio y se aprecia desde las cabañas. Con 200 metros de costa, sus aguas tranquilas y la vegetación de ribera crean un ambiente de paz absoluta. Ideal para la pesca desde la costa."
     },
     {
-      icon: Football,
+      icon: CircleDot,
       title: "Instalaciones Deportivas",
       description: "Contamos con cancha de fútbol, cancha de beach vóley y gimnasio totalmente equipado con vista a la laguna interna. Mantenete activo mientras disfrutás del entorno natural."
     },
