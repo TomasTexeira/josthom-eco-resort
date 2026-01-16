@@ -6,13 +6,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
   Users, Bed, Bath, ExternalLink, Check, 
-  ChevronLeft, ChevronRight, X, ArrowLeft 
+  ChevronLeft, ChevronRight, X, ArrowLeft, Calendar 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import AvailabilityCalendar from '@/components/booking/AvailabilityCalendar';
+import BookingForm from '@/components/booking/BookingForm';
 
 export default function AccommodationDetail() {
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [bookingDetails, setBookingDetails] = useState(null);
+  const [showBookingForm, setShowBookingForm] = useState(false);
   const urlParams = new URLSearchParams(window.location.search);
   const id = urlParams.get('id');
 
@@ -54,6 +59,24 @@ export default function AccommodationDetail() {
 
   const prevImage = () => {
     setSelectedImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+  };
+
+  const handleBookingRequest = (details) => {
+    setBookingDetails(details);
+    setShowCalendar(false);
+    setShowBookingForm(true);
+  };
+
+  const handleBookingSuccess = () => {
+    setShowBookingForm(false);
+    setBookingDetails(null);
+    // Could redirect to a confirmation page or show success message
+  };
+
+  const handleCancelBooking = () => {
+    setShowBookingForm(false);
+    setBookingDetails(null);
+    setShowCalendar(false);
   };
 
   return (
@@ -159,34 +182,91 @@ export default function AccommodationDetail() {
 
           {/* Booking Card */}
           <div className="lg:col-span-1">
-            <div className="sticky top-28 bg-stone-50 rounded-3xl p-8">
-              {accommodation.price_per_night && (
-                <div className="mb-6">
-                  <span className="text-3xl font-light text-stone-800">
-                    ${accommodation.price_per_night.toLocaleString()}
-                  </span>
-                  <span className="text-stone-500 ml-2">por noche</span>
+            <div className="sticky top-28">
+              {!showCalendar && !showBookingForm && (
+                <div className="bg-stone-50 rounded-3xl p-8 shadow-lg">
+                  {accommodation.price_per_night && (
+                    <div className="mb-6">
+                      <span className="text-3xl font-light text-stone-800">
+                        ${accommodation.price_per_night.toLocaleString()}
+                      </span>
+                      <span className="text-stone-500 ml-2">por noche</span>
+                    </div>
+                  )}
+
+                  <Button 
+                    onClick={() => setShowCalendar(true)}
+                    className="w-full bg-amber-700 hover:bg-amber-800 text-white py-6 text-lg mb-3"
+                  >
+                    <Calendar className="w-5 h-5 mr-2" />
+                    Ver disponibilidad
+                  </Button>
+
+                  {accommodation.booking_url && (
+                    <a href={accommodation.booking_url} target="_blank" rel="noopener noreferrer">
+                      <Button 
+                        variant="outline"
+                        className="w-full border-stone-300 py-6 text-base mb-3"
+                      >
+                        Reservar en plataforma externa
+                        <ExternalLink className="w-4 h-4 ml-2" />
+                      </Button>
+                    </a>
+                  )}
+
+                  <Link to={createPageUrl("Contact")}>
+                    <Button 
+                      variant="ghost"
+                      className="w-full text-stone-600 hover:text-stone-800"
+                    >
+                      Contactar por WhatsApp
+                    </Button>
+                  </Link>
+
+                  <p className="text-center text-sm text-stone-500 mt-4">
+                    Reserva directa • Sin intermediarios
+                  </p>
                 </div>
               )}
 
-              {accommodation.booking_url ? (
-                <a href={accommodation.booking_url} target="_blank" rel="noopener noreferrer">
-                  <Button className="w-full bg-amber-700 hover:bg-amber-800 text-white py-6 text-lg mb-4">
-                    Reservar ahora
-                    <ExternalLink className="w-5 h-5 ml-2" />
+              {showCalendar && !showBookingForm && (
+                <div>
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowCalendar(false)}
+                    className="mb-4 text-stone-600 hover:text-stone-800"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Volver
                   </Button>
-                </a>
-              ) : (
-                <Link to={createPageUrl("Contact")}>
-                  <Button className="w-full bg-amber-700 hover:bg-amber-800 text-white py-6 text-lg mb-4">
-                    Consultar disponibilidad
-                  </Button>
-                </Link>
+                  <AvailabilityCalendar
+                    accommodationId={accommodation.id}
+                    accommodationName={accommodation.name}
+                    pricePerNight={accommodation.price_per_night}
+                    onBookingRequest={handleBookingRequest}
+                  />
+                </div>
               )}
 
-              <p className="text-center text-sm text-stone-500">
-                Reserva directa • Sin intermediarios
-              </p>
+              {showBookingForm && (
+                <div>
+                  <Button
+                    variant="ghost"
+                    onClick={handleCancelBooking}
+                    className="mb-4 text-stone-600 hover:text-stone-800"
+                  >
+                    <ArrowLeft className="w-4 h-4 mr-2" />
+                    Volver al calendario
+                  </Button>
+                  <BookingForm
+                    accommodationId={accommodation.id}
+                    accommodationName={accommodation.name}
+                    bookingDetails={bookingDetails}
+                    onSuccess={handleBookingSuccess}
+                    onCancel={handleCancelBooking}
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -1,21 +1,21 @@
-import Home from './pages/Home';
-import Accommodations from './pages/Accommodations';
 import AccommodationDetail from './pages/AccommodationDetail';
-import Gallery from './pages/Gallery';
-import Experience from './pages/Experience';
-import Location from './pages/Location';
+import Accommodations from './pages/Accommodations';
 import Contact from './pages/Contact';
+import Experience from './pages/Experience';
+import Gallery from './pages/Gallery';
+import Home from './pages/Home';
+import Location from './pages/Location';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Home": Home,
-    "Accommodations": Accommodations,
     "AccommodationDetail": AccommodationDetail,
-    "Gallery": Gallery,
-    "Experience": Experience,
-    "Location": Location,
+    "Accommodations": Accommodations,
     "Contact": Contact,
+    "Experience": Experience,
+    "Gallery": Gallery,
+    "Home": Home,
+    "Location": Location,
 }
 
 export const pagesConfig = {

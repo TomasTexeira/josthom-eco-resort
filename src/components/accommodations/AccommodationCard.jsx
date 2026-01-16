@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Bed, Bath, ExternalLink } from 'lucide-react';
+import { Users, Bed, Bath, Calendar } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
@@ -82,20 +82,12 @@ export default function AccommodationCard({ accommodation, index }) {
               Ver detalles
             </Button>
           </Link>
-          {accommodation.booking_url ? (
-            <a href={accommodation.booking_url} target="_blank" rel="noopener noreferrer" className="flex-1">
-              <Button className="w-full bg-amber-700 hover:bg-amber-800 text-white">
-                Reservar
-                <ExternalLink className="w-4 h-4 ml-2" />
-              </Button>
-            </a>
-          ) : (
-            <Link to={createPageUrl("Contact")} className="flex-1">
-              <Button className="w-full bg-amber-700 hover:bg-amber-800 text-white">
-                Consultar
-              </Button>
-            </Link>
-          )}
+          <Link to={`${createPageUrl("AccommodationDetail")}?id=${accommodation.id}`} className="flex-1">
+            <Button className="w-full bg-amber-700 hover:bg-amber-800 text-white">
+              <Calendar className="w-4 h-4 mr-2" />
+              Reservar
+            </Button>
+          </Link>
         </div>
       </div>
     </motion.div>
