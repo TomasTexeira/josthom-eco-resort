@@ -27,12 +27,7 @@ export default function HeroSection({ content }) {
     initial={{ opacity: 0, y: 30 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 1, ease: "easeOut" }}
-    className="
-      max-w-4xl w-full
-      -translate-y-10
-      md:-translate-y-14
-      lg:-translate-y-16
-    "
+    className="max-w-4xl w-full -translate-y-6 md:-translate-y-10"
   >
     {/* LOGO */}
     <motion.div
@@ -42,19 +37,19 @@ export default function HeroSection({ content }) {
       className="mb-8 w-full flex justify-center"
     >
       <img
-        src="https://rsqsoyrmqbnxqqxsauxk.supabase.co/storage/v1/object/public/Fotos%20josthom/LogoJosthomVect.png"
-        alt="Josthom Eco Resort"
-        className="
-          object-contain brightness-0 invert
-          w-[280px]
-          sm:w-[360px]
-          md:w-[460px]
-          lg:w-[560px]
-          xl:w-[680px]
-          2xl:w-[820px]
-          h-auto
-        "
-      />
+  src="https://rsqsoyrmqbnxqqxsauxk.supabase.co/storage/v1/object/public/Fotos%20josthom/LogoJosthomVect.png"
+  alt="Josthom Eco Resort"
+  className="
+    object-contain brightness-0 invert
+    w-[240px]
+    sm:w-[320px]
+    md:w-[420px]
+    lg:w-[520px]
+    xl:w-[600px]
+    max-w-[90vw]
+    h-auto
+  "
+/>
     </motion.div>
 
     <p className="text-white/80 mb-10 mx-auto text-xl font-medium leading-relaxed md:text-2xl max-w-2xl">
