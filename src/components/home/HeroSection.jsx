@@ -43,7 +43,7 @@ export default function HeroSection({ content }) {
 
               </motion.div>
               
-              <p className="text-white/80 mb-10 mx-auto text-xl font-medium leading-relaxed md:text-2xl max-w-2xl">
+              <p className="text-white/80 mb-10 mx-auto text-xl font-medium leading-relaxed md:text-2xl max-w-2xl mt-8">
                 {content?.subtitle || "Descanso, naturaleza y río en un entorno de tranquilidad absoluta"}
               </p>
 
