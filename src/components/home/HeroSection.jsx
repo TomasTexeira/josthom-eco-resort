@@ -43,9 +43,9 @@ export default function HeroSection({ content }) {
       brightness-0 invert
       h-24
       md:h-28
-      lg:h-32
-      xl:h-36
-      2xl:h-40
+      lg:h-56
+      xl:h-56
+      2xl:h-60
     "
   />
 </motion.div>
