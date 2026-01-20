@@ -43,9 +43,9 @@ export default function HeroSection({ content }) {
     object-contain brightness-0 invert
     w-[240px]
     sm:w-[320px]
-    md:w-[320px]
-    lg:w-[320px]
-    xl:w-[32opx]
+    md:w-[350px]
+    lg:w-[350px]
+    xl:w-[350px]
     max-w-[90vw]
     h-auto
   "
