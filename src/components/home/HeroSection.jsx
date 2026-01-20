@@ -34,7 +34,7 @@ export default function HeroSection({ content }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className="mb-8 w-full flex justify-center" // Se restauran las clases de centrado
+            className="mb-8 w-full flex justify-center -mt-20"
           >
                 <img
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
