@@ -52,10 +52,6 @@ export default function HeroSection({ content }) {
 />
     </motion.div>
 
-    <p className="text-white/80 mb-10 mx-auto text-xl font-semibold leading-relaxed md:text-2xl max-w-2xl">
-      {content?.subtitle || "Descanso, naturaleza y río en un entorno de tranquilidad absoluta"}
-    </p>
-
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
