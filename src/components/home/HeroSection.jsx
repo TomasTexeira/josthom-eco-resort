@@ -13,7 +13,10 @@ export default function HeroSection({ content }) {
         <img
           src={content?.image_url || "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/e3f62c4c0_liftapp1.jpg"}
           alt="Josthom Campo"
-          className="w-full h-full object-cover" />
+          className="w-full h-full object-cover"
+          loading="eager"
+          decoding="async"
+          style={{ imageRendering: 'auto' }} />
 
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/50" />
       </div>
