@@ -51,19 +51,21 @@ export default function HeroSection({ content }) {
             className="flex flex-col sm:flex-row gap-4 justify-center">
 
             <Link to={createPageUrl("Accommodations")}>
-              <Button
-                size="lg" className="bg-amber-700 text-white px-10 py-6 text-base font-medium tracking-wide rounded-lg inline-flex items-center justify-center gap-2 whitespace-nowrap focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow h-10 hover:bg-amber-800 transition-all duration-300 ">
-
-
-                Reservar ahora
-              </Button>
+             <Button
+  size="lg"
+  className="bg-amber-700 text-white px-10 shadow hover:bg-amber-800 transition-all duration-300"
+>
+  Reservar ahora
+</Button>
             </Link>
             <Link to={createPageUrl("Experience")}>
-              <Button
-                variant="outline"
-                size="lg" className="shadow-sm bg-slate-50 text-slate-900 px-10 py-6 text-base font-medium tracking-wide rounded-lg inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:text-accent-foreground h-10 hover:bg-white/10 backdrop-blur-sm">
-                Conocer más
-              </Button>
+             <Button
+  variant="outline"
+  size="lg"
+  className="px-10 shadow-sm bg-slate-50 text-slate-900 hover:bg-white/10 backdrop-blur-sm"
+>
+  Conocer más
+</Button>
             </Link>
           </motion.div>
         </motion.div>
