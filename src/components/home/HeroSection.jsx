@@ -42,7 +42,7 @@ export default function HeroSection({ content }) {
       object-contain
       brightness-0 invert
       h-24
-      md:h-28
+      md:h-56
       lg:h-56
       xl:h-56
       2xl:h-60
