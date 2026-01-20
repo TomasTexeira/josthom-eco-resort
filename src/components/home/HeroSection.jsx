@@ -14,7 +14,7 @@ export default function HeroSection({ content }) {
             content?.image_url ||
             "https://rsqsoyrmqbnxqqxsauxk.supabase.co/storage/v1/object/public/Fotos%20josthom/liftapp.jpeg"
           }
-          alt=""
+          alt="Josthom background"
           className="w-full h-full object-cover object-center"
           loading="eager"
           decoding="async"
