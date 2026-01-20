@@ -41,11 +41,13 @@ export default function HeroSection({ content }) {
     className="
       object-contain
       brightness-0 invert
-      h-24
-      md:h-56
-      lg:h-56
-      xl:h-56
-      2xl:h-60
+      w-[260px]
+      sm:w-[320px]
+      md:w-[420px]
+      lg:w-[560px]
+      xl:w-[680px]
+      2xl:w-[820px]
+      h-auto
     "
   />
 </motion.div>
