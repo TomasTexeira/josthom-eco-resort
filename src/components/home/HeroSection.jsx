@@ -29,18 +29,26 @@ export default function HeroSection({ content }) {
           transition={{ duration: 1, ease: "easeOut" }}
           className="max-w-4xl">
 
-              <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="mb-8 w-full flex justify-center" // Se restauran las clases de centrado
-          >
-                <img
-              src="https://rsqsoyrmqbnxqqxsauxk.supabase.co/storage/v1/object/public/Fotos%20josthom/LogoJosthomVect.png"
-              alt="Josthom Eco Resort" className="rounded h-50 max-h-58 md:max-h-64 object-contain brightness-0 invert" />
-
-
-              </motion.div>
+          <motion.div
+  initial={{ opacity: 0 }}
+  animate={{ opacity: 1 }}
+  transition={{ delay: 0.3, duration: 0.8 }}
+  className="mb-8 w-full flex justify-center"
+>
+  <img
+    src="https://rsqsoyrmqbnxqqxsauxk.supabase.co/storage/v1/object/public/Fotos%20josthom/LogoJosthomVect.png"
+    alt="Josthom Eco Resort"
+    className="
+      object-contain
+      brightness-0 invert
+      h-24
+      md:h-28
+      lg:h-32
+      xl:h-36
+      2xl:h-40
+    "
+  />
+</motion.div>
               
               <p className="text-white/80 mb-10 mx-auto text-xl font-medium leading-relaxed md:text-2xl max-w-2xl">
                 {content?.subtitle || "Descanso, naturaleza y río en un entorno de tranquilidad absoluta"}
