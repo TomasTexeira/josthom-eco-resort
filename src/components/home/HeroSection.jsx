@@ -45,7 +45,7 @@ export default function HeroSection({ content }) {
       sm:w-[320px]
       md:w-[420px]
       lg:w-[420px]
-      xl:w-[680px]
+      xl:w-[420px]
       2xl:w-[820px]
       h-auto
     "
