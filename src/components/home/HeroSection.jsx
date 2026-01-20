@@ -34,7 +34,7 @@ export default function HeroSection({ content }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.3, duration: 0.8 }}
-      className="mb-10 md:mb-6 w-full flex justify-center -translate-y-4 md:-translate-y-6 lg:-translate-y-8"
+      className="mb-10 md:mb-7 w-full flex justify-center -translate-y-4 md:-translate-y-6 lg:-translate-y-8"
     >
       <img
   src="https://rsqsoyrmqbnxqqxsauxk.supabase.co/storage/v1/object/public/Fotos%20josthom/LogoJosthomVect.png"
