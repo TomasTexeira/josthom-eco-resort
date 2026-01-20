@@ -11,7 +11,7 @@ export default function HeroSection({ content }) {
       {/* Background Image */}
       <div className="absolute inset-0">
         <img
-          src={content?.image_url || "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/d16285113_liftapp.jpg"}
+          src={content?.image_url || "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/e3f62c4c0_liftapp1.jpg"}
           alt="Josthom Campo"
           className="w-full h-full object-cover" />
 
