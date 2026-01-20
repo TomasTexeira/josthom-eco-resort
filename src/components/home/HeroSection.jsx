@@ -11,12 +11,9 @@ export default function HeroSection({ content }) {
       {/* Background Image */}
       <div className="absolute inset-0">
         <img
-          src={content?.image_url || "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5f47c83f9_heronovo.png"}
+          src={content?.image_url || "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/e3f62c4c0_liftapp1.jpg"}
           alt="Josthom Campo"
-          className="w-full h-full object-cover"
-          loading="eager"
-          decoding="async"
-          style={{ imageRendering: 'auto' }} />
+          className="w-full h-full object-cover" />
 
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/50" />
       </div>
@@ -34,7 +31,7 @@ export default function HeroSection({ content }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 0.8 }}
-            className="mb-8 w-full flex justify-center -mt-20"
+            className="mb-8 w-full flex justify-center" // Se restauran las clases de centrado
           >
                 <img
               src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png"
@@ -43,7 +40,7 @@ export default function HeroSection({ content }) {
 
               </motion.div>
               
-              <p className="text-white/80 mb-10 mx-auto text-xl font-medium leading-relaxed md:text-2xl max-w-2xl mt-8">
+              <p className="text-white/80 mb-10 mx-auto text-xl font-medium leading-relaxed md:text-2xl max-w-2xl">
                 {content?.subtitle || "Descanso, naturaleza y río en un entorno de tranquilidad absoluta"}
               </p>
 
