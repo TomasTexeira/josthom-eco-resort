@@ -21,69 +21,72 @@ export default function HeroSection({ content }) {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/20 to-black/50" />
       </div>
+{/* Content */}
+<div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 1, ease: "easeOut" }}
+    className="
+      max-w-4xl w-full
+      -translate-y-10
+      md:-translate-y-14
+      lg:-translate-y-16
+    "
+  >
+    {/* LOGO */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.3, duration: 0.8 }}
+      className="mb-8 w-full flex justify-center"
+    >
+      <img
+        src="https://rsqsoyrmqbnxqqxsauxk.supabase.co/storage/v1/object/public/Fotos%20josthom/LogoJosthomVect.png"
+        alt="Josthom Eco Resort"
+        className="
+          object-contain brightness-0 invert
+          w-[280px]
+          sm:w-[360px]
+          md:w-[460px]
+          lg:w-[560px]
+          xl:w-[680px]
+          2xl:w-[820px]
+          h-auto
+        "
+      />
+    </motion.div>
 
-      {/* Content */}
-      <div className="relative z-10 h-full flex flex-col items-center justify-start text-center px-6 pt-24 sm:pt-28 md:pt-32 lg:pt-36">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="max-w-4xl w-full"
+    <p className="text-white/80 mb-10 mx-auto text-xl font-medium leading-relaxed md:text-2xl max-w-2xl">
+      {content?.subtitle || "Descanso, naturaleza y río en un entorno de tranquilidad absoluta"}
+    </p>
+
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.6, duration: 0.8 }}
+      className="flex flex-col sm:flex-row gap-4 justify-center"
+    >
+      <Link to={createPageUrl("Accommodations")}>
+        <Button
+          size="lg"
+          className="bg-amber-700 text-white px-10 shadow hover:bg-amber-800 transition-all duration-300"
         >
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="mb-8 w-full flex justify-center"
-          >
-            <img
-              src="https://rsqsoyrmqbnxqqxsauxk.supabase.co/storage/v1/object/public/Fotos%20josthom/LogoJosthomVect.png"
-              alt="Josthom Eco Resort"
-              className="
-                object-contain brightness-0 invert
-                w-[280px]
-                sm:w-[360px]
-                md:w-[460px]
-                lg:w-[560px]
-                xl:w-[680px]
-                2xl:w-[820px]
-                h-auto
-              "
-            />
-          </motion.div>
+          Reservar ahora
+        </Button>
+      </Link>
 
-          <p className="text-white/80 mb-10 mx-auto text-xl font-medium leading-relaxed md:text-2xl max-w-2xl">
-            {content?.subtitle ||
-              "Descanso, naturaleza y río en un entorno de tranquilidad absoluta"}
-          </p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
-            <Link to={createPageUrl("Accommodations")}>
-              <Button
-                size="lg"
-                className="bg-amber-700 text-white px-10 shadow hover:bg-amber-800 transition-all duration-300"
-              >
-                Reservar ahora
-              </Button>
-            </Link>
-
-            <Link to={createPageUrl("Experience")}>
-              <Button
-                variant="outline"
-                size="lg"
-                className="px-10 shadow-sm bg-slate-50 text-slate-900 hover:bg-white/10 backdrop-blur-sm"
-              >
-                Conocer más
-              </Button>
-            </Link>
-          </motion.div>
-        </motion.div>
-
+      <Link to={createPageUrl("Experience")}>
+        <Button
+          variant="outline"
+          size="lg"
+          className="px-10 shadow-sm bg-slate-50 text-slate-900 hover:bg-white/10 backdrop-blur-sm"
+        >
+          Conocer más
+        </Button>
+      </Link>
+    </motion.div>
+  </motion.div>
         {/* Scroll indicator */}
         <motion.div
           initial={{ opacity: 0 }}
