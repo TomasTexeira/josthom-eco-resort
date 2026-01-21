@@ -65,10 +65,23 @@ export default function ExperiencePreview() {
               transition={{ delay: index * 0.1 }}
               className={`relative rounded-2xl overflow-hidden ${index === 0 ? 'col-span-2 aspect-[2/1]' : 'aspect-square'}`}>
 
-                <img
-                src={exp.image}
-                alt={exp.title}
-                className="w-full h-full object-cover" />
+                {exp.image.endsWith('.mp4') ? (
+                  <video
+                    src={exp.image}
+                    alt={exp.title}
+                    className="w-full h-full object-cover"
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                  />
+                ) : (
+                  <img
+                    src={exp.image}
+                    alt={exp.title}
+                    className="w-full h-full object-cover"
+                  />
+                )}
 
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
                 <div className="absolute bottom-4 left-4">
