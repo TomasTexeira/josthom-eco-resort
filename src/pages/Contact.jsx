@@ -228,7 +228,7 @@ export default function Contact() {
                       A 22 km de Villa Paranacito<br />
                       A 163 km de Panamericana y General Paz
                     </p>
-                    <p className="text-stone-500 text-sm mt-2">🐾 Somos pet friendly</p>
+                    <p className="text-stone-500 text-sm mt-2 font-bold">🐾 Somos pet friendly</p>
                     <Link 
                       to={createPageUrl("Location")}
                       className="text-amber-700 text-sm hover:underline inline-block mt-1"
