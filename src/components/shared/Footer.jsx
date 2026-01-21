@@ -63,13 +63,7 @@ export default function Footer() {
               <li>
                 <a href="tel:+5491112345678" className="flex items-center gap-3 text-stone-400 hover:text-white transition-colors">
                   <Phone className="w-5 h-5" />
-                  <span>+54 9 11 1234-5678</span>
-                </a>
-              </li>
-              <li>
-                <a href="mailto:info@josthom.com" className="flex items-center gap-3 text-stone-400 hover:text-white transition-colors">
-                  <Mail className="w-5 h-5" />
-                  <span>info@josthom.com</span>
+                  <span>+54 9 11 3832-3695</span>
                 </a>
               </li>
             </ul>
