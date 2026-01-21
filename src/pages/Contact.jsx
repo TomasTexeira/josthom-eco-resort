@@ -17,22 +17,6 @@ export default function Contact() {
       link: "https://wa.me/5491138323695",
       description: "Lun a Dom 8 a 18hs",
       color: "bg-green-50 text-green-700"
-    },
-    {
-      icon: Instagram,
-      title: "Instagram",
-      value: "info@josthom.com",
-      link: "mailto:info@josthom.com",
-      description: "Te respondemos a la brevedad",
-      color: "bg-blue-50 text-blue-700"
-    },
-    {
-      icon: Phone,
-      title: "Teléfono",
-      value: "+54 9 11 1234-5678",
-      link: "tel:+5491112345678",
-      description: "Lun a Dom 8 a 18hs",
-      color: "bg-amber-50 text-amber-700"
     }
   ];
 
