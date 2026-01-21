@@ -4,6 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
+import SEO from '@/components/shared/SEO';
 
 export default function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -47,6 +48,12 @@ export default function Gallery() {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO 
+        title="Galería"
+        description="Explora la belleza de Josthom Eco Resort a través de nuestra galería de imágenes. Campo, animales, paisajes, instalaciones y la experiencia de naturaleza en Villa Paranacito."
+        keywords="galeria josthom, fotos campo entre rios, imagenes villa paranacito, naturaleza rio uruguay, fotos cabañas"
+        url="/gallery"
+      />
       {/* Hero */}
       <section className="relative h-[40vh] min-h-[350px] flex items-center justify-center">
         <div className="absolute inset-0">
