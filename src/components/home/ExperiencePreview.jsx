@@ -41,7 +41,7 @@ export default function ExperiencePreview() {
             </h2>
             <p className="text-stone-400 text-lg leading-relaxed mb-8">
               En Josthom creemos que la mejor experiencia es la más simple: despertarte con el canto de los pájaros, 
-              caminar entre los animales, disfrutar de un asado con carne que viste pastando el día anterior, 
+              caminar entre los animales, disfrutar de un asado, 
               y terminar el día contemplando las estrellas en silencio absoluto.
             </p>
             <Link to={createPageUrl("Experience")}>
