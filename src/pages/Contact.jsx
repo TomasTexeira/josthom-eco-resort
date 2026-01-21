@@ -19,8 +19,8 @@ export default function Contact() {
       color: "bg-green-50 text-green-700"
     },
     {
-      icon: Mail,
-      title: "Email",
+      icon: Instagram,
+      title: "Instagram",
       value: "info@josthom.com",
       link: "mailto:info@josthom.com",
       description: "Te respondemos a la brevedad",
