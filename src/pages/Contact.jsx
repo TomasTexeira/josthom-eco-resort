@@ -103,7 +103,7 @@ export default function Contact() {
               Podés consultar disponibilidad, precios y todo lo que necesites.
             </p>
             <a 
-              href="https://wa.me/5491112345678?text=Hola!%20Me%20interesa%20conocer%20más%20sobre%20Josthom"
+              href="https://wa.me/5491138323695?text=Hola!%20Me%20interesa%20conocer%20más%20sobre%20Josthom"
               target="_blank"
               rel="noopener noreferrer"
             >
