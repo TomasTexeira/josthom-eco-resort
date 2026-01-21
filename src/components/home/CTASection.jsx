@@ -40,7 +40,7 @@ export default function CTASection() {
           <Link to={createPageUrl("Contact")}>
             <Button
               variant="outline"
-              size="lg" className="bg-slate-50 text-slate-900 px-12 py-6 text-lg font-medium rounded-lg inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-sm hover:text-accent-foreground h-10 border-white/40 hover:bg-white/10">
+              size="lg" className="bg-slate-50 text-slate-900 px-12 py-6 text-lg font-medium rounded-lg inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border shadow-sm hover:text-accent-foreground h-10 border-white/40 hover:bg-white/10 hover:text-white">
 
 
               Contactarnos
