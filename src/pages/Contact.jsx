@@ -13,8 +13,8 @@ export default function Contact() {
     {
       icon: MessageCircle,
       title: "WhatsApp",
-      value: "+54 9 11 1234-5678",
-      link: "https://wa.me/5491112345678",
+      value: "+54 9 11 3832-3695",
+      link: "https://wa.me/5491138323695",
       description: "Lun a Dom 8 a 18hs",
       color: "bg-green-50 text-green-700"
     },
