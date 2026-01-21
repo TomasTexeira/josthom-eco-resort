@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import SEO from '@/components/shared/SEO';
 import AvailabilityCalendar from '@/components/booking/AvailabilityCalendar';
 import BookingForm from '@/components/booking/BookingForm';
 
@@ -81,6 +82,13 @@ export default function AccommodationDetail() {
 
   return (
     <div className="min-h-screen bg-white pt-20">
+      <SEO 
+        title={accommodation.name}
+        description={accommodation.short_description || accommodation.description?.substring(0, 150) || `${accommodation.name} - Alojamiento en Josthom Eco Resort. Capacidad ${accommodation.capacity} personas. Reservá ahora tu cabaña en Villa Paranacito.`}
+        keywords={`${accommodation.name}, cabaña villa paranacito, alojamiento ${accommodation.capacity} personas, reservar cabaña entre rios`}
+        image={accommodation.main_image}
+        url={`/accommodation-detail?id=${accommodation.id}`}
+      />
       {/* Back Button */}
       <div className="max-w-7xl mx-auto px-6 py-6">
         <Link to={createPageUrl("Accommodations")} className="inline-flex items-center text-stone-600 hover:text-amber-700 transition-colors">
