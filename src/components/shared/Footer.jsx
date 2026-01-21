@@ -61,7 +61,7 @@ export default function Footer() {
                 <span className="">Arroyo Sagastume S/N, 2823 Villa Paranacito, Entre Ríos</span>
               </li>
               <li>
-                <a href="tel:+5491112345678" className="flex items-center gap-3 text-stone-400 hover:text-white transition-colors">
+                <a href="#" className="flex items-center gap-3 text-stone-400 hover:text-white transition-colors">
                   <Phone className="w-5 h-5" />
                   <span>+54 9 11 3832-3695</span>
                 </a>
