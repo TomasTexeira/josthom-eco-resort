@@ -23,7 +23,7 @@ export default function AboutSection({ content }) {
           >
             <div className="aspect-[4/5] rounded-2xl overflow-hidden">
               <img
-                src={content?.image_url || "https://rsqsoyrmqbnxqqxsauxk.supabase.co/storage/v1/object/public/Fotos%20josthom/fotosjosthomcabanas/a4955305-7459-405e-9cbb-d7b1ba61725e.JPG"}
+                src={content?.image_url || "https://rsqsoyrmqbnxqqxsauxk.supabase.co/storage/v1/object/public/Fotos%20josthom/fotosjosthomcabanas/b319622e-a9f1-4b85-b4d8-2cdddcc18354.JPG"}
                 alt="Campo Josthom"
                 className="w-full h-full object-cover"
               />
