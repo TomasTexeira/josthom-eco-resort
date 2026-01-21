@@ -7,14 +7,14 @@ import { createPageUrl } from '@/utils';
 export default function ExperiencePreview() {
   const experiences = [
   {
-    image: "https://images.unsplash.com/photo-1529040181623-e04ebc611e25?w=600&q=80",
-    title: "Carne de pastoreo",
-    desc: "Directa del campo a tu mesa"
+    image: "https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=600&q=80",
+    title: "Animales libres",
+    desc: "Caballos en el campo"
   },
   {
     image: "https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=600&q=80",
-    title: "Animales libres",
-    desc: "Caballos, vacas y ovejas"
+    title: "Vida de campo",
+    desc: "Vacas y naturaleza"
   },
   {
     image: "https://rsqsoyrmqbnxqqxsauxk.supabase.co/storage/v1/object/public/Fotos%20josthom/videosjosthom/IMG_9960%20(1).mp4",
