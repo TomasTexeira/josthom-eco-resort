@@ -4,6 +4,7 @@ import { Waves, TreePine, CircleDot, Bird, Palmtree, Wifi } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import SEO from '@/components/shared/SEO';
 
 export default function Experience() {
   const experiences = [
@@ -41,6 +42,12 @@ export default function Experience() {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO 
+        title="La Experiencia"
+        description="Vivir el campo auténtico en Josthom: Río Uruguay a 10 minutos, Arroyo Sagastume, animales de campo, piscinas, gimnasio y conectividad Starlink. Naturaleza y descanso en su máxima expresión."
+        keywords="experiencia campo, turismo rural entre rios, rio uruguay, arroyo sagastume, animales de granja, pesca, naturaleza, descanso"
+        url="/experience"
+      />
       {/* Hero */}
       <section className="relative h-[60vh] min-h-[500px] flex items-center justify-center">
         <div className="absolute inset-0">

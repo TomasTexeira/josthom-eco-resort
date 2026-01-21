@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
+import SEO from '@/components/shared/SEO';
 
 // Fix for default marker icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -38,6 +39,12 @@ export default function Location() {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO 
+        title="Ubicación"
+        description="Cómo llegar a Josthom Eco Resort. A 163 km de Buenos Aires, 22 km de Villa Paranacito, Entre Ríos. Sobre el Arroyo Sagastume, a 10 minutos del Río Uruguay. Indicaciones y mapa."
+        keywords="ubicacion josthom, como llegar villa paranacito, mapa entre rios, ruta al rio uruguay, arroyo sagastume"
+        url="/location"
+      />
       {/* Hero */}
       <section className="relative h-[40vh] min-h-[350px] flex items-center justify-center">
         <div className="absolute inset-0">

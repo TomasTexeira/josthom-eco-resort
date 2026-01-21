@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
+import SEO from '@/components/shared/SEO';
 import AccommodationCard from '@/components/accommodations/AccommodationCard';
 
 export default function Accommodations() {
@@ -13,6 +14,12 @@ export default function Accommodations() {
 
   return (
     <div className="min-h-screen bg-stone-50">
+      <SEO 
+        title="Alojamientos"
+        description="6 cabañas equipadas con muelle propio sobre el Arroyo Sagastume. Capacidad 2-5 personas. WiFi Starlink, pileta, hidromasaje y gimnasio. Reservá tu estadía en Josthom Eco Resort."
+        keywords="cabañas villa paranacito, alojamiento rio uruguay, cabañas con muelle, casas campo entre rios, alquiler cabañas, josthom"
+        url="/accommodations"
+      />
       {/* Hero */}
       <section className="relative h-[50vh] min-h-[400px] flex items-center justify-center">
         <div className="absolute inset-0">

@@ -1,10 +1,12 @@
 import React from 'react';
+import { HelmetProvider } from 'react-helmet-async';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
 
 export default function Layout({ children, currentPageName }) {
   return (
-    <div className="min-h-screen flex flex-col">
+    <HelmetProvider>
+      <div className="min-h-screen flex flex-col">
       <style>{`
         :root {
           --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
@@ -19,6 +21,7 @@ export default function Layout({ children, currentPageName }) {
         {children}
       </main>
       <Footer />
-    </div>
-  );
-}
+      </div>
+      </HelmetProvider>
+      );
+      }

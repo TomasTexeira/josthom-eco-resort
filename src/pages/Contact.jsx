@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, Mail, Phone, MapPin, Send, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import SEO from '@/components/shared/SEO';
 
 export default function Contact() {
   const contactMethods = [
@@ -37,6 +38,12 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-white">
+      <SEO 
+        title="Contacto"
+        description="Contactanos para reservar tu estadía en Josthom Eco Resort. WhatsApp, email o formulario de contacto. Atención Lun-Dom 8-18hs. Villa Paranacito, Entre Ríos."
+        keywords="contacto josthom, reservas cabañas, whatsapp villa paranacito, consultas alojamiento"
+        url="/contact"
+      />
       {/* Hero */}
       <section className="relative h-[40vh] min-h-[350px] flex items-center justify-center">
         <div className="absolute inset-0">
