@@ -17,7 +17,7 @@ export default function ExperiencePreview() {
     desc: "Caballos, vacas y ovejas"
   },
   {
-    image: "https://images.unsplash.com/photo-1504701954957-2010ec3bcec1?w=600&q=80",
+    image: "https://rsqsoyrmqbnxqqxsauxk.supabase.co/storage/v1/object/public/Fotos%20josthom/videosjosthom/IMG_9960%20(1).mp4",
     title: "Atardeceres únicos",
     desc: "Horizontes infinitos"
   }];
