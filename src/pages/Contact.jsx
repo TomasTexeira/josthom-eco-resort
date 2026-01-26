@@ -21,6 +21,13 @@ export default function Contact() {
     }
   ];
 
+  const { data: siteContent } = useQuery({
+    queryKey: ['site-content'],
+    queryFn: () => base44.entities.SiteContent.list(),
+  });
+
+  const getContent = (section) => siteContent?.find(c => c.section === section);
+
   return (
     <div className="min-h-screen bg-white">
       <SEO 
