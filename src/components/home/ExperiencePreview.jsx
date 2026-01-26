@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
-export default function ExperiencePreview() {
+export default function ExperiencePreview({ content }) {
   const experiences = [
   {
     image: "https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=600&q=80",
@@ -17,7 +17,7 @@ export default function ExperiencePreview() {
     desc: "Vacas y naturaleza"
   },
   {
-    image: "https://rsqsoyrmqbnxqqxsauxk.supabase.co/storage/v1/object/public/Fotos%20josthom/videosjosthom/IMG_9960%20(1).mp4",
+    image: content?.image_url,
     title: "Atardeceres únicos",
     desc: "Horizontes infinitos"
   }];
