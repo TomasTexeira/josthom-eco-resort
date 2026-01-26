@@ -7,6 +7,11 @@ import { createPageUrl } from '@/utils';
 export default function ExperiencePreview({ content }) {
   const experiences = [
   {
+    image: content?.image_url,
+    title: content?.title || "La Experiencia",
+    desc: content?.content || "Vivir el campo"
+  },
+  {
     image: "https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=600&q=80",
     title: "Animales libres",
     desc: "Caballos en el campo"
@@ -15,11 +20,6 @@ export default function ExperiencePreview({ content }) {
     image: "https://images.unsplash.com/photo-1516467508483-a7212febe31a?w=600&q=80",
     title: "Vida de campo",
     desc: "Vacas y naturaleza"
-  },
-  {
-    image: content?.image_url,
-    title: "Atardeceres únicos",
-    desc: "Horizontes infinitos"
   }];
 
 
