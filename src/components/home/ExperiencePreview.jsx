@@ -83,7 +83,7 @@ export default function ExperiencePreview({ content }) {
                   />
                 )}
 
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4">
                   <h3 className="text-white font-medium">{exp.title}</h3>
                   <p className="text-white/70 text-sm">{exp.desc}</p>
