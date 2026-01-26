@@ -17,7 +17,7 @@ export default function ExperiencePreview({ content }) {
     desc: "Vacas y naturaleza"
   },
   {
-    image: content?.title.videosun,
+    image: content?.title("videosun"),
     title: "Atardeceres únicos",
     desc: "Horizontes infinitos"
   }];
