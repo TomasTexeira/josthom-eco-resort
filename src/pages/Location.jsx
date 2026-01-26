@@ -83,7 +83,15 @@ export default function Location() {
               viewport={{ once: true }}
               className="rounded-2xl overflow-hidden shadow-lg h-[400px] lg:h-[500px]"
             >
-              <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3320.2194004029134!2d-58.61643122355344!3d-33.67738270917114!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bad9211ecd62b3%3A0x2446c1b49fe9b34c!2sJosthom!5e0!3m2!1ses-419!2sar!4v1769440763073!5m2!1ses-419!2sar" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+              <iframe 
+                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3320.2194004029134!2d-58.61643122355344!3d-33.67738270917114!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bad9211ecd62b3%3A0x2446c1b49fe9b34c!2sJosthom!5e0!3m2!1ses-419!2sar!4v1769440763073!5m2!1ses-419!2sar" 
+                width="100%" 
+                height="100%" 
+                style={{border: 0}} 
+                allowFullScreen={true}
+                loading="lazy" 
+                referrerPolicy="no-referrer-when-downgrade"
+              />
             </motion.div>
 
             {/* Info */}
