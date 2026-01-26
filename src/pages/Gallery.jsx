@@ -15,6 +15,14 @@ export default function Gallery() {
     queryFn: () => base44.entities.GalleryImage.list('order'),
   });
 
+  const { data: gallerySiteContent } = useQuery({
+    queryKey: ['siteContent', 'gallery'],
+    queryFn: async () => {
+      const content = await base44.entities.SiteContent.list();
+      return content.find(c => c.section === 'gallery');
+    }
+  });
+
   const categories = [
     { id: 'all', label: 'Todas' },
     { id: 'campo', label: 'Campo' },
@@ -58,7 +66,7 @@ export default function Gallery() {
       <section className="relative h-[40vh] min-h-[350px] flex items-center justify-center">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&q=80"
+            src={gallerySiteContent?.image_url || "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&q=80"}
             alt="Galería"
             className="w-full h-full object-cover"
           />
