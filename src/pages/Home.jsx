@@ -32,7 +32,7 @@ export default function Home() {
       <HeroSection content={getContent('hero')} />
       <AboutSection content={getContent('about')} />
       <FeaturedAccommodations accommodations={accommodations} />
-      <ExperiencePreview />
+      <ExperiencePreview content={getContent('experience')} />
       <CTASection />
     </div>
   );
