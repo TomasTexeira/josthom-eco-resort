@@ -26,7 +26,7 @@ export default function CTASection() {
 
         </h2>
         <p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto">
-          Reserva ahora y vive la experiencia Josthom. Naturaleza, tranquilidad y campo.
+          Reserva ahora y vive la experiencia Josthom. Naturaleza, tranquilidad y campo como nunca lo viviste.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link to={createPageUrl("Accommodations")}>
