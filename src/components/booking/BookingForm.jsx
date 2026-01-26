@@ -30,7 +30,11 @@ export default function BookingForm({
 
   // Calculate dynamic price based on number of guests
   const calculatePrice = (numGuests, nights) => {
-    const pricePerNight = numGuests <= 2 ? 180000 : 360000;
+    let pricePerNight;
+    if (numGuests <= 2) pricePerNight = 180000;
+    else if (numGuests === 3) pricePerNight = 240000;
+    else if (numGuests === 4) pricePerNight = 300000;
+    else pricePerNight = 360000; // 5 personas
     return pricePerNight * nights;
   };
 
@@ -113,7 +117,11 @@ export default function BookingForm({
           </div>
           <div className="text-sm text-stone-600 mb-2">
             <span>
-              ${(formData.number_of_guests <= 2 ? 180000 : 360000).toLocaleString()} x {bookingDetails.nights} {bookingDetails.nights === 1 ? 'noche' : 'noches'}
+              ${(() => {
+                const n = formData.number_of_guests;
+                const price = n <= 2 ? 180000 : n === 3 ? 240000 : n === 4 ? 300000 : 360000;
+                return price.toLocaleString();
+              })()} x {bookingDetails.nights} {bookingDetails.nights === 1 ? 'noche' : 'noches'}
             </span>
           </div>
           <div className="border-t border-stone-200 pt-3 flex justify-between">
@@ -185,7 +193,13 @@ export default function BookingForm({
               onChange={(e) => setFormData({ ...formData, number_of_guests: parseInt(e.target.value) })}
             />
             <p className="text-xs text-stone-500 mt-1">
-              Capacidad máxima: 5 personas • Precio: {formData.number_of_guests <= 2 ? '$180.000' : '$360.000'} por noche
+              Capacidad máxima: 5 personas • Precio: {(() => {
+                const n = formData.number_of_guests;
+                if (n <= 2) return '$180.000';
+                if (n === 3) return '$240.000';
+                if (n === 4) return '$300.000';
+                return '$360.000';
+              })()} por noche
             </p>
           </div>
 

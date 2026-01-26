@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, CalendarDays, Users, Info } from 'lucide-react';
-import { format, differenceInDays, isWithinInterval, parseISO, addDays } from 'date-fns';
+import { format, differenceInDays, isWithinInterval, parseISO, addDays, getDay } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -16,6 +16,7 @@ export default function AvailabilityCalendar({
   onBookingRequest 
 }) {
   const [dateRange, setDateRange] = useState({ from: null, to: null });
+  const [numberOfGuests, setNumberOfGuests] = useState(2);
   
   // Fetch bookings for this accommodation
   const { data: bookings, isLoading } = useQuery({
@@ -27,7 +28,7 @@ export default function AvailabilityCalendar({
     enabled: !!accommodationId,
   });
 
-  // Get disabled dates (already booked)
+  // Get disabled dates (already booked + 1 night buffer)
   const getDisabledDates = () => {
     if (!bookings || bookings.length === 0) return [];
     
@@ -37,7 +38,8 @@ export default function AvailabilityCalendar({
       const checkOut = parseISO(booking.check_out);
       const days = differenceInDays(checkOut, checkIn);
       
-      for (let i = 0; i <= days; i++) {
+      // Include booking dates + 1 night buffer after checkout
+      for (let i = 0; i <= days + 1; i++) {
         disabledDates.push(addDays(checkIn, i));
       }
     });
@@ -89,12 +91,40 @@ export default function AvailabilityCalendar({
     return differenceInDays(dateRange.to, dateRange.from);
   };
 
-  const calculateTotal = () => {
-    const nights = calculateNights();
-    return nights * (pricePerNight || 0);
+  const getPricePerNight = (numGuests) => {
+    if (numGuests <= 2) return 180000;
+    if (numGuests === 3) return 240000;
+    if (numGuests === 4) return 300000;
+    return 360000; // 5 personas
   };
 
-  const isSelectionValid = dateRange.from && dateRange.to && calculateNights() > 0;
+  const hasWeekdayDiscount = () => {
+    if (!dateRange.from || !dateRange.to) return false;
+    const nights = calculateNights();
+    let weekdayNights = 0;
+    
+    for (let i = 0; i < nights; i++) {
+      const day = getDay(addDays(dateRange.from, i));
+      // Monday = 1, Thursday = 4
+      if (day >= 1 && day <= 4) weekdayNights++;
+    }
+    
+    return weekdayNights > 0 ? weekdayNights : 0;
+  };
+
+  const calculateTotal = () => {
+    const nights = calculateNights();
+    const basePrice = getPricePerNight(numberOfGuests);
+    const weekdayNights = hasWeekdayDiscount();
+    const weekendNights = nights - weekdayNights;
+    
+    const weekdayTotal = weekdayNights * basePrice * 0.85; // 15% descuento
+    const weekendTotal = weekendNights * basePrice;
+    
+    return Math.round(weekdayTotal + weekendTotal);
+  };
+
+  const isSelectionValid = dateRange.from && dateRange.to && calculateNights() >= 2;
 
   const handleContinueBooking = () => {
     if (onBookingRequest && isSelectionValid) {
@@ -102,7 +132,8 @@ export default function AvailabilityCalendar({
         checkIn: format(dateRange.from, 'yyyy-MM-dd'),
         checkOut: format(dateRange.to, 'yyyy-MM-dd'),
         nights: calculateNights(),
-        total: calculateTotal()
+        total: calculateTotal(),
+        numberOfGuests: numberOfGuests
       });
     }
   };
@@ -126,6 +157,33 @@ export default function AvailabilityCalendar({
           </div>
         ) : (
           <>
+            {/* Number of Guests Selector */}
+            <div className="mb-6 bg-stone-50 rounded-lg p-4">
+              <label className="flex items-center gap-2 text-sm font-medium text-stone-700 mb-3">
+                <Users className="w-4 h-4" />
+                Número de huéspedes
+              </label>
+              <div className="flex gap-2">
+                {[1, 2, 3, 4, 5].map(num => (
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={() => setNumberOfGuests(num)}
+                    className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
+                      numberOfGuests === num
+                        ? 'bg-amber-700 text-white'
+                        : 'bg-white text-stone-600 hover:bg-stone-100 border border-stone-200'
+                    }`}
+                  >
+                    {num}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-stone-500 mt-2">
+                Precio por noche: ${getPricePerNight(numberOfGuests).toLocaleString()}
+              </p>
+            </div>
+
             <div className="flex justify-center mb-4">
               <Calendar
                 mode="range"
@@ -172,16 +230,24 @@ export default function AvailabilityCalendar({
                     {format(dateRange.to, "dd 'de' MMMM, yyyy", { locale: es })}
                   </span>
                 </div>
-                <div className="border-t border-amber-200 pt-4">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-stone-600">
-                      ${pricePerNight?.toLocaleString()} x {calculateNights()} noches
-                    </span>
+                <div className="border-t border-amber-200 pt-4 space-y-2">
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-stone-600">{numberOfGuests} {numberOfGuests === 1 ? 'huésped' : 'huéspedes'}</span>
+                    <span className="font-medium">${getPricePerNight(numberOfGuests).toLocaleString()}/noche</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm">
+                    <span className="text-stone-600">{calculateNights()} noches</span>
                     <span className="font-medium">
-                      ${(pricePerNight * calculateNights()).toLocaleString()}
+                      ${(getPricePerNight(numberOfGuests) * calculateNights()).toLocaleString()}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center text-lg font-semibold">
+                  {hasWeekdayDiscount() > 0 && (
+                    <div className="flex justify-between items-center text-sm text-green-700">
+                      <span>Descuento lunes-jueves (15%)</span>
+                      <span>-${Math.round(getPricePerNight(numberOfGuests) * hasWeekdayDiscount() * 0.15).toLocaleString()}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center text-lg font-semibold border-t border-amber-200 pt-2">
                     <span>Total</span>
                     <span className="text-amber-700">
                       ${calculateTotal().toLocaleString()}
@@ -192,13 +258,26 @@ export default function AvailabilityCalendar({
             )}
 
             {/* Info Message */}
-            {!isSelectionValid && (
-              <div className="flex items-start gap-3 bg-blue-50 rounded-lg p-4 text-sm text-blue-800">
+            {!isSelectionValid && dateRange.from && dateRange.to && calculateNights() < 2 && (
+              <div className="flex items-start gap-3 bg-amber-50 rounded-lg p-4 text-sm text-amber-800">
                 <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
                 <p>
-                  Seleccioná las fechas de check-in y check-out en el calendario. 
-                  Las fechas en gris están ocupadas.
+                  La estadía mínima es de 2 noches.
                 </p>
+              </div>
+            )}
+            {!isSelectionValid && (!dateRange.from || !dateRange.to) && (
+              <div className="flex items-start gap-3 bg-blue-50 rounded-lg p-4 text-sm text-blue-800">
+                <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="mb-2">
+                    Seleccioná las fechas de check-in y check-out en el calendario (mínimo 2 noches).
+                  </p>
+                  <p className="text-xs">
+                    • Descuento del 15% de lunes a jueves<br />
+                    • Las fechas en gris incluyen 1 noche de limpieza entre reservas
+                  </p>
+                </div>
               </div>
             )}
           </>
