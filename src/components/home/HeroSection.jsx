@@ -11,7 +11,7 @@ export default function HeroSection({ content }) {
       {/* Background Image */}
 <div className="absolute inset-0 z-0">
   <img
-    src={content?.image_url || "https://rsqsoyrmqbnxqqxsauxk.supabase.co/storage/v1/object/public/Fotos%20josthom/liftapp.jpeg"}
+    src={content?.image_url}
     alt=""
     className="w-full h-full object-cover object-center"
     loading="eager"
