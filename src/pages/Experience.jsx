@@ -5,8 +5,18 @@ import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import SEO from '@/components/shared/SEO';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 
 export default function Experience() {
+  const { data: siteContent } = useQuery({
+    queryKey: ['siteContent', 'experience'],
+    queryFn: async () => {
+      const content = await base44.entities.SiteContent.list();
+      return content.find(c => c.section === 'experience');
+    }
+  });
+
   const experiences = [
     {
       icon: Waves,
@@ -52,7 +62,7 @@ export default function Experience() {
       <section className="relative h-[60vh] min-h-[500px] flex items-center justify-center">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1500076656116-558758c991c1?w=1920&q=80"
+            src={siteContent?.image_url || "https://images.unsplash.com/photo-1500076656116-558758c991c1?w=1920&q=80"}
             alt="La Experiencia Josthom"
             className="w-full h-full object-cover"
           />
