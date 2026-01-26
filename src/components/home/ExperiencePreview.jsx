@@ -67,7 +67,7 @@ export default function ExperiencePreview({ content }) {
 
                 {exp.image.endsWith('.mp4') ? (
                   <video
-                    src={content.image_url}
+                    src={content?.image_url}
                     alt={exp.title}
                     className="w-full h-full object-cover"
                     autoPlay
