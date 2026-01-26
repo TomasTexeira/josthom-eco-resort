@@ -40,7 +40,7 @@ export default function Contact() {
       <section className="relative h-[40vh] min-h-[350px] flex items-center justify-center">
         <div className="absolute inset-0">
           <img
-            src={getContent('contact')}
+            src={getContent('contact').image_url}
             alt="Contacto"
             className="w-full h-full object-cover"
           />
