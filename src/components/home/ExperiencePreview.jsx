@@ -18,8 +18,8 @@ export default function ExperiencePreview({ content }) {
   const experiences = [
   {
     image: experienciaContent?.image_url || content?.image_url,
-    title: content?.title || "La Experiencia",
-    desc: content?.subtitle || "Vivir el campo"
+    title: "La Experiencia Josthom",
+    desc:  "Un resumen de nuestra experiencia"
   },
   {
     image: "https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=600&q=80",
