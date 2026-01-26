@@ -12,7 +12,7 @@ export default function HeroSection({ content }) {
 <div className="absolute inset-0 z-0">
   <img
     src={content?.image_url}
-    alt=""
+    alt="Josthom fondo"
     className="w-full h-full object-cover object-center"
     loading="eager"
     decoding="async"
