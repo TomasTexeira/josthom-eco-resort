@@ -6,6 +6,8 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import SEO from '@/components/shared/SEO';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 
 // Fix for default marker icon
 delete L.Icon.Default.prototype._getIconUrl;
@@ -16,6 +18,14 @@ L.Icon.Default.mergeOptions({
 });
 
 export default function Location() {
+  const { data: siteContent } = useQuery({
+    queryKey: ['siteContent', 'location'],
+    queryFn: async () => {
+      const content = await base44.entities.SiteContent.list();
+      return content.find(c => c.section === 'location');
+    }
+  });
+
   // Default coordinates (can be updated from SiteContent entity)
   const coordinates = [-34.6037, -58.3816]; // Buenos Aires area - replace with actual
 
@@ -49,7 +59,7 @@ export default function Location() {
       <section className="relative h-[40vh] min-h-[350px] flex items-center justify-center">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80"
+            src={siteContent?.image_url || "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80"}
             alt="Ubicación"
             className="w-full h-full object-cover"
           />
