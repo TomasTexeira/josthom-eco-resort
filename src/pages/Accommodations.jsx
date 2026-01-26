@@ -12,6 +12,14 @@ export default function Accommodations() {
     queryFn: () => base44.entities.Accommodation.list('order'),
   });
 
+  const { data: heroContent } = useQuery({
+    queryKey: ['siteContent', 'hero'],
+    queryFn: async () => {
+      const content = await base44.entities.SiteContent.list();
+      return content.find(c => c.section === 'hero');
+    }
+  });
+
   return (
     <div className="min-h-screen bg-stone-50">
       <SEO 
@@ -24,7 +32,7 @@ export default function Accommodations() {
       <section className="relative h-[50vh] min-h-[400px] flex items-center justify-center">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=1920&q=80"
+            src={heroContent?.image_url || "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=1920&q=80"}
             alt="Alojamientos"
             className="w-full h-full object-cover"
           />
