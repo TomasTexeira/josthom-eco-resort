@@ -69,7 +69,7 @@ export default function ExperiencePreview({ content }) {
                   <video
                     src={exp.image}
                     alt={exp.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                     autoPlay
                     loop
                     muted
