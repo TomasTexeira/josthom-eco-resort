@@ -10,10 +10,10 @@ import { base44 } from '@/api/base44Client';
 
 export default function Experience() {
   const { data: siteContent } = useQuery({
-    queryKey: ['siteContent', 'experience'],
+    queryKey: ['siteContent', 'paginaexperiencia'],
     queryFn: async () => {
       const content = await base44.entities.SiteContent.list();
-      return content.find(c => c.section === 'experience');
+      return content.find(c => c.title === 'paginaexperiencia');
     }
   });
 
