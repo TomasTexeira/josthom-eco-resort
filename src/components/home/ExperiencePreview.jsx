@@ -9,7 +9,7 @@ export default function ExperiencePreview({ content }) {
   {
     image: content?.image_url,
     title: content?.title || "La Experiencia",
-    desc: content?.content || "Vivir el campo"
+    desc: content?.subtitle || "Vivir el campo"
   },
   {
     image: "https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?w=600&q=80",
