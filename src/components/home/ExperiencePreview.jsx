@@ -3,11 +3,21 @@ import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 
 export default function ExperiencePreview({ content }) {
+  const { data: experienciaContent } = useQuery({
+    queryKey: ['siteContent', 'Experiencia'],
+    queryFn: async () => {
+      const content = await base44.entities.SiteContent.list();
+      return content.find(c => c.title === 'Experiencia');
+    }
+  });
+
   const experiences = [
   {
-    image: content?.image_url,
+    image: experienciaContent?.image_url || content?.image_url,
     title: content?.title || "La Experiencia",
     desc: content?.subtitle || "Vivir el campo"
   },
