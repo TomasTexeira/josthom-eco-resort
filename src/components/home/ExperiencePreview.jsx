@@ -63,13 +63,13 @@ export default function ExperiencePreview({ content }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              className={`relative rounded-2xl overflow-hidden ${index === 0 ? 'col-span-2 aspect-[2/1]' : 'aspect-square'}`}>
+              className={`relative rounded-2xl overflow-hidden ${index === 0 ? 'col-span-2 aspect-[9/16]' : 'aspect-square'}`}>
 
                 {exp.image?.endsWith('.mp4') ? (
                   <video
                     src={exp.image}
                     alt={exp.title}
-                    className="w-full h-full object-contain"
+                    className="w-full h-full object-cover"
                     autoPlay
                     loop
                     muted
