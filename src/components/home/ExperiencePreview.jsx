@@ -65,7 +65,7 @@ export default function ExperiencePreview({ content }) {
               transition={{ delay: index * 0.1 }}
               className={`relative rounded-2xl overflow-hidden ${index === 0 ? 'col-span-2 aspect-[2/1]' : 'aspect-square'}`}>
 
-                {exp.image.endsWith('.mp4') ? (
+                {exp.image?.endsWith('.mp4') ? (
                   <video
                     src={content?.image_url}
                     alt={exp.title}
