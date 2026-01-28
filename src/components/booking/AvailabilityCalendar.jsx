@@ -133,7 +133,7 @@ export default function AvailabilityCalendar({
         checkOut: format(dateRange.to, 'yyyy-MM-dd'),
         nights: calculateNights(),
         total: calculateTotal(),
-        numberOfGuests: numberOfGuests
+        guests: numberOfGuests
       });
     }
   };
