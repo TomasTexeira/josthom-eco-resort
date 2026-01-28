@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
             email: bookingData.guest_email || ''
           },
           "Cabaña / Casa": {
-            select: { name: bookingData.accommodation_name || '' }
+            multi_select: [{ name: bookingData.accommodation_name || '' }]
           },
           "Check-In / Check-Out": {
             date: { 
