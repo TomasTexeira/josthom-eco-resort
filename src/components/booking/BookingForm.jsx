@@ -42,19 +42,22 @@ export default function BookingForm({
 
   const createBookingMutation = useMutation({
     mutationFn: async (bookingData) => {
-      // Create booking in Base44
-      const booking = await base44.entities.Booking.create(bookingData);
-      
-      // Send to Notion
-      try {
-        await base44.functions.invoke('sendBookingToNotion', bookingData);
-      } catch (error) {
-        console.error('Error enviando a Notion:', error);
-        // Continue even if Notion fails - booking is already saved
-      }
-      
-      return booking;
-    },
+        // Create booking in Base44
+        const booking = await base44.entities.Booking.create(bookingData);
+
+        // Send to Notion with Base44 ID
+        try {
+          await base44.functions.invoke('sendBookingToNotion', {
+            ...bookingData,
+            base44_id: booking.id
+          });
+        } catch (error) {
+          console.error('Error enviando a Notion:', error);
+          // Continue even if Notion fails - booking is already saved
+        }
+
+        return booking;
+      },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookings', accommodationId] });
       setSubmitted(true);

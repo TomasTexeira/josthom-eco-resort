@@ -53,6 +53,9 @@ Deno.serve(async (req) => {
           "Id Reserva": {
             rich_text: [{ text: { content: bookingData.accommodation_id || '' } }]
           },
+          "Id Base44": {
+            rich_text: [{ text: { content: bookingData.base44_id || '' } }]
+          },
           "Notas": {
             rich_text: [{ text: { content: bookingData.special_requests || '' } }]
           },
