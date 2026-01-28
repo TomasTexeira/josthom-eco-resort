@@ -41,7 +41,20 @@ export default function BookingForm({
   const currentTotal = calculatePrice(formData.number_of_guests, bookingDetails.nights);
 
   const createBookingMutation = useMutation({
-    mutationFn: (bookingData) => base44.entities.Booking.create(bookingData),
+    mutationFn: async (bookingData) => {
+      // Create booking in Base44
+      const booking = await base44.entities.Booking.create(bookingData);
+      
+      // Send to Notion
+      try {
+        await base44.functions.invoke('sendBookingToNotion', bookingData);
+      } catch (error) {
+        console.error('Error enviando a Notion:', error);
+        // Continue even if Notion fails - booking is already saved
+      }
+      
+      return booking;
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookings', accommodationId] });
       setSubmitted(true);
