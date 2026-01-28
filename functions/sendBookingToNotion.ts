@@ -29,26 +29,8 @@ Deno.serve(async (req) => {
           "Nombre del huésped": {
             title: [{ text: { content: bookingData.guest_name || '' } }]
           },
-          "Fecha en que reservo": {
-            date: { start: new Date().toISOString().split('T')[0] }
-          },
-          "Teléfono": {
-            rich_text: [{ text: { content: bookingData.guest_phone || '' } }]
-          },
           "Email": {
             email: bookingData.guest_email || ''
-          },
-          "Cabaña": {
-            rich_text: [{ text: { content: bookingData.accommodation_name || '' } }]
-          },
-          "Check-in": {
-            date: { start: bookingData.check_in }
-          },
-          "Check-out": {
-            date: { start: bookingData.check_out }
-          },
-          "Cantidad de personas": {
-            number: bookingData.number_of_guests || 0
           },
           "Notas": {
             rich_text: [{ text: { content: bookingData.special_requests || '' } }]
