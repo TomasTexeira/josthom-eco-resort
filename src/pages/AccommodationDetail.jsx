@@ -81,14 +81,64 @@ export default function AccommodationDetail() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Generate dynamic SEO metadata
+  const seoTitle = `${accommodation.name} - ${accommodation.type === 'cabaña' ? 'Cabaña' : 'Casa'} para ${accommodation.capacity} personas`;
+  const seoDescription = accommodation.short_description || 
+    `${accommodation.name} en Josthom Eco Resort, Villa Paranacito. ${accommodation.type === 'cabaña' ? 'Cabaña' : 'Casa'} con capacidad para ${accommodation.capacity} ${accommodation.capacity === 1 ? 'persona' : 'personas'}${accommodation.bedrooms ? `, ${accommodation.bedrooms} ${accommodation.bedrooms === 1 ? 'habitación' : 'habitaciones'}` : ''}${accommodation.bathrooms ? ` y ${accommodation.bathrooms} ${accommodation.bathrooms === 1 ? 'baño' : 'baños'}` : ''}. ${accommodation.description?.substring(0, 100) || 'Naturaleza, tranquilidad y confort en Entre Ríos.'}`;
+  
+  const seoKeywords = [
+    accommodation.name.toLowerCase(),
+    `${accommodation.type} villa paranacito`,
+    `alojamiento ${accommodation.capacity} personas entre rios`,
+    `cabaña río uruguay`,
+    `eco resort entre rios`,
+    `naturaleza villa paranacito`,
+    ...(accommodation.amenities || []).slice(0, 3)
+  ].join(', ');
+
+  // Schema.org structured data for better SEO
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "LodgingBusiness",
+    "name": accommodation.name,
+    "description": seoDescription,
+    "image": accommodation.main_image,
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Villa Paranacito",
+      "addressRegion": "Entre Ríos",
+      "addressCountry": "AR"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": -33.7167,
+      "longitude": -58.6500
+    },
+    "amenityFeature": (accommodation.amenities || []).map(amenity => ({
+      "@type": "LocationFeatureSpecification",
+      "name": amenity
+    })),
+    "numberOfRooms": accommodation.bedrooms || 1,
+    "occupancy": {
+      "@type": "QuantitativeValue",
+      "maxValue": accommodation.capacity
+    },
+    "starRating": {
+      "@type": "Rating",
+      "ratingValue": "4"
+    },
+    "priceRange": "$$"
+  };
+
   return (
     <div className="min-h-screen bg-white pt-20">
       <SEO 
-        title={accommodation.name}
-        description={accommodation.short_description || accommodation.description?.substring(0, 150) || `${accommodation.name} - Alojamiento en Josthom Eco Resort. Capacidad ${accommodation.capacity} personas. Reservá ahora tu cabaña en Villa Paranacito.`}
-        keywords={`${accommodation.name}, cabaña villa paranacito, alojamiento ${accommodation.capacity} personas, reservar cabaña entre rios`}
+        title={seoTitle}
+        description={seoDescription}
+        keywords={seoKeywords}
         image={accommodation.main_image}
         url={`/accommodation-detail?id=${accommodation.id}`}
+        structuredData={structuredData}
       />
       {/* Back Button */}
       <div className="max-w-7xl mx-auto px-6 py-6">

@@ -7,7 +7,8 @@ export default function SEO({
   keywords, 
   image,
   type = 'website',
-  url
+  url,
+  structuredData
 }) {
   const siteTitle = "Josthom Eco Resort - Villa Paranacito, Entre Ríos";
   const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
@@ -41,6 +42,13 @@ export default function SEO({
       <meta name="language" content="Spanish" />
       <meta name="author" content="Josthom Eco Resort" />
       <link rel="canonical" href={url ? `${siteUrl}${url}` : siteUrl} />
+      
+      {/* Structured Data (Schema.org) */}
+      {structuredData && (
+        <script type="application/ld+json">
+          {JSON.stringify(structuredData)}
+        </script>
+      )}
     </Helmet>
   );
 }
