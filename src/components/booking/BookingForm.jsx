@@ -23,22 +23,13 @@ export default function BookingForm({
     guest_name: '',
     guest_email: '',
     guest_phone: '',
-    number_of_guests: 1,
+    number_of_guests: bookingDetails?.guests || 1,
     special_requests: ''
   });
   const [submitted, setSubmitted] = useState(false);
 
-  // Calculate dynamic price based on number of guests
-  const calculatePrice = (numGuests, nights) => {
-    let pricePerNight;
-    if (numGuests <= 2) pricePerNight = 180000;
-    else if (numGuests === 3) pricePerNight = 240000;
-    else if (numGuests === 4) pricePerNight = 300000;
-    else pricePerNight = 360000; // 5 personas
-    return pricePerNight * nights;
-  };
-
-  const currentTotal = calculatePrice(formData.number_of_guests, bookingDetails.nights);
+  // Use the total from bookingDetails (already includes discounts)
+  const currentTotal = bookingDetails?.total || 0;
 
   const createBookingMutation = useMutation({
     mutationFn: async (bookingData) => {
