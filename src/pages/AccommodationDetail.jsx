@@ -79,6 +79,7 @@ export default function AccommodationDetail() {
     setShowBookingForm(false);
     setBookingDetails(null);
     setShowCalendar(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
