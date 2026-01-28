@@ -199,15 +199,10 @@ export default function BookingForm({
               required
               value={formData.number_of_guests}
               onChange={(e) => setFormData({ ...formData, number_of_guests: parseInt(e.target.value) })}
+              disabled
             />
             <p className="text-xs text-stone-500 mt-1">
-              Capacidad máxima: 5 personas • Precio: {(() => {
-                const n = formData.number_of_guests;
-                if (n <= 2) return '$180.000';
-                if (n === 3) return '$240.000';
-                if (n === 4) return '$300.000';
-                return '$360.000';
-              })()} por noche
+              Cantidad seleccionada en el calendario (no modificable)
             </p>
           </div>
 
