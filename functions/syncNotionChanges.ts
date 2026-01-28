@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         filter: {
-          property: "Id Base44",
+          property: "Id Reserva",
           rich_text: {
             is_not_empty: true
           }
@@ -56,7 +56,7 @@ Deno.serve(async (req) => {
       const props = page.properties;
       
       // Extract Base44 ID
-      const base44Id = props["Id Base44"]?.rich_text?.[0]?.text?.content;
+      const base44Id = props["Id Reserva"]?.rich_text?.[0]?.text?.content;
       if (!base44Id) continue;
 
       // Extract status from Notion
