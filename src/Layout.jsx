@@ -2,10 +2,12 @@ import React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import Navbar from '@/components/shared/Navbar';
 import Footer from '@/components/shared/Footer';
+import ScrollToTop from '@/components/shared/ScrollToTop';
 
 export default function Layout({ children, currentPageName }) {
   return (
     <HelmetProvider>
+      <ScrollToTop />
       <div className="min-h-screen flex flex-col">
       <style>{`
         :root {
