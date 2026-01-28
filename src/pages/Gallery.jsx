@@ -10,10 +10,29 @@ export default function Gallery() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [lightboxIndex, setLightboxIndex] = useState(null);
 
-  const { data: images, isLoading } = useQuery({
+  // Load from Media entity first, fallback to GalleryImage
+  const { data: mediaImages } = useQuery({
+    queryKey: ['media-gallery'],
+    queryFn: async () => {
+      const images = await base44.entities.Media.filter({ 
+        category: 'gallery'
+      }, 'order');
+      return images.map(img => ({
+        id: img.id,
+        image_url: img.url,
+        title: img.title,
+        category: img.gallery_type
+      }));
+    },
+  });
+
+  const { data: legacyImages, isLoading } = useQuery({
     queryKey: ['gallery-images'],
     queryFn: () => base44.entities.GalleryImage.list('order'),
   });
+
+  // Combine both sources, prioritize Media entity
+  const images = mediaImages?.length > 0 ? mediaImages : legacyImages;
 
   const { data: gallerySiteContent } = useQuery({
     queryKey: ['siteContent', 'gallery'],
