@@ -32,9 +32,15 @@ export default function Gallery() {
     { id: 'instalaciones', label: 'Instalaciones' },
   ];
 
+  // Filter valid image formats only (exclude DNG, MP4, etc.)
+  const validImages = images?.filter(img => {
+    const url = img.image_url?.toLowerCase() || '';
+    return url.match(/\.(jpg|jpeg|png|gif|webp)$/i) && !url.includes('.DNG') && !url.includes('.MP4');
+  });
+
   const filteredImages = selectedCategory === 'all' 
-    ? images 
-    : images?.filter(img => img.category === selectedCategory);
+    ? validImages 
+    : validImages?.filter(img => img.category === selectedCategory);
 
   const openLightbox = (index) => setLightboxIndex(index);
   const closeLightbox = () => setLightboxIndex(null);
