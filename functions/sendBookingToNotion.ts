@@ -29,14 +29,37 @@ Deno.serve(async (req) => {
           "Nombre del huésped": {
             title: [{ text: { content: bookingData.guest_name || '' } }]
           },
+          "Teléfono / WhatsApp": {
+            rich_text: [{ text: { content: bookingData.guest_phone || '' } }]
+          },
           "Email": {
             email: bookingData.guest_email || ''
+          },
+          "Cabaña / Casa": {
+            select: { name: bookingData.accommodation_name || '' }
+          },
+          "Check-In / Check-Out": {
+            date: { 
+              start: bookingData.check_in,
+              end: bookingData.check_out
+            }
+          },
+          "Cant. huéspedes": {
+            number: bookingData.number_of_guests || 0
+          },
+          "Monto total": {
+            number: bookingData.total_price || 0
           },
           "Notas": {
             rich_text: [{ text: { content: bookingData.special_requests || '' } }]
           },
-          "Monto total": {
-            number: bookingData.total_price || 0
+          "Estado de la reserva": {
+            select: { 
+              name: bookingData.status === 'confirmed' ? 'Pago' : 'Pendiente'
+            }
+          },
+          "Fecha de reserva": {
+            date: { start: new Date().toISOString().split('T')[0] }
           }
         }
       })
