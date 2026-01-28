@@ -94,14 +94,14 @@ Deno.serve(async (req) => {
         if (notionCheckIn && notionCheckOut) {
           const bookingCheckIn = booking.check_in.split('T')[0];
           const bookingCheckOut = booking.check_out.split('T')[0];
-          
+
           if (bookingCheckIn !== notionCheckIn || bookingCheckOut !== notionCheckOut) {
-            // Preserve time from original booking
-            const checkInTime = booking.check_in.split('T')[1] || '14:00:00-03:00';
-            const checkOutTime = booking.check_out.split('T')[1] || '18:00:00-03:00';
-            
-            updateData.check_in = `${notionCheckIn}T${checkInTime}`;
-            updateData.check_out = `${notionCheckOut}T${checkOutTime}`;
+            // Set times: check-in at 14:00 ART, check-out at 18:00 ART
+            const checkInDate = new Date(notionCheckIn + 'T14:00:00-03:00');
+            const checkOutDate = new Date(notionCheckOut + 'T18:00:00-03:00');
+
+            updateData.check_in = checkInDate.toISOString();
+            updateData.check_out = checkOutDate.toISOString();
             hasChanges = true;
           }
         }
