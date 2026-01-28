@@ -129,11 +129,7 @@ export default function BookingForm({
           </div>
           <div className="text-sm text-stone-600 mb-2">
             <span>
-              ${(() => {
-                const n = formData.number_of_guests;
-                const price = n <= 2 ? 180000 : n === 3 ? 240000 : n === 4 ? 300000 : 360000;
-                return price.toLocaleString();
-              })()} x {bookingDetails.nights} {bookingDetails.nights === 1 ? 'noche' : 'noches'}
+              {formData.number_of_guests} {formData.number_of_guests === 1 ? 'huésped' : 'huéspedes'} • {bookingDetails.nights} {bookingDetails.nights === 1 ? 'noche' : 'noches'}
             </span>
           </div>
           <div className="border-t border-stone-200 pt-3 flex justify-between">
