@@ -52,9 +52,6 @@ export default function BookingForm({
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookings', accommodationId] });
       setSubmitted(true);
-      if (onSuccess) {
-        setTimeout(() => onSuccess(), 2000);
-      }
     },
   });
 
