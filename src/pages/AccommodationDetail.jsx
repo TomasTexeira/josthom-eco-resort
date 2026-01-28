@@ -30,20 +30,6 @@ export default function AccommodationDetail() {
     enabled: !!id,
   });
 
-  // Load images from Media entity
-  const { data: mediaImages } = useQuery({
-    queryKey: ['media', 'accommodation', id],
-    queryFn: async () => {
-      const images = await base44.entities.Media.filter({ 
-        category: 'accommodation',
-        related_entity: 'Accommodation',
-        related_id: id
-      }, 'order');
-      return images;
-    },
-    enabled: !!id,
-  });
-
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -65,10 +51,7 @@ export default function AccommodationDetail() {
     );
   }
 
-  // Use Media images if available, fallback to hardcoded images
-  const mainImage = mediaImages?.find(img => img.is_main)?.url || accommodation.main_image;
-  const galleryImages = mediaImages?.filter(img => !img.is_main).map(img => img.url) || accommodation.gallery_images || [];
-  const allImages = [mainImage, ...galleryImages].filter(Boolean);
+  const allImages = [accommodation.main_image, ...(accommodation.gallery_images || [])].filter(Boolean);
 
   const nextImage = () => {
     setSelectedImageIndex((prev) => (prev + 1) % allImages.length);
@@ -119,7 +102,7 @@ export default function AccommodationDetail() {
     "@type": "LodgingBusiness",
     "name": accommodation.name,
     "description": seoDescription,
-    "image": mainImage,
+    "image": accommodation.main_image,
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Villa Paranacito",
@@ -153,7 +136,7 @@ export default function AccommodationDetail() {
         title={seoTitle}
         description={seoDescription}
         keywords={seoKeywords}
-        image={mainImage}
+        image={accommodation.main_image}
         url={`/accommodation-detail?id=${accommodation.id}`}
         structuredData={structuredData}
       />
@@ -174,14 +157,14 @@ export default function AccommodationDetail() {
             onClick={() => setSelectedImageIndex(0)}
           >
             <img
-              src={mainImage || "https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=800&q=80"}
+              src={accommodation.main_image || "https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=800&q=80"}
               alt={accommodation.name}
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
             />
           </div>
           
           {/* Gallery Thumbnails */}
-          {galleryImages.slice(0, 4).map((img, i) => (
+          {(accommodation.gallery_images || []).slice(0, 4).map((img, i) => (
             <div 
               key={i}
               className="aspect-square rounded-xl overflow-hidden cursor-pointer hidden md:block"
