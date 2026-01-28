@@ -70,11 +70,15 @@ export default function BookingForm({
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    // Add check-in time (14:00) and check-out time (18:00)
+    const checkInWithTime = new Date(bookingDetails.checkIn + 'T14:00:00').toISOString();
+    const checkOutWithTime = new Date(bookingDetails.checkOut + 'T18:00:00').toISOString();
+
     const bookingData = {
       accommodation_id: accommodationId,
       accommodation_name: accommodationName,
-      check_in: bookingDetails.checkIn,
-      check_out: bookingDetails.checkOut,
+      check_in: checkInWithTime,
+      check_out: checkOutWithTime,
       total_price: currentTotal,
       status: 'pending',
       source: 'web',
