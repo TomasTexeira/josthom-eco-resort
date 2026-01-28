@@ -118,93 +118,78 @@ export default function Gallery() {
               <Loader2 className="w-8 h-8 animate-spin text-amber-700" />
             </div>
           ) : (
-            <motion.div 
-              layout 
-              className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-            >
-              <AnimatePresence mode="popLayout">
-                {displayImages?.map((image, index) => (
-                  <motion.div
-                    key={image.id || index}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                    transition={{ duration: 0.3 }}
-                    className={`aspect-square rounded-xl overflow-hidden cursor-pointer group ${
-                      index % 5 === 0 ? 'md:col-span-2 md:row-span-2' : ''
-                    }`}
-                    onClick={() => openLightbox(index)}
-                  >
-                    <div className="relative w-full h-full">
-                      <img
-                        src={image.image_url}
-                        alt={image.title || ''}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                      />
-                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-end">
-                        {image.title && (
-                          <p className="text-white p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-light">
-                            {image.title}
-                          </p>
-                        )}
-                      </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {displayImages?.map((image, index) => (
+                <div
+                  key={image.id || index}
+                  className={`aspect-square rounded-xl overflow-hidden cursor-pointer group ${
+                    index % 5 === 0 ? 'md:col-span-2 md:row-span-2' : ''
+                  }`}
+                  onClick={() => openLightbox(index)}
+                >
+                  <div className="relative w-full h-full">
+                    <img
+                      src={image.image_url}
+                      alt={image.title || ''}
+                      className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-300 flex items-end">
+                      {image.title && (
+                        <p className="text-white p-4 opacity-0 group-hover:opacity-100 transition-opacity duration-300 font-light">
+                          {image.title}
+                        </p>
+                      )}
                     </div>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
       </section>
 
       {/* Lightbox */}
-      <AnimatePresence>
-        {lightboxIndex !== null && displayImages && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black flex items-center justify-center"
+      {lightboxIndex !== null && displayImages && (
+        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+          <button
+            onClick={closeLightbox}
+            className="absolute top-6 right-6 text-white/80 hover:text-white z-10"
           >
-            <button
-              onClick={closeLightbox}
-              className="absolute top-6 right-6 text-white/80 hover:text-white z-10"
-            >
-              <X className="w-8 h-8" />
-            </button>
+            <X className="w-8 h-8" />
+          </button>
 
-            <button
-              onClick={prevImage}
-              className="absolute left-6 text-white/80 hover:text-white z-10"
-            >
-              <ChevronLeft className="w-10 h-10" />
-            </button>
+          <button
+            onClick={prevImage}
+            className="absolute left-6 text-white/80 hover:text-white z-10"
+          >
+            <ChevronLeft className="w-10 h-10" />
+          </button>
 
-            <img
-              src={displayImages[lightboxIndex]?.image_url}
-              alt={displayImages[lightboxIndex]?.title || ''}
-              className="max-w-full max-h-[90vh] object-contain"
-            />
+          <img
+            src={displayImages[lightboxIndex]?.image_url}
+            alt={displayImages[lightboxIndex]?.title || ''}
+            className="max-w-full max-h-[90vh] object-contain"
+            loading="lazy"
+          />
 
-            <button
-              onClick={nextImage}
-              className="absolute right-6 text-white/80 hover:text-white z-10"
-            >
-              <ChevronRight className="w-10 h-10" />
-            </button>
+          <button
+            onClick={nextImage}
+            className="absolute right-6 text-white/80 hover:text-white z-10"
+          >
+            <ChevronRight className="w-10 h-10" />
+          </button>
 
-            <div className="absolute bottom-6 text-center">
-              {displayImages[lightboxIndex]?.title && (
-                <p className="text-white mb-2">{displayImages[lightboxIndex].title}</p>
-              )}
-              <p className="text-white/60 text-sm">
-                {lightboxIndex + 1} / {displayImages.length}
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <div className="absolute bottom-6 text-center">
+            {displayImages[lightboxIndex]?.title && (
+              <p className="text-white mb-2">{displayImages[lightboxIndex].title}</p>
+            )}
+            <p className="text-white/60 text-sm">
+              {lightboxIndex + 1} / {displayImages.length}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

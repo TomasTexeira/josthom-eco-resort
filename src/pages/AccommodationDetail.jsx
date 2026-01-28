@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { 
@@ -289,47 +288,41 @@ export default function AccommodationDetail() {
       </section>
 
       {/* Lightbox */}
-      <AnimatePresence>
-        {selectedImageIndex !== null && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black flex items-center justify-center"
+      {selectedImageIndex !== null && (
+        <div className="fixed inset-0 z-50 bg-black flex items-center justify-center">
+          <button
+            onClick={() => setSelectedImageIndex(null)}
+            className="absolute top-6 right-6 text-white/80 hover:text-white z-10"
           >
-            <button
-              onClick={() => setSelectedImageIndex(null)}
-              className="absolute top-6 right-6 text-white/80 hover:text-white z-10"
-            >
-              <X className="w-8 h-8" />
-            </button>
+            <X className="w-8 h-8" />
+          </button>
 
-            <button
-              onClick={prevImage}
-              className="absolute left-6 text-white/80 hover:text-white z-10"
-            >
-              <ChevronLeft className="w-10 h-10" />
-            </button>
+          <button
+            onClick={prevImage}
+            className="absolute left-6 text-white/80 hover:text-white z-10"
+          >
+            <ChevronLeft className="w-10 h-10" />
+          </button>
 
-            <img
-              src={allImages[selectedImageIndex]}
-              alt=""
-              className="max-w-full max-h-[90vh] object-contain"
-            />
+          <img
+            src={allImages[selectedImageIndex]}
+            alt=""
+            className="max-w-full max-h-[90vh] object-contain"
+            loading="lazy"
+          />
 
-            <button
-              onClick={nextImage}
-              className="absolute right-6 text-white/80 hover:text-white z-10"
-            >
-              <ChevronRight className="w-10 h-10" />
-            </button>
+          <button
+            onClick={nextImage}
+            className="absolute right-6 text-white/80 hover:text-white z-10"
+          >
+            <ChevronRight className="w-10 h-10" />
+          </button>
 
-            <div className="absolute bottom-6 text-white/60 text-sm">
-              {selectedImageIndex + 1} / {allImages.length}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <div className="absolute bottom-6 text-white/60 text-sm">
+            {selectedImageIndex + 1} / {allImages.length}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
