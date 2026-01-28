@@ -51,9 +51,6 @@ Deno.serve(async (req) => {
             number: bookingData.total_price || 0
           },
           "Id Reserva": {
-            rich_text: [{ text: { content: bookingData.accommodation_id || '' } }]
-          },
-          "Id Base44": {
             rich_text: [{ text: { content: bookingData.base44_id || '' } }]
           },
           "Notas": {
