@@ -55,9 +55,16 @@ Deno.serve(async (req) => {
     for (const page of notionData.results) {
       const props = page.properties;
       
-      // Extract Base44 ID
-      const base44Id = props["Id Reserva"]?.rich_text?.[0]?.text?.content;
-      if (!base44Id) continue;
+      // Extract accommodation ID
+      const accommodationId = props["Id Reserva"]?.rich_text?.[0]?.text?.content;
+      if (!accommodationId) continue;
+
+      // Extract dates
+      const dateRange = props["Check-In / Check-Out"]?.date;
+      if (!dateRange?.start) continue;
+
+      const checkIn = dateRange.start;
+      const checkOut = dateRange.end;
 
       // Extract status from Notion
       const notionStatus = props["Estado de la reserva"]?.select?.name;
@@ -67,22 +74,31 @@ Deno.serve(async (req) => {
       if (!mappedStatus) continue;
 
       try {
-        // Get current booking from Base44
-        const booking = await base44.asServiceRole.entities.Booking.get(base44Id);
+        // Find booking by accommodation_id and dates
+        const bookings = await base44.asServiceRole.entities.Booking.filter({
+          accommodation_id: accommodationId,
+          check_in: checkIn,
+          check_out: checkOut
+        });
+
+        if (bookings.length === 0) continue;
+        
+        const booking = bookings[0];
         
         // Update if status changed
-        if (booking && booking.status !== mappedStatus) {
-          await base44.asServiceRole.entities.Booking.update(base44Id, {
+        if (booking.status !== mappedStatus) {
+          await base44.asServiceRole.entities.Booking.update(booking.id, {
             status: mappedStatus
           });
           updates.push({
-            base44_id: base44Id,
+            base44_id: booking.id,
+            accommodation_id: accommodationId,
             old_status: booking.status,
             new_status: mappedStatus
           });
         }
       } catch (error) {
-        console.error(`Error syncing booking ${base44Id}:`, error);
+        console.error(`Error syncing booking for accommodation ${accommodationId}:`, error);
       }
     }
 
