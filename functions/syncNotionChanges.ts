@@ -66,6 +66,11 @@ Deno.serve(async (req) => {
       const mappedStatus = statusMap[notionStatus];
       if (!mappedStatus) continue;
 
+      // Extract dates from Notion
+      const dateRange = props["Check-In / Check-Out"]?.date;
+      const notionCheckIn = dateRange?.start;
+      const notionCheckOut = dateRange?.end;
+
       try {
         // Get booking directly by ID
         const booking = await base44.asServiceRole.entities.Booking.get(base44Id);
@@ -75,16 +80,39 @@ Deno.serve(async (req) => {
           continue;
         }
         
-        // Update if status changed
+        // Prepare update data
+        const updateData = {};
+        let hasChanges = false;
+
+        // Check if status changed
         if (booking.status !== mappedStatus) {
-          await base44.asServiceRole.entities.Booking.update(booking.id, {
-            status: mappedStatus
-          });
+          updateData.status = mappedStatus;
+          hasChanges = true;
+        }
+
+        // Check if dates changed
+        if (notionCheckIn && notionCheckOut) {
+          const bookingCheckIn = booking.check_in.split('T')[0];
+          const bookingCheckOut = booking.check_out.split('T')[0];
+          
+          if (bookingCheckIn !== notionCheckIn || bookingCheckOut !== notionCheckOut) {
+            // Preserve time from original booking
+            const checkInTime = booking.check_in.split('T')[1] || '14:00:00-03:00';
+            const checkOutTime = booking.check_out.split('T')[1] || '18:00:00-03:00';
+            
+            updateData.check_in = `${notionCheckIn}T${checkInTime}`;
+            updateData.check_out = `${notionCheckOut}T${checkOutTime}`;
+            hasChanges = true;
+          }
+        }
+
+        // Update if there are changes
+        if (hasChanges) {
+          await base44.asServiceRole.entities.Booking.update(booking.id, updateData);
           updates.push({
             base44_id: booking.id,
             accommodation_id: booking.accommodation_id,
-            old_status: booking.status,
-            new_status: mappedStatus
+            changes: updateData
           });
         }
       } catch (error) {
