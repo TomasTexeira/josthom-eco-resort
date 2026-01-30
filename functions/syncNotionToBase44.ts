@@ -123,6 +123,7 @@ Deno.serve(async (req) => {
         guest_phone: guestPhone || "",
         number_of_guests: numberOfGuests || 1,
         total_price: totalPrice || 0,
+        special_requests: specialRequests,
         source: "other",
       };
 
