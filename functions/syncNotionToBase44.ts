@@ -68,9 +68,9 @@ Deno.serve(async (req) => {
       }
 
       // Extraer datos de Notion - intentar múltiples formatos
-      let accommodationId = props["Alojamiento"]?.select?.name || 
-                           props["Alojamiento"]?.rich_text?.[0]?.plain_text ||
-                           props["Alojamiento"]?.title?.[0]?.plain_text;
+      let accommodationId = props["Cabaña / Casa"]?.select?.name || 
+                           props["Cabaña / Casa"]?.rich_text?.[0]?.plain_text ||
+                           props["Cabaña / Casa"]?.title?.[0]?.plain_text;
       const notionStatus = props["Estado de la reserva"]?.select?.name;
       const dateRange = props["Check-In / Check-Out"]?.date;
       const guestName = props["Nombre del huésped"]?.title?.[0]?.plain_text;
