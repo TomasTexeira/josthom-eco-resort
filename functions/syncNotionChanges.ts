@@ -105,6 +105,19 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Enviar correo si hubo actualizaciones
+    if (updates.length > 0) {
+      const updateList = updates.map(u => 
+        `- Booking ${u.booking_id}: ${Object.entries(u.changes).map(([k, v]) => `${k}=${v}`).join(', ')}`
+      ).join('\n');
+
+      await base44.asServiceRole.integrations.Core.SendEmail({
+        to: "tom.tex2322@gmail.com",
+        subject: `Josthom: ${updates.length} ${updates.length === 1 ? 'reserva sincronizada' : 'reservas sincronizadas'} desde Notion`,
+        body: `Se sincronizaron ${updates.length} ${updates.length === 1 ? 'reserva' : 'reservas'} desde Notion a Base44:\n\n${updateList}`
+      });
+    }
+
     return Response.json({ success: true, synced: updates.length, updates });
   } catch (error) {
     return Response.json({ error: (error as Error).message }, { status: 500 });
