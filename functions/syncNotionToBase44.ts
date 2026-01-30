@@ -51,6 +51,12 @@ Deno.serve(async (req) => {
     for (const page of notionData.results ?? []) {
       const props = page.properties;
 
+      // Log para debug
+      const guestNameDebug = props["Nombre del huésped"]?.title?.[0]?.plain_text;
+      if (guestNameDebug === "Cargado a mano") {
+        console.log("DEBUG - Página 'Cargado a mano':", JSON.stringify(props, null, 2));
+      }
+
       // Verificar si ya tiene booking.id en "Id Reserva"
       const existingBookingId =
         props["Id Reserva"]?.rich_text?.[0]?.plain_text ||
