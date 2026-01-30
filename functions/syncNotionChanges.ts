@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: "NOTION_DATABASE_ID no configurado" }, { status: 500 });
     }
 
-    console.log("🔍 [DEBUG] Consultando Notion con filtro de 'Id Reserva' no vacío...");
+    console.log("🔍 [DEBUG] Consultando TODAS las páginas de Notion...");
     const notionResponse = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
       method: "POST",
       headers: {
@@ -33,10 +33,6 @@ Deno.serve(async (req) => {
         "Notion-Version": "2022-06-28",
       },
       body: JSON.stringify({
-        filter: {
-          property: "Id Reserva",
-          rich_text: { is_not_empty: true },
-        },
         page_size: 100,
       }),
     });
