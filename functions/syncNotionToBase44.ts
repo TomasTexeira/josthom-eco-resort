@@ -46,6 +46,7 @@ Deno.serve(async (req) => {
     };
 
     const created = [];
+    const skipped = [];
 
     for (const page of notionData.results ?? []) {
       const props = page.properties;
@@ -59,6 +60,7 @@ Deno.serve(async (req) => {
       if (existingBookingId) {
         try {
           await base44.asServiceRole.entities.Booking.get(existingBookingId);
+          skipped.push({ page_id: page.id, reason: "Ya tiene booking.id", booking_id: existingBookingId });
           continue; // Ya existe, skip
         } catch (error) {
           // No existe, continuar para crear
@@ -79,12 +81,14 @@ Deno.serve(async (req) => {
       const outDate = toDateOnly(dateRange?.end);
 
       if (!accommodationId || !inDate || !outDate) {
+        skipped.push({ page_id: page.id, reason: "Faltan datos", accommodationId, inDate, outDate, guestName });
         continue; // Faltan datos esenciales
       }
 
       // Buscar el accommodation en Base44
       const accommodations = await base44.asServiceRole.entities.Accommodation.filter({ name: accommodationId });
       if (!accommodations || accommodations.length === 0) {
+        skipped.push({ page_id: page.id, reason: "Alojamiento no encontrado", accommodationId });
         continue; // No se encontró el alojamiento
       }
       const accommodation = accommodations[0];
@@ -140,7 +144,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    return Response.json({ success: true, created: created.length, bookings: created });
+    return Response.json({ success: true, created: created.length, bookings: created, skipped });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
