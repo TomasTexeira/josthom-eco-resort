@@ -53,12 +53,12 @@ Deno.serve(async (req) => {
     for (const page of notionData.results ?? []) {
       const props = page.properties;
 
-      // Id Reserva = accommodation_id
-      const accommodationId =
+      // Id Reserva = booking.id de Base44
+      const bookingId =
         props["Id Reserva"]?.rich_text?.[0]?.plain_text ||
         props["Id Reserva"]?.rich_text?.[0]?.text?.content;
 
-      if (!accommodationId) continue;
+      if (!bookingId) continue;
 
       const notionStatus = props["Estado de la reserva"]?.select?.name;
       const mappedStatus = notionStatus ? statusMap[notionStatus] : null;
@@ -69,20 +69,14 @@ Deno.serve(async (req) => {
       const outDate = toDateOnly(dateRange?.end);
       if (!inDate || !outDate) continue;
 
-      // Buscar booking por accommodation_id + mismas fechas
-      const list = await base44.asServiceRole.entities.Booking.list({
-        limit: 50,
-        filter: { accommodation_id: accommodationId }, // si tu SDK no soporta filter, sacalo y filtrá en memoria
-        sort: { created_date: -1 },
-      });
-
-      const bookings = list?.items ?? [];
-
-      const booking = bookings.find((b: any) => {
-        const bIn = toDateOnly(b.check_in);
-        const bOut = toDateOnly(b.check_out);
-        return bIn === inDate && bOut === outDate;
-      });
+      // Buscar booking directamente por ID
+      let booking;
+      try {
+        booking = await base44.asServiceRole.entities.Booking.get(bookingId);
+      } catch (error) {
+        console.warn(`Booking ${bookingId} not found in Base44`);
+        continue;
+      }
 
       if (!booking) continue;
 
