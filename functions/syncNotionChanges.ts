@@ -10,6 +10,8 @@ function withArtTime(dateOnly: string, time: string) {
 
 Deno.serve(async (req) => {
   try {
+    console.log("🔍 [DEBUG] Iniciando syncNotionChanges");
+    
     // IMPORTANTE: Para automatizaciones, crear cliente service role directamente
     const { Base44Client } = await import("npm:@base44/sdk@0.8.6");
     const base44 = new Base44Client({
@@ -17,13 +19,19 @@ Deno.serve(async (req) => {
       appId: Deno.env.get("BASE44_APP_ID"),
       serviceRoleKey: Deno.env.get("BASE44_SERVICE_ROLE_KEY"),
     });
+    console.log("🔍 [DEBUG] Cliente service role creado");
 
     const accessToken = await base44.connectors.getAccessToken("notion");
+    console.log("🔍 [DEBUG] AccessToken obtenido:", accessToken ? "✅ SI" : "❌ NO");
+    
     const databaseId = Deno.env.get("NOTION_DATABASE_ID");
+    console.log("🔍 [DEBUG] NOTION_DATABASE_ID:", databaseId ? "✅ SI" : "❌ NO");
+    
     if (!databaseId) {
       return Response.json({ error: "NOTION_DATABASE_ID no configurado" }, { status: 500 });
     }
 
+    console.log("🔍 [DEBUG] Consultando Notion con filtro de 'Id Reserva' no vacío...");
     const notionResponse = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
       method: "POST",
       headers: {
@@ -33,19 +41,22 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         filter: {
-          property: "Id Reserva", // <-- en tu caso: accommodation_id
+          property: "Id Reserva",
           rich_text: { is_not_empty: true },
         },
         page_size: 100,
       }),
     });
 
+    console.log("🔍 [DEBUG] Respuesta de Notion:", notionResponse.status);
     if (!notionResponse.ok) {
       const errorText = await notionResponse.text();
+      console.error("❌ [ERROR] Error consultando Notion:", errorText);
       return Response.json({ error: "Error consultando Notion", details: errorText }, { status: notionResponse.status });
     }
 
     const notionData = await notionResponse.json();
+    console.log("🔍 [DEBUG] Páginas encontradas con Id Reserva:", notionData.results?.length || 0);
 
     const statusMap: Record<string, string> = {
       Pendiente: "pending",
@@ -57,6 +68,7 @@ Deno.serve(async (req) => {
     const updates: any[] = [];
 
     for (const page of notionData.results ?? []) {
+      console.log("🔍 [DEBUG] Procesando página:", page.id);
       const props = page.properties;
 
       // Id Reserva = booking.id de Base44
@@ -64,7 +76,12 @@ Deno.serve(async (req) => {
         props["Id Reserva"]?.rich_text?.[0]?.plain_text ||
         props["Id Reserva"]?.rich_text?.[0]?.text?.content;
 
-      if (!bookingId) continue;
+      console.log("🔍 [DEBUG] bookingId extraído:", bookingId);
+
+      if (!bookingId) {
+        console.log("⚠️ [DEBUG] No hay bookingId, skip");
+        continue;
+      }
 
       // Extraer todas las propiedades de Notion
       const notionStatus = props["Estado de la reserva"]?.select?.name;
@@ -87,15 +104,20 @@ Deno.serve(async (req) => {
       if (!inDate || !outDate) continue;
 
       // Buscar booking directamente por ID
+      console.log("🔍 [DEBUG] Buscando booking:", bookingId);
       let booking;
       try {
-      booking = await base44.entities.Booking.get(bookingId);
+        booking = await base44.entities.Booking.get(bookingId);
+        console.log("✅ [DEBUG] Booking encontrado");
       } catch (error) {
-      console.warn(`Booking ${bookingId} not found in Base44`);
-      continue;
+        console.warn(`⚠️ [DEBUG] Booking ${bookingId} not found in Base44:`, error.message);
+        continue;
       }
 
-      if (!booking) continue;
+      if (!booking) {
+        console.log("⚠️ [DEBUG] Booking es null, skip");
+        continue;
+      }
 
       const updateData: Record<string, any> = {};
       let hasChanges = false;
@@ -153,10 +175,16 @@ Deno.serve(async (req) => {
       }
 
       if (hasChanges) {
-      await base44.entities.Booking.update(booking.id, updateData);
-      updates.push({ booking_id: booking.id, changes: updateData });
+        console.log("🔍 [DEBUG] Actualizando booking:", booking.id, "con:", updateData);
+        await base44.entities.Booking.update(booking.id, updateData);
+        updates.push({ booking_id: booking.id, changes: updateData });
+        console.log("✅ [DEBUG] Booking actualizado");
+      } else {
+        console.log("✅ [DEBUG] No hay cambios para este booking");
       }
       }
+
+      console.log("🔍 [DEBUG] Proceso completado. Updates:", updates.length);
 
       // Enviar correo si hubo actualizaciones
       if (updates.length > 0) {
@@ -171,8 +199,11 @@ Deno.serve(async (req) => {
       });
     }
 
+    console.log("✅ [DEBUG] Función completada exitosamente");
     return Response.json({ success: true, synced: updates.length, updates });
   } catch (error) {
-    return Response.json({ error: (error as Error).message }, { status: 500 });
+    console.error("❌ [ERROR] Error en syncNotionChanges:", error.message);
+    console.error("❌ [ERROR] Stack:", error.stack);
+    return Response.json({ error: (error as Error).message, stack: error.stack }, { status: 500 });
   }
 });
