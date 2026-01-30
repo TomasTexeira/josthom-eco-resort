@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
       let hasChanges = false;
 
       // status
-      if (booking.status !== mappedStatus) {
+      if (mappedStatus && booking.status !== mappedStatus) {
         updateData.status = mappedStatus;
         hasChanges = true;
       }
@@ -107,6 +107,42 @@ Deno.serve(async (req) => {
       if (booking.check_in !== desiredCheckIn || booking.check_out !== desiredCheckOut) {
         updateData.check_in = desiredCheckIn;
         updateData.check_out = desiredCheckOut;
+        hasChanges = true;
+      }
+
+      // guest_name
+      if (guestName && booking.guest_name !== guestName) {
+        updateData.guest_name = guestName;
+        hasChanges = true;
+      }
+
+      // guest_email
+      if (guestEmail && booking.guest_email !== guestEmail) {
+        updateData.guest_email = guestEmail;
+        hasChanges = true;
+      }
+
+      // guest_phone
+      if (guestPhone && booking.guest_phone !== guestPhone) {
+        updateData.guest_phone = guestPhone;
+        hasChanges = true;
+      }
+
+      // number_of_guests
+      if (numberOfGuests !== undefined && numberOfGuests !== null && booking.number_of_guests !== numberOfGuests) {
+        updateData.number_of_guests = numberOfGuests;
+        hasChanges = true;
+      }
+
+      // total_price
+      if (totalPrice !== undefined && totalPrice !== null && booking.total_price !== totalPrice) {
+        updateData.total_price = totalPrice;
+        hasChanges = true;
+      }
+
+      // special_requests
+      if (specialRequests && booking.special_requests !== specialRequests) {
+        updateData.special_requests = specialRequests;
         hasChanges = true;
       }
 
