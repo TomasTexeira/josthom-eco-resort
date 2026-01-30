@@ -12,16 +12,10 @@ Deno.serve(async (req) => {
   try {
     console.log("🔍 [DEBUG] Iniciando syncNotionChanges");
     
-    // IMPORTANTE: Para automatizaciones, crear cliente service role directamente
-    const { Base44Client } = await import("npm:@base44/sdk@0.8.6");
-    const base44 = new Base44Client({
-      url: Deno.env.get("BASE44_API_URL") || "https://api.base44.com",
-      appId: Deno.env.get("BASE44_APP_ID"),
-      serviceRoleKey: Deno.env.get("BASE44_SERVICE_ROLE_KEY"),
-    });
-    console.log("🔍 [DEBUG] Cliente service role creado");
+    const base44 = createClientFromRequest(req);
+    console.log("🔍 [DEBUG] Cliente creado");
 
-    const accessToken = await base44.connectors.getAccessToken("notion");
+    const accessToken = await base44.asServiceRole.connectors.getAccessToken("notion");
     console.log("🔍 [DEBUG] AccessToken obtenido:", accessToken ? "✅ SI" : "❌ NO");
     
     const databaseId = Deno.env.get("NOTION_DATABASE_ID");
@@ -107,7 +101,7 @@ Deno.serve(async (req) => {
       console.log("🔍 [DEBUG] Buscando booking:", bookingId);
       let booking;
       try {
-        booking = await base44.entities.Booking.get(bookingId);
+        booking = await base44.asServiceRole.entities.Booking.get(bookingId);
         console.log("✅ [DEBUG] Booking encontrado");
       } catch (error) {
         console.warn(`⚠️ [DEBUG] Booking ${bookingId} not found in Base44:`, error.message);
@@ -176,7 +170,7 @@ Deno.serve(async (req) => {
 
       if (hasChanges) {
         console.log("🔍 [DEBUG] Actualizando booking:", booking.id, "con:", updateData);
-        await base44.entities.Booking.update(booking.id, updateData);
+        await base44.asServiceRole.entities.Booking.update(booking.id, updateData);
         updates.push({ booking_id: booking.id, changes: updateData });
         console.log("✅ [DEBUG] Booking actualizado");
       } else {
@@ -192,7 +186,7 @@ Deno.serve(async (req) => {
       `- Booking ${u.booking_id}: ${Object.entries(u.changes).map(([k, v]) => `${k}=${v}`).join(', ')}`
       ).join('\n');
 
-      await base44.integrations.Core.SendEmail({
+      await base44.asServiceRole.integrations.Core.SendEmail({
         to: "tom.tex2322@gmail.com",
         subject: `Josthom: ${updates.length} ${updates.length === 1 ? 'reserva sincronizada' : 'reservas sincronizadas'} desde Notion`,
         body: `Se sincronizaron ${updates.length} ${updates.length === 1 ? 'reserva' : 'reservas'} desde Notion a Base44:\n\n${updateList}`
