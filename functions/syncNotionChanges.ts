@@ -60,13 +60,24 @@ Deno.serve(async (req) => {
 
       if (!bookingId) continue;
 
+      // Extraer todas las propiedades de Notion
       const notionStatus = props["Estado de la reserva"]?.select?.name;
       const mappedStatus = notionStatus ? statusMap[notionStatus] : null;
-      if (!mappedStatus) continue;
-
+      
       const dateRange = props["Check-In / Check-Out"]?.date;
       const inDate = toDateOnly(dateRange?.start);
       const outDate = toDateOnly(dateRange?.end);
+      
+      const guestName = props["Nombre del huésped"]?.title?.[0]?.plain_text || "";
+      const guestEmail = props["Email"]?.email || "";
+      const guestPhone = props["Teléfono / WhatsApp"]?.phone_number || 
+                        props["Teléfono / WhatsApp"]?.rich_text?.[0]?.plain_text || "";
+      const numberOfGuests = props["Número de huéspedes"]?.number;
+      const totalPrice = props["Monto total"]?.number;
+      const specialRequests = props["Peticiones especiales"]?.rich_text?.[0]?.plain_text || 
+                             props["Notas"]?.rich_text?.[0]?.plain_text || "";
+      
+      // Validar campos mínimos requeridos
       if (!inDate || !outDate) continue;
 
       // Buscar booking directamente por ID
