@@ -45,7 +45,8 @@ Deno.serve(async (req) => {
     }
 
     const notionData = await notionResponse.json();
-    console.log("🔍 [DEBUG] Páginas encontradas con Id Reserva:", notionData.results?.length || 0);
+    console.log("🔍 [DEBUG] TOTAL páginas encontradas:", notionData.results?.length || 0);
+    console.log("🔍 [DEBUG] Raw Notion response:", JSON.stringify(notionData, null, 2));
 
     const statusMap = {
       Pendiente: "pending",
