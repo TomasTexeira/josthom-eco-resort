@@ -52,14 +52,14 @@ Deno.serve(async (req) => {
     const notionData = await notionResponse.json();
     console.log("🔍 [DEBUG] Páginas encontradas con Id Reserva:", notionData.results?.length || 0);
 
-    const statusMap: Record<string, string> = {
+    const statusMap = {
       Pendiente: "pending",
       Pago: "confirmed",
       Cancelada: "cancelled",
       Completa: "completed",
     };
 
-    const updates: any[] = [];
+    const updates = [];
 
     for (const page of notionData.results ?? []) {
       console.log("🔍 [DEBUG] Procesando página:", page.id);
@@ -80,20 +80,20 @@ Deno.serve(async (req) => {
       // Extraer todas las propiedades de Notion
       const notionStatus = props["Estado de la reserva"]?.select?.name;
       const mappedStatus = notionStatus ? statusMap[notionStatus] : null;
-      
+
       const dateRange = props["Check-In / Check-Out"]?.date;
       const inDate = toDateOnly(dateRange?.start);
       const outDate = toDateOnly(dateRange?.end);
-      
+
       const guestName = props["Nombre del huésped"]?.title?.[0]?.plain_text || "";
       const guestEmail = props["Email"]?.email || "";
       const guestPhone = props["Teléfono / WhatsApp"]?.phone_number || 
-                        props["Teléfono / WhatsApp"]?.rich_text?.[0]?.plain_text || "";
+                         props["Teléfono / WhatsApp"]?.rich_text?.[0]?.plain_text || "";
       const numberOfGuests = props["Número de huéspedes"]?.number;
       const totalPrice = props["Monto total"]?.number;
       const specialRequests = props["Peticiones especiales"]?.rich_text?.[0]?.plain_text || 
                              props["Notas"]?.rich_text?.[0]?.plain_text || "";
-      
+
       // Validar campos mínimos requeridos
       if (!inDate || !outDate) continue;
 
@@ -113,7 +113,7 @@ Deno.serve(async (req) => {
         continue;
       }
 
-      const updateData: Record<string, any> = {};
+      const updateData = {};
       let hasChanges = false;
 
       // status
@@ -198,6 +198,6 @@ Deno.serve(async (req) => {
   } catch (error) {
     console.error("❌ [ERROR] Error en syncNotionChanges:", error.message);
     console.error("❌ [ERROR] Stack:", error.stack);
-    return Response.json({ error: (error as Error).message, stack: error.stack }, { status: 500 });
+    return Response.json({ error: error.message, stack: error.stack }, { status: 500 });
   }
 });
