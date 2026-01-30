@@ -11,6 +11,9 @@ function withArtTime(dateOnly, time) {
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    
+    // Para automatizaciones programadas, usar directamente asServiceRole
+    const client = base44.asServiceRole;
 
     const accessToken = await base44.asServiceRole.connectors.getAccessToken("notion");
     const databaseId = Deno.env.get("NOTION_DATABASE_ID");
