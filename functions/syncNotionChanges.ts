@@ -50,7 +50,6 @@ Deno.serve(async (req) => {
 
     const notionData = await notionResponse.json();
     console.log("🔍 [DEBUG] TOTAL páginas encontradas:", notionData.results?.length || 0);
-    console.log("🔍 [DEBUG] Raw Notion response:", JSON.stringify(notionData, null, 2));
 
     const statusMap = {
       Pendiente: "pending",
@@ -60,8 +59,41 @@ Deno.serve(async (req) => {
     };
 
     const updates = [];
+    let allPages = [...(notionData.results ?? [])];
+    let hasMore = notionData.has_more;
+    let nextCursor = notionData.next_cursor;
 
-    for (const page of notionData.results ?? []) {
+    // Paginación: obtener todas las páginas si hay más de 100
+    while (hasMore && nextCursor) {
+      console.log("🔍 [DEBUG] Obteniendo página siguiente con cursor:", nextCursor);
+      const nextResponse = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+          "Notion-Version": "2022-06-28",
+        },
+        body: JSON.stringify({
+          page_size: 100,
+          start_cursor: nextCursor,
+        }),
+      });
+
+      if (!nextResponse.ok) {
+        console.error("❌ [ERROR] Error obteniendo página siguiente:", nextResponse.status);
+        break;
+      }
+
+      const nextData = await nextResponse.json();
+      allPages = [...allPages, ...(nextData.results ?? [])];
+      hasMore = nextData.has_more;
+      nextCursor = nextData.next_cursor;
+      console.log("🔍 [DEBUG] Total páginas acumuladas:", allPages.length);
+    }
+
+    console.log("🔍 [DEBUG] Total final de páginas:", allPages.length);
+
+    for (const page of allPages) {
       console.log("🔍 [DEBUG] Procesando página:", page.id);
       const props = page.properties;
 
