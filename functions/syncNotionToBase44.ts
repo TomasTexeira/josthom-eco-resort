@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
     // Para automatizaciones programadas, usar directamente asServiceRole
     const client = base44.asServiceRole;
 
-    const accessToken = await base44.asServiceRole.connectors.getAccessToken("notion");
+    const accessToken = await client.connectors.getAccessToken("notion");
     const databaseId = Deno.env.get("NOTION_DATABASE_ID");
     if (!databaseId) {
       return Response.json({ error: "NOTION_DATABASE_ID no configurado" }, { status: 500 });
