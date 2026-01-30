@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
           inDate, 
           outDate, 
           guestName,
-          alojamiento_raw: props["Alojamiento"]
+          cabana_casa_raw: props["Cabaña / Casa"]
         });
         continue; // Faltan datos esenciales
       }
