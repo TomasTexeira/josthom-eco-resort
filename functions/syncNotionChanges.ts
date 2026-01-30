@@ -1,13 +1,11 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from "npm:@base44/sdk@0.8.6";
 
 function toDateOnly(iso?: string | null) {
-  return iso ? iso.split('T')[0] : null; // "YYYY-MM-DD"
+  return iso ? iso.split("T")[0] : null; // YYYY-MM-DD
 }
 
 function withArtTime(dateOnly: string, time: string) {
-  // Argentina UTC-3
-  const d = new Date(`${dateOnly}T${time}-03:00`);
-  return d.toISOString();
+  return new Date(`${dateOnly}T${time}-03:00`).toISOString();
 }
 
 Deno.serve(async (req) => {
@@ -16,99 +14,105 @@ Deno.serve(async (req) => {
 
     const accessToken = await base44.asServiceRole.connectors.getAccessToken("notion");
     const databaseId = Deno.env.get("NOTION_DATABASE_ID");
-
     if (!databaseId) {
-      return Response.json({ error: 'NOTION_DATABASE_ID no configurado' }, { status: 500 });
+      return Response.json({ error: "NOTION_DATABASE_ID no configurado" }, { status: 500 });
     }
 
     const notionResponse = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-        'Notion-Version': '2022-06-28'
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        "Notion-Version": "2022-06-28",
       },
       body: JSON.stringify({
         filter: {
-          property: "Id Reserva",
-          rich_text: { is_not_empty: true }
-        }
-      })
+          property: "Id Reserva", // <-- en tu caso: accommodation_id
+          rich_text: { is_not_empty: true },
+        },
+        page_size: 100,
+      }),
     });
 
     if (!notionResponse.ok) {
       const errorText = await notionResponse.text();
-      console.error('Notion API error:', errorText);
-      return Response.json({ error: 'Error consultando Notion', details: errorText }, { status: notionResponse.status });
+      return Response.json({ error: "Error consultando Notion", details: errorText }, { status: notionResponse.status });
     }
 
     const notionData = await notionResponse.json();
 
     const statusMap: Record<string, string> = {
-      'Pendiente': 'pending',
-      'Pago': 'confirmed',
-      'Cancelada': 'cancelled',
-      'Completa': 'completed'
+      Pendiente: "pending",
+      Pago: "confirmed",
+      Cancelada: "cancelled",
+      Completa: "completed",
     };
 
     const updates: any[] = [];
 
-    for (const page of notionData.results) {
+    for (const page of notionData.results ?? []) {
       const props = page.properties;
 
-      const base44Id =
+      // Id Reserva = accommodation_id
+      const accommodationId =
         props["Id Reserva"]?.rich_text?.[0]?.plain_text ||
         props["Id Reserva"]?.rich_text?.[0]?.text?.content;
 
-      if (!base44Id) continue;
+      if (!accommodationId) continue;
 
       const notionStatus = props["Estado de la reserva"]?.select?.name;
       const mappedStatus = notionStatus ? statusMap[notionStatus] : null;
       if (!mappedStatus) continue;
 
       const dateRange = props["Check-In / Check-Out"]?.date;
-      const notionCheckInDate = toDateOnly(dateRange?.start);
-      const notionCheckOutDate = toDateOnly(dateRange?.end);
+      const inDate = toDateOnly(dateRange?.start);
+      const outDate = toDateOnly(dateRange?.end);
+      if (!inDate || !outDate) continue;
 
-      try {
-        const booking = await base44.asServiceRole.entities.Booking.get(base44Id);
-        if (!booking) continue;
+      // Buscar booking por accommodation_id + mismas fechas
+      const list = await base44.asServiceRole.entities.Booking.list({
+        limit: 50,
+        filter: { accommodation_id: accommodationId }, // si tu SDK no soporta filter, sacalo y filtrá en memoria
+        sort: { created_date: -1 },
+      });
 
-        const updateData: Record<string, any> = {};
-        let hasChanges = false;
+      const bookings = list?.items ?? [];
 
-        // status
-        if (booking.status !== mappedStatus) {
-          updateData.status = mappedStatus;
-          hasChanges = true;
-        }
+      const booking = bookings.find((b: any) => {
+        const bIn = toDateOnly(b.check_in);
+        const bOut = toDateOnly(b.check_out);
+        return bIn === inDate && bOut === outDate;
+      });
 
-        // dates (compare date-only; store with 14/18 ART)
-        if (notionCheckInDate && notionCheckOutDate) {
-          const bookingCheckInDate = toDateOnly(booking.check_in);
-          const bookingCheckOutDate = toDateOnly(booking.check_out);
+      if (!booking) continue;
 
-          if (bookingCheckInDate !== notionCheckInDate || bookingCheckOutDate !== notionCheckOutDate) {
-            updateData.check_in = withArtTime(notionCheckInDate, "14:00:00");
-            updateData.check_out = withArtTime(notionCheckOutDate, "18:00:00");
-            hasChanges = true;
-          }
-        }
+      const updateData: Record<string, any> = {};
+      let hasChanges = false;
 
-        if (hasChanges) {
-          await base44.asServiceRole.entities.Booking.update(booking.id, updateData);
-          updates.push({ base44_id: booking.id, changes: updateData });
-        }
+      // status
+      if (booking.status !== mappedStatus) {
+        updateData.status = mappedStatus;
+        hasChanges = true;
+      }
 
-      } catch (error) {
-        console.error(`Error syncing booking ${base44Id}:`, error);
+      // fechas (siempre fijamos 14/18)
+      const desiredCheckIn = withArtTime(inDate, "14:00:00");
+      const desiredCheckOut = withArtTime(outDate, "18:00:00");
+
+      if (booking.check_in !== desiredCheckIn || booking.check_out !== desiredCheckOut) {
+        updateData.check_in = desiredCheckIn;
+        updateData.check_out = desiredCheckOut;
+        hasChanges = true;
+      }
+
+      if (hasChanges) {
+        await base44.asServiceRole.entities.Booking.update(booking.id, updateData);
+        updates.push({ booking_id: booking.id, accommodation_id: accommodationId, changes: updateData });
       }
     }
 
     return Response.json({ success: true, synced: updates.length, updates });
-
   } catch (error) {
-    console.error('Error:', error);
     return Response.json({ error: (error as Error).message }, { status: 500 });
   }
 });
