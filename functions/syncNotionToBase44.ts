@@ -73,16 +73,11 @@ Deno.serve(async (req) => {
       const dateRange = props["Check-In / Check-Out"]?.date;
       const guestName = props["Nombre del huésped"]?.title?.[0]?.plain_text;
       const guestEmail = props["Email"]?.email;
-      const guestPhone = props["Teléfono"]?.phone_number;
+      const guestPhone = props["Teléfono / WhatsApp"]?.phone_number;
       const numberOfGuests = props["Número de huéspedes"]?.number;
-      const totalPrice = props["Precio total"]?.number;
+      const totalPrice = props["Monto total"]?.number;
       const specialRequests = props["Peticiones especiales"]?.rich_text?.[0]?.plain_text || 
                              props["Notas"]?.rich_text?.[0]?.plain_text || "";
-
-      // Debug: ver todos los nombres de propiedades disponibles
-      console.log("Props disponibles:", Object.keys(props));
-      console.log("Teléfono raw:", JSON.stringify(props["Teléfono"]));
-      console.log("Precio total raw:", JSON.stringify(props["Precio total"]));
 
       const inDate = toDateOnly(dateRange?.start);
       const outDate = toDateOnly(dateRange?.end);
