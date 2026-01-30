@@ -101,7 +101,7 @@ Deno.serve(async (req) => {
 
       if (hasChanges) {
         await base44.asServiceRole.entities.Booking.update(booking.id, updateData);
-        updates.push({ booking_id: booking.id, accommodation_id: accommodationId, changes: updateData });
+        updates.push({ booking_id: booking.id, changes: updateData });
       }
     }
 
