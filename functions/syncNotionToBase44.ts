@@ -134,7 +134,7 @@ Deno.serve(async (req) => {
         source: "other",
       };
 
-      const newBooking = await base44.asServiceRole.entities.Booking.create(bookingData);
+      const newBooking = await client.entities.Booking.create(bookingData);
 
       // Actualizar Notion con el booking.id en ambas columnas
       await fetch(`https://api.notion.com/v1/pages/${page.id}`, {
