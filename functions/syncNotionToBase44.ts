@@ -10,14 +10,22 @@ function withArtTime(dateOnly, time) {
 
 Deno.serve(async (req) => {
   try {
+    console.log("🔍 [DEBUG] Iniciando syncNotionToBase44");
     const base44 = createClientFromRequest(req);
     
     // Para automatizaciones programadas, usar directamente asServiceRole
     const client = base44.asServiceRole;
+    console.log("🔍 [DEBUG] Cliente asServiceRole creado");
 
+    console.log("🔍 [DEBUG] Obteniendo accessToken de Notion...");
     const accessToken = await client.connectors.getAccessToken("notion");
+    console.log("🔍 [DEBUG] AccessToken obtenido:", accessToken ? "✅ SI" : "❌ NO");
+    
     const databaseId = Deno.env.get("NOTION_DATABASE_ID");
+    console.log("🔍 [DEBUG] NOTION_DATABASE_ID:", databaseId ? "✅ SI" : "❌ NO");
+    
     if (!databaseId) {
+      console.error("❌ [ERROR] NOTION_DATABASE_ID no configurado");
       return Response.json({ error: "NOTION_DATABASE_ID no configurado" }, { status: 500 });
     }
 
