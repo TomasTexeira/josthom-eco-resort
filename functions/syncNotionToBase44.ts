@@ -111,7 +111,7 @@ Deno.serve(async (req) => {
       }
 
       // Buscar el accommodation en Base44
-      const accommodations = await base44.asServiceRole.entities.Accommodation.filter({ name: accommodationId });
+      const accommodations = await client.entities.Accommodation.filter({ name: accommodationId });
       if (!accommodations || accommodations.length === 0) {
         skipped.push({ page_id: page.id, reason: "Alojamiento no encontrado", accommodationId });
         continue; // No se encontró el alojamiento
