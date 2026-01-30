@@ -163,7 +163,7 @@ Deno.serve(async (req) => {
     if (created.length > 0) {
       const createList = created.map(c => `- Booking ${c.booking_id} (Notion: ${c.notion_page_id})`).join('\n');
 
-      await base44.asServiceRole.integrations.Core.SendEmail({
+      await client.integrations.Core.SendEmail({
         to: "tom.tex2322@gmail.com",
         subject: `Josthom: ${created.length} ${created.length === 1 ? 'reserva creada' : 'reservas creadas'} desde Notion`,
         body: `Se crearon ${created.length} ${created.length === 1 ? 'reserva nueva' : 'reservas nuevas'} desde Notion en Base44:\n\n${createList}`
