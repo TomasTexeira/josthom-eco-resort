@@ -11,11 +11,16 @@ function withArtTime(dateOnly, time) {
 Deno.serve(async (req) => {
   try {
     console.log("🔍 [DEBUG] Iniciando syncNotionToBase44");
-    const base44 = createClientFromRequest(req);
     
-    // Para automatizaciones programadas, usar directamente asServiceRole
-    const client = base44.asServiceRole;
-    console.log("🔍 [DEBUG] Cliente asServiceRole creado");
+    // IMPORTANTE: Para automatizaciones, NO usar createClientFromRequest
+    // Crear cliente service role directamente desde env vars
+    const { Base44Client } = await import("npm:@base44/sdk@0.8.6");
+    const client = new Base44Client({
+      url: Deno.env.get("BASE44_API_URL") || "https://api.base44.com",
+      appId: Deno.env.get("BASE44_APP_ID"),
+      serviceRoleKey: Deno.env.get("BASE44_SERVICE_ROLE_KEY"),
+    });
+    console.log("🔍 [DEBUG] Cliente service role creado directamente");
 
     console.log("🔍 [DEBUG] Obteniendo accessToken de Notion...");
     const accessToken = await client.connectors.getAccessToken("notion");

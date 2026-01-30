@@ -10,9 +10,15 @@ function withArtTime(dateOnly: string, time: string) {
 
 Deno.serve(async (req) => {
   try {
-    const base44 = createClientFromRequest(req);
+    // IMPORTANTE: Para automatizaciones, crear cliente service role directamente
+    const { Base44Client } = await import("npm:@base44/sdk@0.8.6");
+    const base44 = new Base44Client({
+      url: Deno.env.get("BASE44_API_URL") || "https://api.base44.com",
+      appId: Deno.env.get("BASE44_APP_ID"),
+      serviceRoleKey: Deno.env.get("BASE44_SERVICE_ROLE_KEY"),
+    });
 
-    const accessToken = await base44.asServiceRole.connectors.getAccessToken("notion");
+    const accessToken = await base44.connectors.getAccessToken("notion");
     const databaseId = Deno.env.get("NOTION_DATABASE_ID");
     if (!databaseId) {
       return Response.json({ error: "NOTION_DATABASE_ID no configurado" }, { status: 500 });
@@ -83,10 +89,10 @@ Deno.serve(async (req) => {
       // Buscar booking directamente por ID
       let booking;
       try {
-        booking = await base44.asServiceRole.entities.Booking.get(bookingId);
+      booking = await base44.entities.Booking.get(bookingId);
       } catch (error) {
-        console.warn(`Booking ${bookingId} not found in Base44`);
-        continue;
+      console.warn(`Booking ${bookingId} not found in Base44`);
+      continue;
       }
 
       if (!booking) continue;
@@ -147,18 +153,18 @@ Deno.serve(async (req) => {
       }
 
       if (hasChanges) {
-        await base44.asServiceRole.entities.Booking.update(booking.id, updateData);
-        updates.push({ booking_id: booking.id, changes: updateData });
+      await base44.entities.Booking.update(booking.id, updateData);
+      updates.push({ booking_id: booking.id, changes: updateData });
       }
-    }
+      }
 
-    // Enviar correo si hubo actualizaciones
-    if (updates.length > 0) {
+      // Enviar correo si hubo actualizaciones
+      if (updates.length > 0) {
       const updateList = updates.map(u => 
-        `- Booking ${u.booking_id}: ${Object.entries(u.changes).map(([k, v]) => `${k}=${v}`).join(', ')}`
+      `- Booking ${u.booking_id}: ${Object.entries(u.changes).map(([k, v]) => `${k}=${v}`).join(', ')}`
       ).join('\n');
 
-      await base44.asServiceRole.integrations.Core.SendEmail({
+      await base44.integrations.Core.SendEmail({
         to: "tom.tex2322@gmail.com",
         subject: `Josthom: ${updates.length} ${updates.length === 1 ? 'reserva sincronizada' : 'reservas sincronizadas'} desde Notion`,
         body: `Se sincronizaron ${updates.length} ${updates.length === 1 ? 'reserva' : 'reservas'} desde Notion a Base44:\n\n${updateList}`
