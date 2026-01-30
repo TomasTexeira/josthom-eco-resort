@@ -81,7 +81,15 @@ Deno.serve(async (req) => {
       const outDate = toDateOnly(dateRange?.end);
 
       if (!accommodationId || !inDate || !outDate) {
-        skipped.push({ page_id: page.id, reason: "Faltan datos", accommodationId, inDate, outDate, guestName });
+        skipped.push({ 
+          page_id: page.id, 
+          reason: "Faltan datos", 
+          accommodationId, 
+          inDate, 
+          outDate, 
+          guestName,
+          alojamiento_raw: props["Alojamiento"]
+        });
         continue; // Faltan datos esenciales
       }
 
