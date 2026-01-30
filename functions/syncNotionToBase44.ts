@@ -51,12 +51,6 @@ Deno.serve(async (req) => {
     for (const page of notionData.results ?? []) {
       const props = page.properties;
 
-      // Log para debug
-      const guestNameDebug = props["Nombre del huésped"]?.title?.[0]?.plain_text;
-      if (guestNameDebug === "Cargado a mano") {
-        console.log("DEBUG - Página 'Cargado a mano':", JSON.stringify(props, null, 2));
-      }
-
       // Verificar si ya tiene booking.id en "Id Reserva"
       const existingBookingId =
         props["Id Reserva"]?.rich_text?.[0]?.plain_text ||
@@ -73,8 +67,10 @@ Deno.serve(async (req) => {
         }
       }
 
-      // Extraer datos de Notion
-      const accommodationId = props["Alojamiento"]?.select?.name;
+      // Extraer datos de Notion - intentar múltiples formatos
+      let accommodationId = props["Alojamiento"]?.select?.name || 
+                           props["Alojamiento"]?.rich_text?.[0]?.plain_text ||
+                           props["Alojamiento"]?.title?.[0]?.plain_text;
       const notionStatus = props["Estado de la reserva"]?.select?.name;
       const dateRange = props["Check-In / Check-Out"]?.date;
       const guestName = props["Nombre del huésped"]?.title?.[0]?.plain_text;
