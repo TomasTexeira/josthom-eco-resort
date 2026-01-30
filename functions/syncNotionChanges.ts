@@ -117,9 +117,13 @@ Deno.serve(async (req) => {
       let hasChanges = false;
 
       // status
+      console.log("🔍 [DEBUG] notionStatus raw:", notionStatus, "mappedStatus:", mappedStatus, "booking.status:", booking.status);
       if (mappedStatus && booking.status !== mappedStatus) {
         updateData.status = mappedStatus;
         hasChanges = true;
+        console.log("🔍 [DEBUG] ✅ Status será actualizado:", booking.status, "→", mappedStatus);
+      } else if (notionStatus && !mappedStatus) {
+        console.log("⚠️ [DEBUG] Status de Notion NO está en el mapa:", notionStatus);
       }
 
       // fechas (siempre fijamos 14/18)
