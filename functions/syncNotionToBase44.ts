@@ -76,6 +76,8 @@ Deno.serve(async (req) => {
       const guestPhone = props["Teléfono"]?.phone_number;
       const numberOfGuests = props["Número de huéspedes"]?.number;
       const totalPrice = props["Precio total"]?.number;
+      const specialRequests = props["Peticiones especiales"]?.rich_text?.[0]?.plain_text || 
+                             props["Notas"]?.rich_text?.[0]?.plain_text || "";
 
       const inDate = toDateOnly(dateRange?.start);
       const outDate = toDateOnly(dateRange?.end);
