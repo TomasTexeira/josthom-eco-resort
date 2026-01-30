@@ -79,6 +79,11 @@ Deno.serve(async (req) => {
       const specialRequests = props["Peticiones especiales"]?.rich_text?.[0]?.plain_text || 
                              props["Notas"]?.rich_text?.[0]?.plain_text || "";
 
+      // Debug: ver todos los nombres de propiedades disponibles
+      console.log("Props disponibles:", Object.keys(props));
+      console.log("Teléfono raw:", JSON.stringify(props["Teléfono"]));
+      console.log("Precio total raw:", JSON.stringify(props["Precio total"]));
+
       const inDate = toDateOnly(dateRange?.start);
       const outDate = toDateOnly(dateRange?.end);
 
