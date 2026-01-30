@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
       // Si ya tiene ID, verificar si existe en Base44
       if (existingBookingId) {
         try {
-          await base44.asServiceRole.entities.Booking.get(existingBookingId);
+          await client.entities.Booking.get(existingBookingId);
           skipped.push({ page_id: page.id, reason: "Ya tiene booking.id", booking_id: existingBookingId });
           continue; // Ya existe, skip
         } catch (error) {
