@@ -12,8 +12,7 @@ Deno.serve(async (req) => {
   try {
     console.log("🔍 [DEBUG] Iniciando syncNotionChanges");
     
-    const { Base44Client } = await import("npm:@base44/sdk@0.8.6");
-    const base44 = new Base44Client(Deno.env.get("BASE44_APP_ID"));
+    const base44 = createClientFromRequest(req);
 
     const accessToken = await base44.asServiceRole.connectors.getAccessToken("notion");
     console.log("🔍 [DEBUG] AccessToken obtenido:", accessToken ? "✅ SI" : "❌ NO");
