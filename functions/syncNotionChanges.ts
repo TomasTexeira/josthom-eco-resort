@@ -1,4 +1,4 @@
-import { createClientFromRequest } from "npm:@base44/sdk@0.8.6";
+import { createClient, createClientFromRequest } from "npm:@base44/sdk@0.8.6";
 
 function toDateOnly(iso?: string | null) {
   return iso ? iso.split("T")[0] : null; // YYYY-MM-DD
@@ -12,7 +12,11 @@ Deno.serve(async (req) => {
   try {
     console.log("🔍 [DEBUG] Iniciando syncNotionChanges");
     
-    const base44 = createClientFromRequest(req);
+    // Para automatizaciones programadas (cron), usar createClient con token de servicio
+    // Para llamadas HTTP normales, usar createClientFromRequest
+    const base44 = req ? createClientFromRequest(req) : createClient({ 
+      token: Deno.env.get("BASE44_SERVICE_ROLE_TOKEN") 
+    });
 
     const accessToken = await base44.asServiceRole.connectors.getAccessToken("notion");
     console.log("🔍 [DEBUG] AccessToken obtenido:", accessToken ? "✅ SI" : "❌ NO");
