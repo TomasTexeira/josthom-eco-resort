@@ -73,7 +73,11 @@ Deno.serve(async (req) => {
       const dateRange = props["Check-In / Check-Out"]?.date;
       const guestName = props["Nombre del huésped"]?.title?.[0]?.plain_text;
       const guestEmail = props["Email"]?.email;
-      const guestPhone = props["Teléfono / WhatsApp"]?.phone_number;
+      
+      // Teléfono puede ser phone_number o rich_text
+      const guestPhone = props["Teléfono / WhatsApp"]?.phone_number || 
+                        props["Teléfono / WhatsApp"]?.rich_text?.[0]?.plain_text || "";
+      
       const numberOfGuests = props["Número de huéspedes"]?.number;
       const totalPrice = props["Monto total"]?.number;
       const specialRequests = props["Peticiones especiales"]?.rich_text?.[0]?.plain_text || 
