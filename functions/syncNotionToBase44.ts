@@ -10,16 +10,28 @@ function getBase44(req: Request) {
   }
 }
 
-async function safeJson(req: Request) {
-  try { return await req.json(); } catch { return null; }
+function rtPlain(props: any, key: string) {
+  const rt = props?.[key]?.rich_text;
+  if (!rt || !rt.length) return "";
+  return rt.map((x: any) => x?.plain_text || x?.text?.content || "").join("").trim();
 }
 
-function toDateOnly(iso?: string | null) {
+function titlePlain(props: any, key: string) {
+  const t = props?.[key]?.title;
+  if (!t || !t.length) return "";
+  return t.map((x: any) => x?.plain_text || x?.text?.content || "").join("").trim();
+}
+
+function dateOnly(iso?: string | null) {
   return iso ? iso.split("T")[0] : null;
 }
 
-function artIso(dateOnly: string, time: "14:00:00" | "18:00:00") {
-  return new Date(`${dateOnly}T${time}-03:00`).toISOString();
+function artIso(dateOnlyStr: string, time: "14:00:00" | "18:00:00") {
+  return new Date(`${dateOnlyStr}T${time}-03:00`).toISOString();
+}
+
+function norm(s: string) {
+  return (s || "").trim().toLowerCase();
 }
 
 async function patchNotion(accessToken: string, pageId: string, properties: Record<string, any>) {
@@ -38,44 +50,33 @@ async function patchNotion(accessToken: string, pageId: string, properties: Reco
 Deno.serve(async (req) => {
   const base44 = getBase44(req);
 
-  // Si viene body con base44_id → UPDATE puntual (tu comportamiento viejo)
-  const body = await safeJson(req);
-  if (body?.base44_id) {
-    const { base44_id, status, check_in, check_out, number_of_guests, total_price } = body;
-
-    const statusMap: Record<string, string> = {
-      Pendiente: "pending",
-      Pago: "confirmed",
-      Cancelada: "cancelled",
-      Completa: "completed",
-    };
-    const mappedStatus = statusMap[status] || status;
-
-    const updateFields: any = {};
-    if (mappedStatus) updateFields.status = mappedStatus;
-    if (check_in) updateFields.check_in = check_in;
-    if (check_out) updateFields.check_out = check_out;
-    if (number_of_guests !== undefined) updateFields.number_of_guests = number_of_guests;
-    if (total_price !== undefined) updateFields.total_price = total_price;
-
-    const updated = await base44.asServiceRole.entities.Booking.update(base44_id, updateFields);
-    return Response.json({ success: true, mode: "update", booking: updated });
-  }
-
-  // Si NO viene base44_id → CRON IMPORT (nuevo)
   const accessToken = await base44.asServiceRole.connectors.getAccessToken("notion");
   const databaseId = Deno.env.get("NOTION_DATABASE_ID");
   if (!databaseId) return Response.json({ error: "NOTION_DATABASE_ID no configurado" }, { status: 500 });
 
-  // listar accommodations para mapear nombre -> id
-  const acc = await base44.asServiceRole.entities.Accommodation.list({ limit: 200 }).catch(() => ({ items: [] }));
+  // Traer alojamientos Base44 para mapear por nombre
+  const acc = await base44.asServiceRole.entities.Accommodation.list({ limit: 200 });
   const accommodations = acc.items || [];
 
+  // Map rápido name->id
+  const accByName = new Map<string, any>();
+  for (const a of accommodations) accByName.set(norm(a.name), a);
+
+  const statusMap: Record<string, string> = {
+    Pendiente: "pending",
+    Pago: "confirmed",
+    Cancelada: "cancelled",
+    Completa: "completed",
+  };
+
   const created: any[] = [];
+  const debug_skipped: any[] = [];
+
   let startCursor: string | undefined;
   let hasMore = true;
 
   while (hasMore) {
+    // 🔧 OJO: si sospechás que el filtro no matchea, podés comentar el "filter"
     const notionRes = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
       method: "POST",
       headers: {
@@ -86,9 +87,10 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         start_cursor: startCursor,
         page_size: 100,
+        sorts: [{ timestamp: "last_edited_time", direction: "descending" }],
         filter: {
           property: "BookingID44",
-          rich_text: { is_empty: true }, // solo los que NO tienen id base44
+          rich_text: { is_empty: true },
         },
       }),
     });
@@ -102,34 +104,60 @@ Deno.serve(async (req) => {
     for (const page of data.results || []) {
       const props = page.properties || {};
 
-      const accommodationName = props["Cabaña / Casa"]?.multi_select?.[0]?.name;
+      // ✅ Verificación fuerte: si BookingID44 tiene algo, no lo importamos
+      const bookingId44 = rtPlain(props, "BookingID44");
+      if (bookingId44) {
+        debug_skipped.push({ page_id: page.id, reason: "BookingID44 ya existe", bookingId44 });
+        continue;
+      }
+
+      // Cabaña / Casa (multi_select)
+      const ms = props["Cabaña / Casa"]?.multi_select || [];
+      const accommodationName = (ms[0]?.name || "").trim();
+      if (!accommodationName) {
+        debug_skipped.push({ page_id: page.id, reason: "Falta Cabaña / Casa" });
+        continue;
+      }
+
+      // Date range
       const range = props["Check-In / Check-Out"]?.date;
-      const inDay = toDateOnly(range?.start);
-      const outDay = toDateOnly(range?.end);
+      const inDay = dateOnly(range?.start);
+      const outDay = dateOnly(range?.end);
+      if (!inDay || !outDay) {
+        debug_skipped.push({
+          page_id: page.id,
+          reason: "Falta rango Check-In / Check-Out (start o end)",
+          got: { start: range?.start, end: range?.end },
+        });
+        continue;
+      }
 
-      if (!accommodationName || !inDay || !outDay) continue;
+      // Mapear alojamiento por nombre (normalizado)
+      const acc = accByName.get(norm(accommodationName));
+      if (!acc) {
+        debug_skipped.push({
+          page_id: page.id,
+          reason: "No matchea nombre de alojamiento con Base44",
+          accommodationName,
+          base44AccommodationNames: accommodations.map((a: any) => a.name),
+        });
+        continue;
+      }
 
-      const accommodation = accommodations.find((a: any) => a.name === accommodationName);
-      if (!accommodation) continue;
-
-      const guestName = props["Nombre del huésped"]?.title?.[0]?.plain_text || "";
+      // Otros campos
+      const guestName = titlePlain(props, "Nombre del huésped");
       const guestEmail = props["Email"]?.email || "";
-      const guestPhone = props["Teléfono / WhatsApp"]?.rich_text?.[0]?.plain_text || "";
-      const notes = props["Notas"]?.rich_text?.[0]?.plain_text || "";
+      const guestPhone = rtPlain(props, "Teléfono / WhatsApp");
+      const notes = rtPlain(props, "Notas");
       const guests = props["Cant. huéspedes"]?.number ?? 0;
       const total = props["Monto total"]?.number ?? 0;
 
       const notionStatus = props["Estado de la reserva"]?.select?.name || "Pendiente";
-      const statusMap: Record<string, string> = {
-        Pendiente: "pending",
-        Pago: "confirmed",
-        Cancelada: "cancelled",
-        Completa: "completed",
-      };
       const mappedStatus = statusMap[notionStatus] || "pending";
 
+      // Crear booking en Base44
       const booking = await base44.asServiceRole.entities.Booking.create({
-        accommodation_id: accommodation.id,
+        accommodation_id: acc.id,
         guest_name: guestName,
         guest_email: guestEmail,
         guest_phone: guestPhone,
@@ -141,16 +169,24 @@ Deno.serve(async (req) => {
         check_out: artIso(outDay, "18:00:00"),
       });
 
+      // Escribir BookingID44 en Notion
       await patchNotion(accessToken, page.id, {
         BookingID44: { rich_text: [{ text: { content: booking.id } }] },
       });
 
-      created.push({ notion_page_id: page.id, booking_id: booking.id });
+      created.push({ notion_page_id: page.id, booking_id: booking.id, accommodation_id: acc.id });
     }
 
     hasMore = Boolean(data.has_more);
     startCursor = data.next_cursor || undefined;
   }
 
-  return Response.json({ success: true, mode: "import", created: created.length, items: created });
+  return Response.json({
+    success: true,
+    mode: "import",
+    created: created.length,
+    items: created,
+    debug_skipped_sample: debug_skipped.slice(0, 20),
+    skipped_count: debug_skipped.length,
+  });
 });
