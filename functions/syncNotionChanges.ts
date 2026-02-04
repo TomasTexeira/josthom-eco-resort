@@ -2,12 +2,12 @@ import { createClient, createClientFromRequest } from "npm:@base44/sdk@0.8.6";
 
 const NOTION_VERSION = "2022-06-28";
 
-function getBase44Client(req: Request) {
-  // Manual (HTTP): tiene contexto de request
+function getBase44(req: Request) {
   try {
+    // llamadas HTTP normales
     return createClientFromRequest(req);
-  } catch (_e) {
-    // Cron/Automation: NO hay contexto, usar token de servicio
+  } catch {
+    // automatizaciones programadas (cron)
     const token = Deno.env.get("BASE44_SERVICE_ROLE_TOKEN");
     if (!token) throw new Error("Missing env var: BASE44_SERVICE_ROLE_TOKEN");
     return createClient({ token });
@@ -18,13 +18,13 @@ function toDateOnly(iso?: string | null) {
   return iso ? iso.split("T")[0] : null;
 }
 
-function toArtIso(dateOnly: string, time: "14:00:00" | "18:00:00") {
+function artIso(dateOnly: string, time: "14:00:00" | "18:00:00") {
   return new Date(`${dateOnly}T${time}-03:00`).toISOString();
 }
 
 Deno.serve(async (req) => {
   try {
-    const base44 = getBase44Client(req);
+    const base44 = getBase44(req);
 
     const accessToken = await base44.asServiceRole.connectors.getAccessToken("notion");
     const databaseId = Deno.env.get("NOTION_DATABASE_ID");
@@ -38,11 +38,11 @@ Deno.serve(async (req) => {
     };
 
     const updates: any[] = [];
-    let hasMore = true;
     let startCursor: string | undefined;
+    let hasMore = true;
 
     while (hasMore) {
-      const notionResponse = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
+      const notionRes = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -59,14 +59,14 @@ Deno.serve(async (req) => {
         }),
       });
 
-      if (!notionResponse.ok) {
-        const errorText = await notionResponse.text();
-        return Response.json({ error: "Error consultando Notion", details: errorText }, { status: notionResponse.status });
+      if (!notionRes.ok) {
+        const t = await notionRes.text();
+        return Response.json({ error: "Notion query failed", details: t }, { status: notionRes.status });
       }
 
-      const notionData = await notionResponse.json();
+      const data = await notionRes.json();
 
-      for (const page of notionData.results || []) {
+      for (const page of data.results || []) {
         const props = page.properties || {};
 
         const bookingId =
@@ -79,56 +79,41 @@ Deno.serve(async (req) => {
         const mappedStatus = notionStatus ? statusMap[notionStatus] : undefined;
 
         const range = props["Check-In / Check-Out"]?.date;
-        const nStartDay = toDateOnly(range?.start);
-        const nEndDay = toDateOnly(range?.end);
+        const nIn = toDateOnly(range?.start);
+        const nOut = toDateOnly(range?.end);
 
         const booking = await base44.asServiceRole.entities.Booking.get(bookingId).catch(() => null);
         if (!booking) continue;
 
         const updateData: Record<string, any> = {};
-        let hasChanges = false;
+        let changed = false;
 
-        // Status
         if (mappedStatus && booking.status !== mappedStatus) {
           updateData.status = mappedStatus;
-          hasChanges = true;
+          changed = true;
         }
 
-        // Dates (compare by day)
-        const bStartDay = toDateOnly(booking.check_in);
-        const bEndDay = toDateOnly(booking.check_out);
+        const bIn = toDateOnly(booking.check_in);
+        const bOut = toDateOnly(booking.check_out);
 
-        if (nStartDay && nEndDay && (bStartDay !== nStartDay || bEndDay !== nEndDay)) {
-          updateData.check_in = toArtIso(nStartDay, "14:00:00");
-          updateData.check_out = toArtIso(nEndDay, "18:00:00");
-          hasChanges = true;
+        if (nIn && nOut && (nIn !== bIn || nOut !== bOut)) {
+          updateData.check_in = artIso(nIn, "14:00:00");
+          updateData.check_out = artIso(nOut, "18:00:00");
+          changed = true;
         }
 
-        // Optional: guests + total
-        const guests = props["Cant. huéspedes"]?.number;
-        if (typeof guests === "number" && booking.number_of_guests !== guests) {
-          updateData.number_of_guests = guests;
-          hasChanges = true;
-        }
-
-        const total = props["Monto total"]?.number;
-        if (typeof total === "number" && booking.total_price !== total) {
-          updateData.total_price = total;
-          hasChanges = true;
-        }
-
-        if (hasChanges) {
+        if (changed) {
           await base44.asServiceRole.entities.Booking.update(booking.id, updateData);
           updates.push({ booking_id: booking.id, notion_page_id: page.id, changes: updateData });
         }
       }
 
-      hasMore = Boolean(notionData.has_more);
-      startCursor = notionData.next_cursor || undefined;
+      hasMore = Boolean(data.has_more);
+      startCursor = data.next_cursor || undefined;
     }
 
     return Response.json({ success: true, synced: updates.length, updates });
-  } catch (error) {
-    return Response.json({ error: String(error?.message || error) }, { status: 500 });
+  } catch (e) {
+    return Response.json({ error: String(e?.message || e) }, { status: 500 });
   }
 });
