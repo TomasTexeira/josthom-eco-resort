@@ -4,22 +4,26 @@ const NOTION_VERSION = "2022-06-28";
 
 function getBase44(req: Request) {
   try {
-    // llamadas HTTP normales
-    return createClientFromRequest(req);
+    return createClientFromRequest(req); // cuando lo llamás manual via HTTP
   } catch {
-    // automatizaciones programadas (cron)
     const token = Deno.env.get("BASE44_SERVICE_ROLE_TOKEN");
     if (!token) throw new Error("Missing env var: BASE44_SERVICE_ROLE_TOKEN");
-    return createClient({ token });
+    return createClient({ token }); // cron automation
   }
 }
 
-function toDateOnly(iso?: string | null) {
+function readRichText(props: any, key: string) {
+  const rt = props?.[key]?.rich_text;
+  if (!rt || !rt.length) return null;
+  return rt[0]?.plain_text || rt[0]?.text?.content || null;
+}
+
+function dateOnly(iso?: string | null) {
   return iso ? iso.split("T")[0] : null;
 }
 
-function artIso(dateOnly: string, time: "14:00:00" | "18:00:00") {
-  return new Date(`${dateOnly}T${time}-03:00`).toISOString();
+function artIso(dateOnlyStr: string, time: "14:00:00" | "18:00:00") {
+  return new Date(`${dateOnlyStr}T${time}-03:00`).toISOString();
 }
 
 Deno.serve(async (req) => {
@@ -38,11 +42,13 @@ Deno.serve(async (req) => {
     };
 
     const updates: any[] = [];
+    const debug: any[] = [];
+
     let startCursor: string | undefined;
     let hasMore = true;
 
     while (hasMore) {
-      const notionRes = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
+      const notionResponse = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -59,43 +65,49 @@ Deno.serve(async (req) => {
         }),
       });
 
-      if (!notionRes.ok) {
-        const t = await notionRes.text();
-        return Response.json({ error: "Notion query failed", details: t }, { status: notionRes.status });
+      if (!notionResponse.ok) {
+        return Response.json(
+          { error: "Error consultando Notion", details: await notionResponse.text() },
+          { status: notionResponse.status },
+        );
       }
 
-      const data = await notionRes.json();
+      const notionData = await notionResponse.json();
 
-      for (const page of data.results || []) {
+      for (const page of notionData.results || []) {
         const props = page.properties || {};
 
-        const bookingId =
-          props["BookingID44"]?.rich_text?.[0]?.plain_text ||
-          props["BookingID44"]?.rich_text?.[0]?.text?.content;
-
+        // ✅ ID correcto SIEMPRE desde BookingID44
+        const bookingId = readRichText(props, "BookingID44");
         if (!bookingId) continue;
 
-        const notionStatus = props["Estado de la reserva"]?.select?.name;
-        const mappedStatus = notionStatus ? statusMap[notionStatus] : undefined;
+        const notionStatusName = props["Estado de la reserva"]?.select?.name || null;
+        const mappedStatus = notionStatusName ? statusMap[notionStatusName] : null;
 
         const range = props["Check-In / Check-Out"]?.date;
-        const nIn = toDateOnly(range?.start);
-        const nOut = toDateOnly(range?.end);
+        const nIn = dateOnly(range?.start);
+        const nOut = dateOnly(range?.end);
 
+        // Traer booking en Base44 por ID
         const booking = await base44.asServiceRole.entities.Booking.get(bookingId).catch(() => null);
-        if (!booking) continue;
+        if (!booking) {
+          debug.push({ page: page.id, bookingId, reason: "BookingID44 no existe en Base44" });
+          continue;
+        }
+
+        const bIn = dateOnly(booking.check_in);
+        const bOut = dateOnly(booking.check_out);
 
         const updateData: Record<string, any> = {};
         let changed = false;
 
+        // status
         if (mappedStatus && booking.status !== mappedStatus) {
           updateData.status = mappedStatus;
           changed = true;
         }
 
-        const bIn = toDateOnly(booking.check_in);
-        const bOut = toDateOnly(booking.check_out);
-
+        // fechas (comparación solo por día)
         if (nIn && nOut && (nIn !== bIn || nOut !== bOut)) {
           updateData.check_in = artIso(nIn, "14:00:00");
           updateData.check_out = artIso(nOut, "18:00:00");
@@ -105,15 +117,23 @@ Deno.serve(async (req) => {
         if (changed) {
           await base44.asServiceRole.entities.Booking.update(booking.id, updateData);
           updates.push({ booking_id: booking.id, notion_page_id: page.id, changes: updateData });
+        } else {
+          debug.push({
+            page: page.id,
+            bookingId,
+            reason: "Sin cambios",
+            status: { notion: notionStatusName, base44: booking.status },
+            dates: { notion: { nIn, nOut }, base44: { bIn, bOut } },
+          });
         }
       }
 
-      hasMore = Boolean(data.has_more);
-      startCursor = data.next_cursor || undefined;
+      hasMore = Boolean(notionData.has_more);
+      startCursor = notionData.next_cursor || undefined;
     }
 
-    return Response.json({ success: true, synced: updates.length, updates });
-  } catch (e) {
-    return Response.json({ error: String(e?.message || e) }, { status: 500 });
+    return Response.json({ success: true, synced: updates.length, updates, debug_sample: debug.slice(0, 10) });
+  } catch (error) {
+    return Response.json({ error: String(error?.message || error) }, { status: 500 });
   }
 });
