@@ -1,249 +1,134 @@
 import { createClient, createClientFromRequest } from "npm:@base44/sdk@0.8.6";
 
+const NOTION_VERSION = "2022-06-28";
+
 function getBase44Client(req: Request) {
-  // 1) Intentar modo HTTP normal
+  // Manual (HTTP): tiene contexto de request
   try {
     return createClientFromRequest(req);
   } catch (_e) {
-    // 2) Fallback para cron/scheduled
+    // Cron/Automation: NO hay contexto, usar token de servicio
     const token = Deno.env.get("BASE44_SERVICE_ROLE_TOKEN");
-    if (!token) {
-      throw new Error("Falta BASE44_SERVICE_ROLE_TOKEN en variables de entorno");
-    }
+    if (!token) throw new Error("Missing env var: BASE44_SERVICE_ROLE_TOKEN");
     return createClient({ token });
   }
 }
 
 function toDateOnly(iso?: string | null) {
-  return iso ? iso.split("T")[0] : null; // YYYY-MM-DD
+  return iso ? iso.split("T")[0] : null;
 }
 
-function withArtTime(dateOnly: string, time: string) {
+function toArtIso(dateOnly: string, time: "14:00:00" | "18:00:00") {
   return new Date(`${dateOnly}T${time}-03:00`).toISOString();
 }
 
 Deno.serve(async (req) => {
   try {
-    console.log("🔍 [DEBUG] Iniciando syncNotionChanges");
-    
     const base44 = getBase44Client(req);
 
     const accessToken = await base44.asServiceRole.connectors.getAccessToken("notion");
-    console.log("🔍 [DEBUG] AccessToken obtenido:", accessToken ? "✅ SI" : "❌ NO");
-    
     const databaseId = Deno.env.get("NOTION_DATABASE_ID");
-    console.log("🔍 [DEBUG] NOTION_DATABASE_ID:", databaseId ? "✅ SI" : "❌ NO");
-    
-    if (!databaseId) {
-      return Response.json({ error: "NOTION_DATABASE_ID no configurado" }, { status: 500 });
-    }
+    if (!databaseId) return Response.json({ error: "NOTION_DATABASE_ID no configurado" }, { status: 500 });
 
-    console.log("🔍 [DEBUG] Consultando TODAS las páginas de Notion...");
-    const notionResponse = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-        "Notion-Version": "2022-06-28",
-      },
-      body: JSON.stringify({
-        page_size: 100,
-      }),
-    });
-
-    console.log("🔍 [DEBUG] Respuesta de Notion:", notionResponse.status);
-    if (!notionResponse.ok) {
-      const errorText = await notionResponse.text();
-      console.error("❌ [ERROR] Error consultando Notion:", errorText);
-      return Response.json({ error: "Error consultando Notion", details: errorText }, { status: notionResponse.status });
-    }
-
-    const notionData = await notionResponse.json();
-    console.log("🔍 [DEBUG] TOTAL páginas encontradas:", notionData.results?.length || 0);
-
-    const statusMap = {
+    const statusMap: Record<string, string> = {
       Pendiente: "pending",
       Pago: "confirmed",
       Cancelada: "cancelled",
       Completa: "completed",
     };
 
-    const updates = [];
-    let allPages = [...(notionData.results ?? [])];
-    let hasMore = notionData.has_more;
-    let nextCursor = notionData.next_cursor;
+    const updates: any[] = [];
+    let hasMore = true;
+    let startCursor: string | undefined;
 
-    // Paginación: obtener todas las páginas si hay más de 100
-    while (hasMore && nextCursor) {
-      console.log("🔍 [DEBUG] Obteniendo página siguiente con cursor:", nextCursor);
-      const nextResponse = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
+    while (hasMore) {
+      const notionResponse = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "Content-Type": "application/json",
-          "Notion-Version": "2022-06-28",
+          "Notion-Version": NOTION_VERSION,
         },
         body: JSON.stringify({
+          start_cursor: startCursor,
           page_size: 100,
-          start_cursor: nextCursor,
+          filter: {
+            property: "BookingID44",
+            rich_text: { is_not_empty: true },
+          },
         }),
       });
 
-      if (!nextResponse.ok) {
-        console.error("❌ [ERROR] Error obteniendo página siguiente:", nextResponse.status);
-        break;
+      if (!notionResponse.ok) {
+        const errorText = await notionResponse.text();
+        return Response.json({ error: "Error consultando Notion", details: errorText }, { status: notionResponse.status });
       }
 
-      const nextData = await nextResponse.json();
-      allPages = [...allPages, ...(nextData.results ?? [])];
-      hasMore = nextData.has_more;
-      nextCursor = nextData.next_cursor;
-      console.log("🔍 [DEBUG] Total páginas acumuladas:", allPages.length);
+      const notionData = await notionResponse.json();
+
+      for (const page of notionData.results || []) {
+        const props = page.properties || {};
+
+        const bookingId =
+          props["BookingID44"]?.rich_text?.[0]?.plain_text ||
+          props["BookingID44"]?.rich_text?.[0]?.text?.content;
+
+        if (!bookingId) continue;
+
+        const notionStatus = props["Estado de la reserva"]?.select?.name;
+        const mappedStatus = notionStatus ? statusMap[notionStatus] : undefined;
+
+        const range = props["Check-In / Check-Out"]?.date;
+        const nStartDay = toDateOnly(range?.start);
+        const nEndDay = toDateOnly(range?.end);
+
+        const booking = await base44.asServiceRole.entities.Booking.get(bookingId).catch(() => null);
+        if (!booking) continue;
+
+        const updateData: Record<string, any> = {};
+        let hasChanges = false;
+
+        // Status
+        if (mappedStatus && booking.status !== mappedStatus) {
+          updateData.status = mappedStatus;
+          hasChanges = true;
+        }
+
+        // Dates (compare by day)
+        const bStartDay = toDateOnly(booking.check_in);
+        const bEndDay = toDateOnly(booking.check_out);
+
+        if (nStartDay && nEndDay && (bStartDay !== nStartDay || bEndDay !== nEndDay)) {
+          updateData.check_in = toArtIso(nStartDay, "14:00:00");
+          updateData.check_out = toArtIso(nEndDay, "18:00:00");
+          hasChanges = true;
+        }
+
+        // Optional: guests + total
+        const guests = props["Cant. huéspedes"]?.number;
+        if (typeof guests === "number" && booking.number_of_guests !== guests) {
+          updateData.number_of_guests = guests;
+          hasChanges = true;
+        }
+
+        const total = props["Monto total"]?.number;
+        if (typeof total === "number" && booking.total_price !== total) {
+          updateData.total_price = total;
+          hasChanges = true;
+        }
+
+        if (hasChanges) {
+          await base44.asServiceRole.entities.Booking.update(booking.id, updateData);
+          updates.push({ booking_id: booking.id, notion_page_id: page.id, changes: updateData });
+        }
+      }
+
+      hasMore = Boolean(notionData.has_more);
+      startCursor = notionData.next_cursor || undefined;
     }
 
-    console.log("🔍 [DEBUG] Total final de páginas:", allPages.length);
-
-    for (const page of allPages) {
-      console.log("🔍 [DEBUG] Procesando página:", page.id);
-      const props = page.properties;
-
-      // Id Reserva = booking.id de Base44
-      const bookingId =
-        props["Id Reserva"]?.rich_text?.[0]?.plain_text ||
-        props["Id Reserva"]?.rich_text?.[0]?.text?.content;
-
-      console.log("🔍 [DEBUG] bookingId extraído:", bookingId);
-
-      if (!bookingId) {
-        console.log("⚠️ [DEBUG] No hay bookingId, skip");
-        continue;
-      }
-
-      // Extraer todas las propiedades de Notion
-      const notionStatus = props["Estado de la reserva"]?.select?.name;
-      const mappedStatus = notionStatus ? statusMap[notionStatus] : null;
-
-      const dateRange = props["Check-In / Check-Out"]?.date;
-      const inDate = toDateOnly(dateRange?.start);
-      const outDate = toDateOnly(dateRange?.end);
-
-      const guestName = props["Nombre del huésped"]?.title?.[0]?.plain_text || "";
-      const guestEmail = props["Email"]?.email || "";
-      const guestPhone = props["Teléfono / WhatsApp"]?.phone_number || 
-                         props["Teléfono / WhatsApp"]?.rich_text?.[0]?.plain_text || "";
-      const numberOfGuests = props["Número de huéspedes"]?.number;
-      const totalPrice = props["Monto total"]?.number;
-      const specialRequests = props["Peticiones especiales"]?.rich_text?.[0]?.plain_text || 
-                             props["Notas"]?.rich_text?.[0]?.plain_text || "";
-
-      // Validar campos mínimos requeridos
-      if (!inDate || !outDate) continue;
-
-      // Buscar booking directamente por ID
-      console.log("🔍 [DEBUG] Buscando booking:", bookingId);
-      let booking;
-      try {
-        booking = await base44.asServiceRole.entities.Booking.get(bookingId);
-        console.log("✅ [DEBUG] Booking encontrado");
-      } catch (error) {
-        console.warn(`⚠️ [DEBUG] Booking ${bookingId} not found in Base44:`, error.message);
-        continue;
-      }
-
-      if (!booking) {
-        console.log("⚠️ [DEBUG] Booking es null, skip");
-        continue;
-      }
-
-      const updateData = {};
-      let hasChanges = false;
-
-      // status
-      console.log("🔍 [DEBUG] notionStatus raw:", notionStatus, "mappedStatus:", mappedStatus, "booking.status:", booking.status);
-      if (mappedStatus && booking.status !== mappedStatus) {
-        updateData.status = mappedStatus;
-        hasChanges = true;
-        console.log("🔍 [DEBUG] ✅ Status será actualizado:", booking.status, "→", mappedStatus);
-      } else if (notionStatus && !mappedStatus) {
-        console.log("⚠️ [DEBUG] Status de Notion NO está en el mapa:", notionStatus);
-      }
-
-      // fechas (siempre fijamos 14/18)
-      const desiredCheckIn = withArtTime(inDate, "14:00:00");
-      const desiredCheckOut = withArtTime(outDate, "18:00:00");
-
-      if (booking.check_in !== desiredCheckIn || booking.check_out !== desiredCheckOut) {
-        updateData.check_in = desiredCheckIn;
-        updateData.check_out = desiredCheckOut;
-        hasChanges = true;
-      }
-
-      // guest_name
-      if (guestName && booking.guest_name !== guestName) {
-        updateData.guest_name = guestName;
-        hasChanges = true;
-      }
-
-      // guest_email
-      if (guestEmail && booking.guest_email !== guestEmail) {
-        updateData.guest_email = guestEmail;
-        hasChanges = true;
-      }
-
-      // guest_phone
-      if (guestPhone && booking.guest_phone !== guestPhone) {
-        updateData.guest_phone = guestPhone;
-        hasChanges = true;
-      }
-
-      // number_of_guests
-      if (numberOfGuests !== undefined && numberOfGuests !== null && booking.number_of_guests !== numberOfGuests) {
-        updateData.number_of_guests = numberOfGuests;
-        hasChanges = true;
-      }
-
-      // total_price
-      if (totalPrice !== undefined && totalPrice !== null && booking.total_price !== totalPrice) {
-        updateData.total_price = totalPrice;
-        hasChanges = true;
-      }
-
-      // special_requests
-      if (specialRequests && booking.special_requests !== specialRequests) {
-        updateData.special_requests = specialRequests;
-        hasChanges = true;
-      }
-
-      if (hasChanges) {
-        console.log("🔍 [DEBUG] Actualizando booking:", booking.id, "con:", updateData);
-        await base44.asServiceRole.entities.Booking.update(booking.id, updateData);
-        updates.push({ booking_id: booking.id, changes: updateData });
-        console.log("✅ [DEBUG] Booking actualizado");
-      } else {
-        console.log("✅ [DEBUG] No hay cambios para este booking");
-      }
-      }
-
-      console.log("🔍 [DEBUG] Proceso completado. Updates:", updates.length);
-
-      // Enviar correo si hubo actualizaciones
-      if (updates.length > 0) {
-      const updateList = updates.map(u => 
-      `- Booking ${u.booking_id}: ${Object.entries(u.changes).map(([k, v]) => `${k}=${v}`).join(', ')}`
-      ).join('\n');
-
-      await base44.asServiceRole.integrations.Core.SendEmail({
-        to: "tom.tex2322@gmail.com",
-        subject: `Josthom: ${updates.length} ${updates.length === 1 ? 'reserva sincronizada' : 'reservas sincronizadas'} desde Notion`,
-        body: `Se sincronizaron ${updates.length} ${updates.length === 1 ? 'reserva' : 'reservas'} desde Notion a Base44:\n\n${updateList}`
-      });
-    }
-
-    console.log("✅ [DEBUG] Función completada exitosamente");
     return Response.json({ success: true, synced: updates.length, updates });
   } catch (error) {
-    console.error("❌ [ERROR] Error en syncNotionChanges:", error.message);
-    console.error("❌ [ERROR] Stack:", error.stack);
-    return Response.json({ error: error.message, stack: error.stack }, { status: 500 });
+    return Response.json({ error: String(error?.message || error) }, { status: 500 });
   }
 });
