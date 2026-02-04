@@ -1,4 +1,18 @@
-import { createClientFromRequest } from "npm:@base44/sdk@0.8.6";
+import { createClient, createClientFromRequest } from "npm:@base44/sdk@0.8.6";
+
+function getBase44Client(req: Request) {
+  // 1) Intentar modo HTTP normal
+  try {
+    return createClientFromRequest(req);
+  } catch (_e) {
+    // 2) Fallback para cron/scheduled
+    const token = Deno.env.get("BASE44_SERVICE_ROLE_TOKEN");
+    if (!token) {
+      throw new Error("Falta BASE44_SERVICE_ROLE_TOKEN en variables de entorno");
+    }
+    return createClient({ token });
+  }
+}
 
 function toDateOnly(iso) {
   return iso ? iso.split("T")[0] : null;
@@ -12,9 +26,7 @@ Deno.serve(async (req) => {
   try {
     console.log("🔍 [DEBUG] Iniciando syncNotionToBase44");
     
-    const { Base44Client } = await import("npm:@base44/sdk@0.8.6");
-    const base44 = new Base44Client();
-    
+    const base44 = getBase44Client(req);
     const client = base44.asServiceRole;
     console.log("🔍 [DEBUG] Cliente asServiceRole creado");
 
