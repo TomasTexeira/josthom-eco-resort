@@ -1,6 +1,8 @@
 import { createClient, createClientFromRequest } from "npm:@base44/sdk@0.8.6";
 
 const NOTION_VERSION = "2022-06-28";
+const CHECKIN_TIME = "14:00:00-03:00";
+const CHECKOUT_TIME = "18:00:00-03:00";
 
 function getBase44(req: Request) {
   try {
@@ -24,136 +26,170 @@ function titlePlain(props: any, key: string) {
   return t.map((x: any) => x?.plain_text || x?.text?.content || "").join("").trim();
 }
 
-function msFirstName(props: any, key: string) {
-  const ms = props?.[key]?.multi_select;
-  if (!ms || !ms.length) return "";
-  return (ms[0]?.name || "").trim();
+function emailPlain(props: any, key: string) {
+  return (props?.[key]?.email || "").trim();
+}
+
+function numPlain(props: any, key: string) {
+  const n = props?.[key]?.number;
+  return typeof n === "number" ? n : 0;
+}
+
+function selectName(props: any, key: string) {
+  return (props?.[key]?.select?.name || "").trim();
+}
+
+function dateRange(props: any, key: string) {
+  const d = props?.[key]?.date;
+  return { start: d?.start || "", end: d?.end || "" };
+}
+
+function toISOWithFixedTime(dateYYYYMMDD: string, time: string) {
+  // dateYYYYMMDD = "2026-02-04"
+  // time = "14:00:00-03:00"
+  // produce ISO string
+  const dt = new Date(`${dateYYYYMMDD}T${time}`);
+  return dt.toISOString();
+}
+
+async function notionQueryNew(databaseId: string, accessToken: string) {
+  // Busca páginas SIN BookingID44 (nuevas manuales)
+  const res = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      "Notion-Version": NOTION_VERSION,
+    },
+    body: JSON.stringify({
+      page_size: 50,
+      sorts: [{ timestamp: "created_time", direction: "descending" }],
+      filter: {
+        property: "BookingID44",
+        rich_text: { is_empty: true },
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Notion query failed: ${await res.text()}`);
+  }
+  return await res.json();
+}
+
+async function notionSetBookingId(pageId: string, databaseId: string, accessToken: string, bookingId44: string) {
+  const res = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
+    method: "PATCH",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+      "Notion-Version": NOTION_VERSION,
+    },
+    body: JSON.stringify({
+      properties: {
+        "BookingID44": {
+          rich_text: [{ text: { content: bookingId44 } }],
+        },
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Notion update failed (${pageId}): ${await res.text()}`);
+  }
+  return await res.json();
 }
 
 Deno.serve(async (req) => {
   try {
     const base44 = getBase44(req);
 
-    // --- ENV CHECKS ---
-    const env = {
-      hasServiceRoleToken: Boolean(Deno.env.get("BASE44_SERVICE_ROLE_TOKEN")),
-      hasNotionDb: Boolean(Deno.env.get("NOTION_DATABASE_ID")),
+    const databaseId = Deno.env.get("NOTION_DATABASE_ID");
+    if (!databaseId) return Response.json({ error: "NOTION_DATABASE_ID no configurado" }, { status: 500 });
+
+    const accessToken = await base44.asServiceRole.connectors.getAccessToken("notion");
+
+    const notionData = await notionQueryNew(databaseId, accessToken);
+
+    const statusMap: Record<string, string> = {
+      "Pendiente": "pending",
+      "Pago": "confirmed",
+      "Cancelada": "cancelled",
+      "Completa": "completed",
     };
 
-    // --- BASE44: ACCOMMODATIONS ---
-    let accommodations: any[] = [];
-    let accommodationsError: string | null = null;
+    const created: any[] = [];
+    const skipped: any[] = [];
 
-    try {
-      const res = await base44.asServiceRole.entities.Accommodation.list({ limit: 200 });
-      accommodations = res?.items || res || [];
-    } catch (e) {
-      accommodationsError = String(e?.message || e);
-    }
-
-    const accommodationNames = accommodations
-      .map((a) => a?.name)
-      .filter(Boolean)
-      .map((n) => String(n).trim());
-
-    const accByName = new Map(
-      accommodations.map((a) => [String(a.name || "").trim().toLowerCase(), a])
-    );
-
-    // --- BASE44: BOOKINGS (sanity) ---
-    let bookings: any[] = [];
-    let bookingsError: string | null = null;
-
-    try {
-      const res = await base44.asServiceRole.entities.Booking.list({ limit: 5, sort: { created_date: -1 } as any });
-      bookings = res?.items || res || [];
-    } catch (e) {
-      bookingsError = String(e?.message || e);
-    }
-
-    // --- NOTION ---
-    const accessToken = await base44.asServiceRole.connectors.getAccessToken("notion");
-    const databaseId = Deno.env.get("NOTION_DATABASE_ID");
-    if (!databaseId) {
-      return Response.json({ error: "NOTION_DATABASE_ID no configurado" }, { status: 500 });
-    }
-
-    // Trae solo páginas donde BookingID44 está vacío (reservas nuevas creadas a mano)
-    const notionRes = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-        "Notion-Version": NOTION_VERSION,
-      },
-      body: JSON.stringify({
-        page_size: 5,
-        sorts: [{ timestamp: "created_time", direction: "descending" }],
-        filter: {
-          property: "BookingID44",
-          rich_text: { is_empty: true },
-        },
-      }),
-    });
-
-    if (!notionRes.ok) {
-      return Response.json(
-        { error: "Notion query failed", details: await notionRes.text() },
-        { status: notionRes.status }
-      );
-    }
-
-    const notionData = await notionRes.json();
-
-    const notionSample = (notionData.results || []).map((page: any) => {
+    for (const page of notionData.results || []) {
       const props = page.properties || {};
 
-      const accommodationName = msFirstName(props, "Cabaña / Casa"); // multi_select
-      const normalized = accommodationName.trim().toLowerCase();
-      const matched = normalized ? Boolean(accByName.get(normalized)) : false;
+      // Si ya tuviera BookingID44, no debería entrar por el filtro, pero por las dudas:
+      const bookingId44 = rtPlain(props, "BookingID44");
+      if (bookingId44) {
+        skipped.push({ page_id: page.id, reason: "Ya tiene BookingID44" });
+        continue;
+      }
 
-      return {
+      // ESTE ES EL PUNTO CLAVE: no hacemos Accommodation.list(), usamos AccommodationID44
+      const accommodationId44 = rtPlain(props, "AccommodationID44");
+      if (!accommodationId44) {
+        skipped.push({ page_id: page.id, reason: "Falta AccommodationID44 (no se puede crear booking sin eso)" });
+        continue;
+      }
+
+      const guest_name = titlePlain(props, "Nombre del huésped");
+      const guest_phone = rtPlain(props, "Teléfono / WhatsApp");
+      const guest_email = emailPlain(props, "Email");
+      const number_of_guests = numPlain(props, "Cant. huéspedes");
+      const total_price = numPlain(props, "Monto total");
+      const special_requests = rtPlain(props, "Notas");
+
+      const notionStatus = selectName(props, "Estado de la reserva");
+      const mappedStatus = statusMap[notionStatus] || "pending";
+
+      const range = dateRange(props, "Check-In / Check-Out");
+      if (!range.start || !range.end) {
+        skipped.push({ page_id: page.id, reason: "Falta rango Check-In / Check-Out" });
+        continue;
+      }
+
+      // Forzamos horas (14:00 check-in / 18:00 check-out ART)
+      const check_in = toISOWithFixedTime(range.start.split("T")[0], CHECKIN_TIME);
+      const check_out = toISOWithFixedTime(range.end.split("T")[0], CHECKOUT_TIME);
+
+      // Crear booking en Base44
+      // Nota: ajustá nombres de campos a tu entidad Booking real si difieren.
+      const newBooking = await base44.asServiceRole.entities.Booking.create({
+        accommodation_id: accommodationId44,
+        guest_name,
+        guest_phone,
+        guest_email,
+        number_of_guests,
+        total_price,
+        special_requests,
+        status: mappedStatus,
+        check_in,
+        check_out,
+      });
+
+      // Escribir BookingID44 en Notion
+      await notionSetBookingId(page.id, databaseId, accessToken, newBooking.id);
+
+      created.push({
         page_id: page.id,
-        created_time: page.created_time,
-        guest_name: titlePlain(props, "Nombre del huésped"),
-        accommodationName,
-        matched,
-        reason: matched
-          ? "OK"
-          : !accommodationName
-          ? "Notion: Cabaña / Casa vacío"
-          : accommodations.length === 0
-          ? "Base44: Accommodation.list devolvió 0"
-          : "No matchea contra Accommodation.name (comparación exacta, case-insensitive)",
-      };
-    });
+        booking_id: newBooking.id,
+        accommodation_id: accommodationId44,
+      });
+    }
 
     return Response.json({
-      ok: true,
-      env,
-      base44: {
-        accommodations: {
-          count: accommodations.length,
-          error: accommodationsError,
-          sample: accommodations.slice(0, 10).map((a) => ({ id: a.id, name: a.name })),
-          names: accommodationNames.slice(0, 50),
-        },
-        bookings: {
-          count: bookings.length,
-          error: bookingsError,
-          sample: bookings.slice(0, 3).map((b) => ({
-            id: b.id,
-            accommodation_id: b.accommodation_id,
-            status: b.status,
-            check_in: b.check_in,
-            check_out: b.check_out,
-          })),
-        },
-      },
-      notion: {
-        fetched: (notionData.results || []).length,
-        sample: notionSample,
-      },
+      success: true,
+      mode: "import",
+      created: created.length,
+      items: created,
+      skipped_count: skipped.length,
+      skipped_sample: skipped.slice(0, 10),
     });
   } catch (error) {
     return Response.json({ error: String(error?.message || error) }, { status: 500 });
