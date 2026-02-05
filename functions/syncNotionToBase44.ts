@@ -161,7 +161,7 @@ Deno.serve(async (req) => {
     createClientFromRequest(req);
 
     const notionDb = mustEnv("NOTION_DATABASE_ID");
-    const base44ApiKey = mustEnv("BASE44_API_KEY");
+    const base44ApiKey = mustEnv("BASE44_SERVICE_ROLE_TOKEN");
 
     // Token Notion desde connector (tu set actual)
     const base44 = createClientFromRequest(req);
