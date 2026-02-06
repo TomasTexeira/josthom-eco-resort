@@ -1,87 +1,126 @@
-// functions/syncNotionChanges.ts
 import { createClient, createClientFromRequest } from "npm:@base44/sdk@0.8.6";
 
 const NOTION_VERSION = "2022-06-28";
 
+// =====================
+// Base44 client (manual + automation)
+// =====================
 function getBase44(req: Request) {
-  // ✅ Soporta ejecución manual (HTTP) y automatizaciones (cron) donde no hay request “real”
   try {
-    return createClientFromRequest(req);
+    return createClientFromRequest(req); // manual via HTTP
   } catch {
     const token = Deno.env.get("BASE44_SERVICE_ROLE_TOKEN");
     if (!token) throw new Error("Missing env var: BASE44_SERVICE_ROLE_TOKEN");
-    return createClient({ token });
+    return createClient({ token }); // cron automation
   }
 }
 
-// ---------- Notion helpers ----------
-function readRichText(props: any, key: string) {
-  const rt = props?.[key]?.rich_text;
-  if (!rt || !rt.length) return null;
-  return rt[0]?.plain_text || rt[0]?.text?.content || null;
+// =====================
+// Helpers Notion parsing
+// =====================
+function readTitle(props: any, key: string) {
+  const arr = props?.[key]?.title;
+  if (!arr?.length) return null;
+  return arr.map((t: any) => t?.plain_text ?? t?.text?.content ?? "").join("").trim() || null;
 }
 
-function readTitle(props: any, key: string) {
-  const t = props?.[key]?.title;
-  if (!t || !t.length) return null;
-  return t[0]?.plain_text || t[0]?.text?.content || null;
+function readRichText(props: any, key: string) {
+  const arr = props?.[key]?.rich_text;
+  if (!arr?.length) return null;
+  return arr.map((t: any) => t?.plain_text ?? t?.text?.content ?? "").join("").trim() || null;
 }
 
 function readEmail(props: any, key: string) {
-  return props?.[key]?.email ?? null;
+  const v = props?.[key]?.email;
+  return (typeof v === "string" && v.trim()) ? v.trim() : null;
 }
 
 function readNumber(props: any, key: string) {
-  const n = props?.[key]?.number;
-  return typeof n === "number" ? n : null;
+  const v = props?.[key]?.number;
+  return (typeof v === "number" && !Number.isNaN(v)) ? v : null;
 }
 
-function readSelectName(props: any, key: string) {
-  return props?.[key]?.select?.name ?? null;
+function readSelect(props: any, key: string) {
+  const v = props?.[key]?.select?.name;
+  return (typeof v === "string" && v.trim()) ? v.trim() : null;
+}
+
+function readFirstMultiSelectName(props: any, key: string) {
+  const arr = props?.[key]?.multi_select;
+  if (!arr?.length) return null;
+  const name = arr[0]?.name;
+  return (typeof name === "string" && name.trim()) ? name.trim() : null;
 }
 
 function dateOnly(iso?: string | null) {
-  return iso ? iso.split("T")[0] : null;
+  if (!iso) return null;
+  return iso.split("T")[0];
 }
 
+// Notion might store date or datetime.
+// We compare by day, but we always WRITE with fixed times ART.
 function artIso(dateOnlyStr: string, time: "14:00:00" | "18:00:00") {
-  // ✅ Fuerza horario ART (UTC-3) y devuelve ISO UTC (toISOString)
   return new Date(`${dateOnlyStr}T${time}-03:00`).toISOString();
 }
 
-// Normalize values for safe comparisons
-function normStr(v: any) {
-  if (v === null || v === undefined) return null;
-  const s = String(v).trim();
-  return s.length ? s : null;
+function normStr(s?: string | null) {
+  return (s ?? "").trim().toLowerCase();
 }
 
-// Notion "Cabaña / Casa" es multi_select -> agarramos el primer item
-function readFirstMultiSelectName(props: any, key: string) {
-  const ms = props?.[key]?.multi_select;
-  if (!ms || !ms.length) return null;
-  return ms[0]?.name ?? null;
+// =====================
+// Overlap check (recommended)
+// If you don't want this, you can remove validateOverlap + calls.
+// =====================
+function overlaps(aStart: string, aEnd: string, bStart: string, bEnd: string) {
+  // overlap if start < otherEnd AND end > otherStart
+  return new Date(aStart).getTime() < new Date(bEnd).getTime() &&
+         new Date(aEnd).getTime() > new Date(bStart).getTime();
 }
 
-// ---------- Handler ----------
+async function validateNoOverlap(base44: any, bookingId: string, accommodationId: string, checkInIso: string, checkOutIso: string) {
+  // List bookings for same accommodation that are not cancelled.
+  // NOTE: some Base44 apps expose different filter syntaxes; if your list() supports filters, use them.
+  // This "safe" approach pulls a page and filters in-memory.
+  const list = await base44.asServiceRole.entities.Booking.list({ limit: 200 }).catch(() => []);
+  const relevant = (list || []).filter((b: any) =>
+    b?.accommodation_id === accommodationId &&
+    b?.id !== bookingId &&
+    b?.status !== "cancelled" &&
+    b?.check_in && b?.check_out
+  );
+
+  const conflict = relevant.find((b: any) => overlaps(checkInIso, checkOutIso, b.check_in, b.check_out));
+  if (conflict) {
+    return { ok: false, conflictBookingId: conflict.id };
+  }
+  return { ok: true };
+}
+
+// =====================
+// Main
+// =====================
 Deno.serve(async (req) => {
   try {
     const base44 = getBase44(req);
 
-    // Notion auth + DB
     const accessToken = await base44.asServiceRole.connectors.getAccessToken("notion");
     const databaseId = Deno.env.get("NOTION_DATABASE_ID");
-    if (!databaseId) {
-      return Response.json({ success: false, error: "NOTION_DATABASE_ID no configurado" }, { status: 500 });
-    }
+    if (!databaseId) return Response.json({ error: "NOTION_DATABASE_ID no configurado" }, { status: 500 });
 
-    // Map Notion -> Base44
-    const statusMap: Record<string, string> = {
+    // Notion -> Base44 status mapping
+    const statusMap: Record<string, "pending" | "confirmed" | "cancelled" | "completed"> = {
       Pendiente: "pending",
       Pago: "confirmed",
       Cancelada: "cancelled",
       Completa: "completed",
     };
+
+    // Cache accommodations once (so we can map "Cabaña 1" -> accommodation.id)
+    const accommodations = await base44.asServiceRole.entities.Accommodation.list({ limit: 100 }).catch(() => []);
+    const accByName = new Map<string, any>();
+    for (const a of (accommodations || [])) {
+      if (a?.name) accByName.set(normStr(a.name), a);
+    }
 
     const updates: any[] = [];
     const debug: any[] = [];
@@ -100,7 +139,6 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           start_cursor: startCursor,
           page_size: 100,
-          // ✅ Solo páginas que tengan BookingID44 (ID del booking en Base44)
           filter: {
             property: "BookingID44",
             rich_text: { is_not_empty: true },
@@ -109,9 +147,8 @@ Deno.serve(async (req) => {
       });
 
       if (!notionResponse.ok) {
-        const text = await notionResponse.text();
         return Response.json(
-          { success: false, error: "Error consultando Notion", details: text },
+          { error: "Error consultando Notion", details: await notionResponse.text() },
           { status: notionResponse.status },
         );
       }
@@ -121,107 +158,133 @@ Deno.serve(async (req) => {
       for (const page of notionData.results || []) {
         const props = page.properties || {};
 
-        // ✅ ID del booking en Base44 guardado en Notion
-        const bookingId = normStr(readRichText(props, "BookingID44"));
+        // ID del booking en Base44 (guardado en Notion)
+        const bookingId = readRichText(props, "BookingID44");
         if (!bookingId) continue;
 
-        // Notion fields
-        const notionStatusName = readSelectName(props, "Estado de la reserva");
-        const mappedStatus = notionStatusName ? statusMap[notionStatusName] : null;
-
-        const range = props["Check-In / Check-Out"]?.date;
-        const nIn = dateOnly(range?.start);
-        const nOut = dateOnly(range?.end);
-
-        const guestName = normStr(readTitle(props, "Nombre del huésped"));
-        const guestPhone = normStr(readRichText(props, "Teléfono / WhatsApp"));
-        const guestEmail = normStr(readEmail(props, "Email"));
-        const specialRequests = normStr(readRichText(props, "Notas"));
+        // Datos Notion
+        const guestName = readTitle(props, "Nombre del huésped");
+        const guestPhone = readRichText(props, "Teléfono / WhatsApp");
+        const guestEmail = readEmail(props, "Email");
+        const specialRequests = readRichText(props, "Notas");
         const numberOfGuests = readNumber(props, "Cant. huéspedes");
         const totalPrice = readNumber(props, "Monto total");
 
-        // (opcional) leer alojamiento desde Notion si querés validar consistencia
-        const notionAccommodationName = normStr(readFirstMultiSelectName(props, "Cabaña / Casa"));
+        const notionStatusName = readSelect(props, "Estado de la reserva");
+        const mappedStatus = notionStatusName ? statusMap[notionStatusName] : null;
 
-        // Get booking by ID in Base44
+        const accommodationName = readFirstMultiSelectName(props, "Cabaña / Casa");
+        const acc = accommodationName ? accByName.get(normStr(accommodationName)) : null;
+
+        const range = props["Check-In / Check-Out"]?.date;
+        const nInDay = dateOnly(range?.start);
+        const nOutDay = dateOnly(range?.end);
+
+        // Booking actual en Base44
         const booking = await base44.asServiceRole.entities.Booking.get(bookingId).catch(() => null);
         if (!booking) {
           debug.push({ notion_page_id: page.id, bookingId, reason: "BookingID44 no existe en Base44" });
           continue;
         }
 
-        // Compare booking current values
-        const bIn = dateOnly(booking.check_in);
-        const bOut = dateOnly(booking.check_out);
-
+        // Preparar update
         const updateData: Record<string, any> = {};
         let changed = false;
 
-        // status
+        // 1) status
         if (mappedStatus && booking.status !== mappedStatus) {
           updateData.status = mappedStatus;
           changed = true;
         }
 
-        // dates (compare by date-only)
-        if (nIn && nOut && (nIn !== bIn || nOut !== bOut)) {
-          updateData.check_in = artIso(nIn, "14:00:00");
-          updateData.check_out = artIso(nOut, "18:00:00");
-          changed = true;
-        }
-
-        // guests
-        if (numberOfGuests !== null && booking.number_of_guests !== numberOfGuests) {
-          updateData.number_of_guests = numberOfGuests;
-          changed = true;
-        }
-
-        // total price
-        if (totalPrice !== null && booking.total_price !== totalPrice) {
-          updateData.total_price = totalPrice;
-          changed = true;
-        }
-
-        // Guest data (si tus campos existen en Booking; si no existen, Base44 fallará aquí)
-        if (guestName && booking.guest_name !== guestName) {
+        // 2) huésped
+        if (guestName != null && booking.guest_name !== guestName) {
           updateData.guest_name = guestName;
           changed = true;
         }
-        if (guestPhone && booking.guest_phone !== guestPhone) {
+        if (guestPhone != null && booking.guest_phone !== guestPhone) {
           updateData.guest_phone = guestPhone;
           changed = true;
         }
-        if (guestEmail && booking.guest_email !== guestEmail) {
+        if (guestEmail != null && booking.guest_email !== guestEmail) {
           updateData.guest_email = guestEmail;
           changed = true;
         }
-        if (specialRequests && booking.special_requests !== specialRequests) {
+
+        // 3) notas
+        if (specialRequests != null && booking.special_requests !== specialRequests) {
           updateData.special_requests = specialRequests;
           changed = true;
         }
 
-        // (opcional) sanity check: no actualiza accommodation_id, solo deja debug
-        if (notionAccommodationName && booking.accommodation_name && notionAccommodationName !== booking.accommodation_name) {
+        // 4) cantidad huéspedes / precio
+        if (numberOfGuests != null && booking.number_of_guests !== numberOfGuests) {
+          updateData.number_of_guests = numberOfGuests;
+          changed = true;
+        }
+        if (totalPrice != null && booking.total_price !== totalPrice) {
+          updateData.total_price = totalPrice;
+          changed = true;
+        }
+
+        // 5) cabaña (accommodation_id)
+        if (accommodationName && !acc) {
           debug.push({
             notion_page_id: page.id,
             bookingId,
-            reason: "Nombre de alojamiento difiere (solo debug, no actualizo accommodation)",
-            notionAccommodationName,
-            base44AccommodationName: booking.accommodation_name,
+            reason: "No matchea nombre de alojamiento con Base44",
+            accommodationName,
+            base44AccommodationNames: [...accByName.values()].map((a: any) => a.name),
           });
+        } else if (acc && booking.accommodation_id !== acc.id) {
+          updateData.accommodation_id = acc.id;
+          changed = true;
         }
 
+        // 6) fechas (siempre guardar con horas fijas ART)
+        if (nInDay && nOutDay) {
+          const desiredIn = artIso(nInDay, "14:00:00");
+          const desiredOut = artIso(nOutDay, "18:00:00");
+
+          // Comparación: por día (evita líos de timezone)
+          const bInDay = dateOnly(booking.check_in);
+          const bOutDay = dateOnly(booking.check_out);
+
+          if (bInDay !== nInDay || bOutDay !== nOutDay) {
+            updateData.check_in = desiredIn;
+            updateData.check_out = desiredOut;
+            changed = true;
+          }
+
+          // ✅ Validar solapamiento si cambiaron fechas o cabaña
+          // (solo si no está cancelada)
+          const nextStatus = updateData.status ?? booking.status;
+          const nextAccId = updateData.accommodation_id ?? booking.accommodation_id;
+          const nextIn = updateData.check_in ?? booking.check_in;
+          const nextOut = updateData.check_out ?? booking.check_out;
+
+          if (changed && nextStatus !== "cancelled" && nextAccId && nextIn && nextOut) {
+            const ok = await validateNoOverlap(base44, booking.id, nextAccId, nextIn, nextOut);
+            if (!ok.ok) {
+              // No aplicamos el update para no romper disponibilidad
+              debug.push({
+                notion_page_id: page.id,
+                bookingId,
+                reason: "Superposición detectada: no se actualiza",
+                conflictBookingId: ok.conflictBookingId,
+                attempted: { nextAccId, nextIn, nextOut },
+              });
+              continue;
+            }
+          }
+        }
+
+        // 7) aplicar update
         if (changed) {
           await base44.asServiceRole.entities.Booking.update(booking.id, updateData);
           updates.push({ booking_id: booking.id, notion_page_id: page.id, changes: updateData });
         } else {
-          debug.push({
-            notion_page_id: page.id,
-            bookingId,
-            reason: "Sin cambios",
-            status: { notion: notionStatusName, base44: booking.status },
-            dates: { notion: { nIn, nOut }, base44: { bIn, bOut } },
-          });
+          debug.push({ notion_page_id: page.id, bookingId, reason: "Sin cambios" });
         }
       }
 
@@ -233,9 +296,10 @@ Deno.serve(async (req) => {
       success: true,
       synced: updates.length,
       updates,
-      debug_sample: debug.slice(0, 25),
+      debug_sample: debug.slice(0, 20),
+      base44_accommodations_count: accommodations?.length ?? 0,
     });
   } catch (error) {
-    return Response.json({ success: false, error: String(error?.message || error) }, { status: 500 });
+    return Response.json({ error: String((error as any)?.message || error) }, { status: 500 });
   }
 });
