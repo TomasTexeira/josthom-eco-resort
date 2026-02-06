@@ -1,114 +1,55 @@
 import { createClientFromRequest } from "npm:@base44/sdk@0.8.6";
 
-const NOTION_VERSION = "2022-06-28";
-
-// Helpers Notion
-function getTitle(props: any, name: string): string {
-  const t = props?.[name]?.title;
-  return Array.isArray(t) && t[0]?.plain_text ? t.map((x: any) => x.plain_text).join("") : "";
-}
-
-function getRichText(props: any, name: string): string {
-  const rt = props?.[name]?.rich_text;
-  return Array.isArray(rt) && rt[0]?.plain_text ? rt.map((x: any) => x.plain_text).join("") : "";
-}
-
-function getEmail(props: any, name: string): string {
-  return props?.[name]?.email ?? "";
-}
-
-function getNumber(props: any, name: string): number {
-  return typeof props?.[name]?.number === "number" ? props[name].number : 0;
-}
-
-function getSelectName(props: any, name: string): string {
-  return props?.[name]?.select?.name ?? "";
-}
-
-function getMultiSelectFirstName(props: any, name: string): string {
-  const ms = props?.[name]?.multi_select;
-  return Array.isArray(ms) && ms[0]?.name ? ms[0].name : "";
-}
-
-function getDateRange(props: any, name: string): { start?: string; end?: string } {
-  const d = props?.[name]?.date;
-  return d ? { start: d.start, end: d.end } : {};
-}
-
-// Normaliza a YYYY-MM-DD
-function toDateOnly(iso?: string): string {
-  if (!iso) return "";
-  return iso.split("T")[0];
-}
-
-// Fuerza horarios ART
-function buildARTDateTime(dateOnly: string, time: "14:00:00" | "18:00:00"): string {
-  // dateOnly: YYYY-MM-DD
-  // Construimos con -03:00 y lo pasamos a ISO (UTC) para Base44
-  const dt = new Date(`${dateOnly}T${time}-03:00`);
-  return dt.toISOString();
-}
-
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    const accessToken = await base44.asServiceRole.connectors.getAccessToken("notion");
+    // -----------------------------
+    // ENV / CONFIG
+    // -----------------------------
     const databaseId = Deno.env.get("NOTION_DATABASE_ID");
-    const base44ApiKey = Deno.env.get("BASE44_API_KEY"); // para listar accommodations si hace falta
-
-    if (!databaseId) return Response.json({ success: false, error: "NOTION_DATABASE_ID no configurado" }, { status: 500 });
-    if (!base44ApiKey) return Response.json({ success: false, error: "Missing env var: BASE44_API_KEY" }, { status: 500 });
-
-    // 1) Traer solo los que NO tienen BookingID44
-    const notionResponse = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        "Content-Type": "application/json",
-        "Notion-Version": NOTION_VERSION,
-      },
-      body: JSON.stringify({
-        page_size: 50,
-        filter: {
-          property: "BookingID44",
-          rich_text: { is_empty: true },
-        },
-        sorts: [{ timestamp: "created_time", direction: "ascending" }],
-      }),
-    });
-
-    if (!notionResponse.ok) {
-      const details = await notionResponse.text();
-      return Response.json({ success: false, error: "Error consultando Notion", details }, { status: 500 });
+    if (!databaseId) {
+      return Response.json(
+        { success: false, error: "NOTION_DATABASE_ID no configurado" },
+        { status: 500 },
+      );
     }
 
-    const notionData = await notionResponse.json();
-    const pages = notionData.results ?? [];
+    // Needed to read Accommodation entities via Entities API (because SDK list can return 0)
+    const base44ApiKey = Deno.env.get("BASE44_API_KEY");
+    if (!base44ApiKey) {
+      return Response.json(
+        { success: false, error: "Missing env var: BASE44_API_KEY" },
+        { status: 500 },
+      );
+    }
 
-    // 2) Listar accommodations desde Entities API (porque el SDK te estaba devolviendo 0)
-    const accRes = await fetch(
-      `https://app.base44.com/api/apps/${base44.appId}/entities/Accommodation`,
-      {
-        headers: {
-          api_key: base44ApiKey,
-          "Content-Type": "application/json",
-        },
-      }
+    // App ID: from header (when run inside Base44) or env for automations
+    const appId =
+      req.headers.get("X-Active-App-Id") ||
+      Deno.env.get("BASE44_APP_ID") ||
+      "696a5cf868f1a8d949987da4"; // fallback (your app id)
+
+    // Notion token from Base44 connector
+    const notionToken = await base44.asServiceRole.connectors.getAccessToken(
+      "notion",
     );
 
-    if (!accRes.ok) {
-      const details = await accRes.text();
-      return Response.json({ success: false, error: "No pude leer Accommodation entities", details }, { status: 500 });
-    }
+    const NOTION_VERSION = "2022-06-28";
 
-    const accData = await accRes.json();
-    const accommodations: any[] = accData?.items ?? accData?.data ?? accData ?? [];
-    const accommodationByName = new Map<string, any>();
-    for (const a of accommodations) {
-      if (a?.name) accommodationByName.set(a.name.trim(), a);
-    }
+    // Notion fields (as in your DB)
+    const NOTION_FIELD_BOOKING_ID = "BookingID44"; // <-- your field for the Base44 Booking.id
+    const NOTION_FIELD_ACCOMMODATION = "Cabaña / Casa"; // multi_select
+    const NOTION_FIELD_DATE_RANGE = "Check-In / Check-Out"; // date range
+    const NOTION_FIELD_GUEST_NAME = "Nombre del huésped"; // title
+    const NOTION_FIELD_GUEST_PHONE = "Teléfono / WhatsApp"; // rich_text
+    const NOTION_FIELD_GUEST_EMAIL = "Email"; // email
+    const NOTION_FIELD_GUESTS = "Cant. huéspedes"; // number
+    const NOTION_FIELD_TOTAL = "Monto total"; // number
+    const NOTION_FIELD_NOTES = "Notas"; // rich_text
+    const NOTION_FIELD_STATUS = "Estado de la reserva"; // select: Pendiente/Pago/Cancelada/Completa
 
+    // Status mapping Notion -> Base44
     const statusMap: Record<string, string> = {
       Pendiente: "pending",
       Pago: "confirmed",
@@ -116,126 +57,275 @@ Deno.serve(async (req) => {
       Completa: "completed",
     };
 
+    // Helpers
+    const dateOnly = (iso: string) => iso.split("T")[0];
+
+    const toArtISO = (dateISO: string, hhmm: "14:00" | "18:00") => {
+      // If dateISO already has time, normalize to date
+      const d = dateOnly(dateISO);
+      const time = hhmm === "14:00" ? "T14:00:00-03:00" : "T18:00:00-03:00";
+      return new Date(d + time).toISOString();
+    };
+
+    // -----------------------------
+    // 1) Read Accommodation entities (names + ids) from Base44 Entities API
+    // -----------------------------
+    const accRes = await fetch(
+      `https://app.base44.com/api/apps/${appId}/entities/Accommodation`,
+      {
+        headers: {
+          api_key: base44ApiKey,
+          "Content-Type": "application/json",
+        },
+      },
+    );
+
+    if (!accRes.ok) {
+      const details = await accRes.text();
+      return Response.json(
+        {
+          success: false,
+          error: "No pude leer Accommodation entities",
+          details,
+          appId,
+        },
+        { status: 500 },
+      );
+    }
+
+    const accData = await accRes.json();
+    const accommodations: any[] = (accData?.items ??
+      accData?.data ??
+      accData) || [];
+
+    // Build map by exact name (e.g. "Cabaña 1")
+    const accommodationByName = new Map<string, any>();
+    for (const a of accommodations) {
+      if (a?.name) accommodationByName.set(String(a.name).trim(), a);
+    }
+
+    // -----------------------------
+    // 2) Query Notion pages that DO NOT have BookingID44 (manual entries)
+    // -----------------------------
+    const notionQueryRes = await fetch(
+      `https://api.notion.com/v1/databases/${databaseId}/query`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${notionToken}`,
+          "Content-Type": "application/json",
+          "Notion-Version": NOTION_VERSION,
+        },
+        body: JSON.stringify({
+          page_size: 50,
+          filter: {
+            property: NOTION_FIELD_BOOKING_ID,
+            rich_text: { is_empty: true },
+          },
+          sorts: [{ timestamp: "created_time", direction: "ascending" }],
+        }),
+      },
+    );
+
+    if (!notionQueryRes.ok) {
+      const details = await notionQueryRes.text();
+      return Response.json(
+        { success: false, error: "Error consultando Notion", details },
+        { status: notionQueryRes.status },
+      );
+    }
+
+    const notionData = await notionQueryRes.json();
+    const pages: any[] = notionData?.results ?? [];
+
     const created: any[] = [];
     const skipped: any[] = [];
 
+    // -----------------------------
+    // 3) For each Notion page -> create Booking in Base44 -> write BookingID44 back to Notion
+    // -----------------------------
     for (const page of pages) {
-      const props = page.properties;
+      const props = page?.properties ?? {};
+      const pageId = page?.id;
 
-      const pageId = page.id;
+      // Read values from Notion
+      const guestName =
+        props[NOTION_FIELD_GUEST_NAME]?.title?.[0]?.plain_text?.trim() ?? "";
+      const guestPhone =
+        props[NOTION_FIELD_GUEST_PHONE]?.rich_text?.[0]?.plain_text?.trim() ??
+          "";
+      const guestEmail = props[NOTION_FIELD_GUEST_EMAIL]?.email ?? "";
 
-      // Notion fields
-      const guestName = getTitle(props, "Nombre del huésped") || getRichText(props, "Nombre del huésped");
-      const phone = getRichText(props, "Teléfono / WhatsApp");
-      const email = getEmail(props, "Email");
-      const accommodationName = getMultiSelectFirstName(props, "Cabaña / Casa");
-      const { start, end } = getDateRange(props, "Check-In / Check-Out");
-      const guests = getNumber(props, "Cant. huéspedes");
-      const total = getNumber(props, "Monto total");
-      const notes = getRichText(props, "Notas");
-      const notionStatus = getSelectName(props, "Estado de la reserva");
-      const mappedStatus = statusMap[notionStatus] || "pending";
+      const accommodationName =
+        props[NOTION_FIELD_ACCOMMODATION]?.multi_select?.[0]?.name?.trim() ??
+          "";
+
+      const statusNotion = props[NOTION_FIELD_STATUS]?.select?.name ?? "Pendiente";
+      const status = statusMap[statusNotion] ?? "pending";
+
+      const guests = props[NOTION_FIELD_GUESTS]?.number ?? 0;
+      const totalPrice = props[NOTION_FIELD_TOTAL]?.number ?? 0;
+      const notes =
+        props[NOTION_FIELD_NOTES]?.rich_text?.[0]?.plain_text?.trim() ?? "";
+
+      const range = props[NOTION_FIELD_DATE_RANGE]?.date;
+      const start = range?.start;
+      const end = range?.end;
+
+      if (!pageId) {
+        skipped.push({ reason: "Notion page sin id", guestName });
+        continue;
+      }
 
       if (!accommodationName) {
         skipped.push({ page_id: pageId, reason: "Falta Cabaña / Casa" });
         continue;
       }
+
+      // Match accommodation by name
+      const acc = accommodationByName.get(accommodationName);
+      if (!acc?.id) {
+        skipped.push({
+          page_id: pageId,
+          reason: "No matchea nombre de alojamiento con Base44",
+          accommodationName,
+          base44AccommodationNames: [...accommodationByName.keys()],
+        });
+        continue;
+      }
+
       if (!start || !end) {
         skipped.push({ page_id: pageId, reason: "Falta rango Check-In / Check-Out" });
         continue;
       }
 
-      const acc = accommodationByName.get(accommodationName.trim());
-      if (!acc) {
+      // Apply fixed times (ART)
+      const checkInISO = toArtISO(start, "14:00");
+      const checkOutISO = toArtISO(end, "18:00");
+
+      // (Optional but recommended) avoid creating overlaps if there is already a booking active.
+      // We'll do a simple search in Base44 bookings by accommodation_id and then overlap check.
+      let overlap = false;
+      try {
+        const existing = await fetch(
+          `https://app.base44.com/api/apps/${appId}/entities/Booking?accommodation_id=${encodeURIComponent(acc.id)}`,
+          {
+            headers: {
+              api_key: base44ApiKey,
+              "Content-Type": "application/json",
+            },
+          },
+        );
+
+        if (existing.ok) {
+          const existingData = await existing.json();
+          const bookings: any[] = existingData?.items ?? existingData?.data ?? [];
+          const newStart = new Date(checkInISO).getTime();
+          const newEnd = new Date(checkOutISO).getTime();
+
+          for (const b of bookings) {
+            const bStatus = String(b?.status ?? "");
+            if (bStatus === "cancelled") continue;
+
+            const bStart = new Date(b?.check_in).getTime();
+            const bEnd = new Date(b?.check_out).getTime();
+
+            // overlap: (start < bEnd) && (end > bStart)
+            if (newStart < bEnd && newEnd > bStart) {
+              overlap = true;
+              break;
+            }
+          }
+        }
+      } catch {
+        // if overlap check fails, we still proceed (or you can skip hard)
+      }
+
+      if (overlap) {
         skipped.push({
           page_id: pageId,
-          reason: "No matchea nombre de alojamiento con Base44",
+          reason: "Superposición detectada (no se creó en Base44)",
           accommodationName,
-          base44AccommodationNames: Array.from(accommodationByName.keys()),
+          check_in: checkInISO,
+          check_out: checkOutISO,
         });
         continue;
       }
 
-      // Convertimos a fechas-only y seteamos horarios ART
-      const checkInDateOnly = toDateOnly(start);
-      const checkOutDateOnly = toDateOnly(end);
-
-      const check_in = buildARTDateTime(checkInDateOnly, "14:00:00");
-      const check_out = buildARTDateTime(checkOutDateOnly, "18:00:00");
-
-      // 3) Crear booking en Base44 DB (entities Booking)
+      // Create booking in Base44
       const booking = await base44.asServiceRole.entities.Booking.create({
         accommodation_id: acc.id,
-        accommodation_name: acc.name,
-        guest_name: guestName || "Sin nombre",
-        guest_phone: phone || "",
-        guest_email: email || "",
-        number_of_guests: guests || 0,
-        total_price: total || 0,
-        special_requests: notes || "",
-        status: mappedStatus,
-        check_in,
-        check_out,
+        accommodation_name: accommodationName,
+        guest_name: guestName,
+        guest_phone: guestPhone,
+        guest_email: guestEmail,
+        number_of_guests: guests,
+        status,
+        total_price: totalPrice,
+        special_requests: notes,
+        check_in: checkInISO,
+        check_out: checkOutISO,
       });
 
-      // 4) PATCH a Notion para escribir BookingID44 (y opcional AccommodationID44)
-      const patchRes = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
-        method: "PATCH",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "Content-Type": "application/json",
-          "Notion-Version": NOTION_VERSION,
+      // Write BookingID44 back to Notion (prevents infinite loop)
+      const notionUpdateRes = await fetch(
+        `https://api.notion.com/v1/pages/${pageId}`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${notionToken}`,
+            "Content-Type": "application/json",
+            "Notion-Version": NOTION_VERSION,
+          },
+          body: JSON.stringify({
+            properties: {
+              [NOTION_FIELD_BOOKING_ID]: {
+                rich_text: [{ text: { content: String(booking.id) } }],
+              },
+            },
+          }),
         },
-        body: JSON.stringify({
-          properties: {
-            // 👇 Esto evita el loop
-            BookingID44: {
-              rich_text: [{ text: { content: booking.id } }],
-            },
+      );
 
-            // Si querés también guardar el accommodation_id:
-            AccommodationID44: {
-              rich_text: [{ text: { content: acc.id } }],
-            },
-          },
-        }),
-      });
-
-      if (!patchRes.ok) {
-        const details = await patchRes.text();
-        // MUY IMPORTANTE: si falla patch, lo vas a re-importar en loop.
-        // Devolvemos error para que lo veas y lo arregles.
-        return Response.json(
-          {
-            success: false,
-            error: "Creé booking en Base44 pero NO pude escribir BookingID44 en Notion (evita loop).",
-            page_id: pageId,
-            booking_id: booking.id,
-            details,
-            hint: "Verificá que BookingID44 y AccommodationID44 sean Rich text en Notion (no fórmula/rollup).",
-          },
-          { status: 500 }
-        );
+      if (!notionUpdateRes.ok) {
+        const details = await notionUpdateRes.text();
+        // If Notion update fails, you will loop. So we log it explicitly.
+        skipped.push({
+          page_id: pageId,
+          reason: "Booking creado en Base44 pero NO se pudo escribir BookingID44 en Notion (loop risk)",
+          base44_booking_id: booking.id,
+          details,
+        });
+        continue;
       }
 
       created.push({
-        page_id: pageId,
-        booking_id: booking.id,
+        notion_page_id: pageId,
+        base44_booking_id: booking.id,
         accommodation_id: acc.id,
-        accommodation_name: acc.name,
+        accommodation_name: accommodationName,
+        status,
+        check_in: checkInISO,
+        check_out: checkOutISO,
       });
     }
 
     return Response.json({
       success: true,
       mode: "import",
-      fetched: pages.length,
+      fetchedFromNotion: pages.length,
       created: created.length,
       items: created,
       skipped_count: skipped.length,
-      skipped_sample: skipped.slice(0, 10),
+      debug_skipped_sample: skipped.slice(0, 10),
+      base44AccommodationCount: accommodations.length,
+      base44AccommodationNames: [...accommodationByName.keys()],
     });
   } catch (error) {
-    return Response.json({ success: false, error: error?.message || String(error) }, { status: 500 });
+    console.error("syncNotionToBase44 error:", error);
+    return Response.json(
+      { success: false, error: error?.message ?? String(error) },
+      { status: 500 },
+    );
   }
 });
