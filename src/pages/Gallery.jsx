@@ -12,7 +12,8 @@ export default function Gallery() {
 
   const { data: images, isLoading } = useQuery({
     queryKey: ['gallery-images'],
-    queryFn: () => base44.entities.GalleryImage.list('order'),
+    queryFn: () => base44.entities.GalleryImage.list('order', 50),
+    staleTime: 5 * 60 * 1000,
   });
 
   const { data: gallerySiteContent } = useQuery({
@@ -20,7 +21,8 @@ export default function Gallery() {
     queryFn: async () => {
       const content = await base44.entities.SiteContent.list();
       return content.find(c => c.section === 'gallery');
-    }
+    },
+    staleTime: 10 * 60 * 1000,
   });
 
   const categories = [
@@ -74,6 +76,7 @@ export default function Gallery() {
           <img
             src={gallerySiteContent?.image_url || "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1920&q=80"}
             alt="Galería"
+            loading="eager"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/30" />

@@ -27,6 +27,7 @@ export default function AccommodationDetail() {
       const items = await base44.entities.Accommodation.filter({ id });
       return items[0];
     },
+    staleTime: 5 * 60 * 1000,
     enabled: !!id,
   });
 
@@ -159,6 +160,9 @@ export default function AccommodationDetail() {
             <img
               src={accommodation.main_image || "https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=800&q=80"}
               alt={accommodation.name}
+              loading="eager"
+              width="800"
+              height="600"
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
             />
           </div>
@@ -173,6 +177,8 @@ export default function AccommodationDetail() {
               <img
                 src={img}
                 alt={`${accommodation.name} ${i + 2}`}
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
               />
             </div>

@@ -9,7 +9,8 @@ import AccommodationCard from '@/components/accommodations/AccommodationCard';
 export default function Accommodations() {
   const { data: accommodations, isLoading } = useQuery({
     queryKey: ['accommodations'],
-    queryFn: () => base44.entities.Accommodation.list('order'),
+    queryFn: () => base44.entities.Accommodation.list('order', 20),
+    staleTime: 5 * 60 * 1000,
   });
 
   const { data: heroContent } = useQuery({
@@ -17,7 +18,8 @@ export default function Accommodations() {
     queryFn: async () => {
       const content = await base44.entities.SiteContent.list();
       return content.find(c => c.section === 'hero');
-    }
+    },
+    staleTime: 10 * 60 * 1000,
   });
 
   return (
@@ -34,6 +36,7 @@ export default function Accommodations() {
           <img
             src={heroContent?.image_url || "https://images.unsplash.com/photo-1499793983690-e29da59ef1c2?w=1920&q=80"}
             alt="Alojamientos"
+            loading="eager"
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-black/30" />
