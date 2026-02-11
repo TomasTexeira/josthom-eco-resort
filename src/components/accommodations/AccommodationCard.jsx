@@ -20,6 +20,10 @@ export default function AccommodationCard({ accommodation, index }) {
         <img
           src={accommodation.main_image || "https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=600&q=80"}
           alt={accommodation.name}
+          loading="lazy"
+          decoding="async"
+          width="600"
+          height="450"
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
         />
         <div className="absolute top-4 left-4">

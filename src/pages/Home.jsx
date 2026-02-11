@@ -11,12 +11,14 @@ import CTASection from '@/components/home/CTASection';
 export default function Home() {
   const { data: accommodations } = useQuery({
     queryKey: ['accommodations'],
-    queryFn: () => base44.entities.Accommodation.list('order'),
+    queryFn: () => base44.entities.Accommodation.list('order', 6),
+    staleTime: 5 * 60 * 1000, // Cache 5 min
   });
 
   const { data: siteContent } = useQuery({
     queryKey: ['site-content'],
     queryFn: () => base44.entities.SiteContent.list(),
+    staleTime: 10 * 60 * 1000, // Cache 10 min
   });
 
   const getContent = (section) => siteContent?.find(c => c.section === section);
