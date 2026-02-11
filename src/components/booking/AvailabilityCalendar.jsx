@@ -25,6 +25,7 @@ export default function AvailabilityCalendar({
       accommodation_id: accommodationId,
       status: { $in: ['pending', 'confirmed'] }
     }),
+    staleTime: 2 * 60 * 1000,
     enabled: !!accommodationId,
   });
 
