@@ -38,7 +38,7 @@ function artIso(dateOnlyStr: string, time: "14:00:00" | "18:00:00") {
   return new Date(`${dateOnlyStr}T${time}-03:00`).toISOString();
 }
 
-async function notionPatchBookingId(accessToken: string, pageId: string, bookingId: string) {
+async function notionSetBookingId(accessToken: string, pageId: string, bookingId: string) {
   const patch = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
     method: "PATCH",
     headers: {
@@ -53,51 +53,39 @@ async function notionPatchBookingId(accessToken: string, pageId: string, booking
     }),
   });
 
-  if (!patch.ok) {
-    return { ok: false, details: await patch.text() };
-  }
+  if (!patch.ok) return { ok: false, details: await patch.text() };
   return { ok: true, details: null };
 }
 
 async function listAccommodations(base44: any) {
   const res: any = await base44.asServiceRole.entities.Accommodation.list({ limit: 200 });
-  const items: any[] = Array.isArray(res?.items) ? res.items : Array.isArray(res) ? res : [];
+  const items: any[] = Array.isArray(res?.items) ? res.items : (Array.isArray(res) ? res : []);
   return items;
 }
 
-async function seedAccommodationsIfEmpty(base44: any) {
-  let accommodations = await listAccommodations(base44);
-  if (accommodations.length > 0) return accommodations;
+async function getOrCreateAccommodationByName(base44: any, name: string) {
+  const all = await listAccommodations(base44);
+  const found = all.find((a: any) => (a?.name || "").trim() === name.trim());
+  if (found) return { ok: true, accommodation: found, created: false, error: null };
 
-  const desired = ["Cabaña 1", "Cabaña 2", "Cabaña 3", "Cabaña 4", "Cabaña 5", "Cabaña 6"];
-  const created: any[] = [];
-
-  for (let i = 0; i < desired.length; i++) {
-    const name = desired[i];
-    const acc = await base44.asServiceRole.entities.Accommodation.create({
-      name,
-      type: "cabin",
-      capacity: 5,
-      is_featured: false,
-      order: i + 1,
-    });
-    created.push(acc);
+  // intentar crear con el payload mínimo: {name}
+  try {
+    const created = await base44.asServiceRole.entities.Accommodation.create({ name });
+    return { ok: true, accommodation: created, created: true, error: null };
+  } catch (e) {
+    return { ok: false, accommodation: null, created: false, error: String(e) };
   }
-
-  accommodations = await listAccommodations(base44);
-  return accommodations;
 }
 
 async function findBookingByNotionPageId(base44: any, notionPageId: string) {
-  // OJO: esto asume que Booking tiene campo notion_page_id.
-  // Si tu schema no lo tiene, decime el nombre del campo y lo ajusto.
+  // Si NO tenés notion_page_id en Booking, decímelo y lo hacemos dedupe por (accommodation_id + dates + email)
   try {
     const res: any = await base44.asServiceRole.entities.Booking.list({
       limit: 1,
       filter: { notion_page_id: notionPageId },
       sort: { created_date: -1 },
     });
-    const items: any[] = Array.isArray(res?.items) ? res.items : Array.isArray(res) ? res : [];
+    const items: any[] = Array.isArray(res?.items) ? res.items : (Array.isArray(res) ? res : []);
     return items[0] || null;
   } catch {
     return null;
@@ -119,7 +107,7 @@ Deno.serve(async (req) => {
       Completa: "completed",
     };
 
-    // 1) Traer páginas nuevas (sin BookingID44)
+    // Buscar páginas nuevas (sin BookingID44)
     const notionResponse = await fetch(`https://api.notion.com/v1/databases/${databaseId}/query`, {
       method: "POST",
       headers: {
@@ -140,10 +128,6 @@ Deno.serve(async (req) => {
 
     const notionData = await notionResponse.json();
 
-    // 2) Asegurar accommodations (si está vacío, sembrar)
-    const accommodations = await seedAccommodationsIfEmpty(base44);
-    const accNames = accommodations.map((a: any) => a?.name).filter(Boolean);
-
     let created = 0;
     let deduped = 0;
     let skipped_count = 0;
@@ -152,16 +136,19 @@ Deno.serve(async (req) => {
     const deduped_items: any[] = [];
     const debug_skipped_sample: any[] = [];
 
+    // para debug
+    const base44Acc = await listAccommodations(base44);
+    const base44AccNames = base44Acc.map((x: any) => x?.name).filter(Boolean);
+
     for (const page of notionData.results || []) {
       const props = page.properties || {};
 
-      // Dedup fuerte por notion_page_id si ya existe booking
+      // Dedupe fuerte por notion_page_id (si existe en schema)
       const existing = await findBookingByNotionPageId(base44, page.id);
       if (existing?.id) {
-        // Si existe booking pero Notion no tiene BookingID44, lo escribimos para cortar loop
-        const patched = await notionPatchBookingId(accessToken, page.id, existing.id);
+        const patched = await notionSetBookingId(accessToken, page.id, existing.id);
         deduped++;
-        deduped_items.push({ notion_page_id: page.id, booking_id: existing.id, patched: patched.ok });
+        deduped_items.push({ notion_page_id: page.id, booking_id: existing.id, patched: patched.ok, patch_error: patched.details });
         continue;
       }
 
@@ -186,26 +173,33 @@ Deno.serve(async (req) => {
 
       if (!accommodationName) {
         skipped_count++;
-        debug_skipped_sample.push({ page_id: page.id, reason: "Falta Cabaña / Casa", base44AccommodationNames: accNames });
-        continue;
-      }
-
-      const match = accommodations.find((a: any) => (a?.name || "").trim() === accommodationName.trim());
-      if (!match) {
-        skipped_count++;
-        debug_skipped_sample.push({ page_id: page.id, reason: "No matchea nombre de alojamiento con Base44", accommodationName, base44AccommodationNames: accNames });
+        debug_skipped_sample.push({ page_id: page.id, reason: "Falta Cabaña / Casa", base44AccommodationNames: base44AccNames });
         continue;
       }
 
       if (!nIn || !nOut) {
         skipped_count++;
-        debug_skipped_sample.push({ page_id: page.id, reason: "Faltan fechas en Check-In / Check-Out", accommodationName });
+        debug_skipped_sample.push({ page_id: page.id, reason: "Faltan fechas", accommodationName });
         continue;
       }
 
-      // 3) Crear booking en Base44
+      // ✅ Crear o buscar Accommodation
+      const accRes = await getOrCreateAccommodationByName(base44, accommodationName);
+      if (!accRes.ok || !accRes.accommodation?.id) {
+        skipped_count++;
+        debug_skipped_sample.push({
+          page_id: page.id,
+          reason: "No pude crear/encontrar Accommodation en Base44",
+          accommodationName,
+          base44AccommodationNames: base44AccNames,
+          createError: accRes.error,
+        });
+        continue;
+      }
+
+      // Crear booking
       const booking = await base44.asServiceRole.entities.Booking.create({
-        accommodation_id: match.id,
+        accommodation_id: accRes.accommodation.id,
         guest_name: guestName,
         guest_email: email,
         guest_phone: phone,
@@ -219,17 +213,18 @@ Deno.serve(async (req) => {
         notion_page_id: page.id,
       });
 
-      // 4) Escribir BookingID44 en Notion (CLAVE para que no se repita)
-      const patched = await notionPatchBookingId(accessToken, page.id, booking.id);
+      // Escribir BookingID44 en Notion (corta el loop)
+      const patched = await notionSetBookingId(accessToken, page.id, booking.id);
 
       created++;
       created_items.push({
         notion_page_id: page.id,
         booking_id: booking.id,
-        accommodation_id: match.id,
-        accommodation_name: match.name,
+        accommodation_id: accRes.accommodation.id,
+        accommodation_name: accRes.accommodation.name,
+        accommodation_created_now: accRes.created,
         notion_patch_ok: patched.ok,
-        notion_patch_error: patched.ok ? null : patched.details,
+        notion_patch_error: patched.details,
       });
     }
 
@@ -237,14 +232,16 @@ Deno.serve(async (req) => {
       success: true,
       mode: "import",
       notion_fetched: (notionData.results || []).length,
-      base44_accommodations: accommodations.length,
+      base44_accommodations_before: base44Acc.length,
+      base44AccommodationNames_before: base44AccNames.slice(0, 20),
       created,
       deduped,
       skipped_count,
       created_items,
       deduped_items,
       debug_skipped_sample: debug_skipped_sample.slice(0, 10),
-      note: accommodations.length === 0 ? "OJO: no se pudo sembrar accommodations" : "OK",
+      note:
+        "Si sigue diciendo que no puede crear Accommodation, entonces el schema tiene campos requeridos o no existe el entity Accommodation en este app.",
     });
   } catch (e: any) {
     return Response.json({ success: false, error: String(e?.message || e) }, { status: 500 });
