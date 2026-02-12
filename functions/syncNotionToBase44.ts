@@ -38,7 +38,7 @@ function artIso(dateOnlyStr: string, time: "14:00:00" | "18:00:00") {
   return new Date(`${dateOnlyStr}T${time}-03:00`).toISOString();
 }
 
-async function notionSetBookingId(accessToken: string, pageId: string, bookingId: string, accommodationName: string) {
+async function notionSetBookingId(accessToken: string, pageId: string, bookingId: string, accommodationId: string) {
   const patch = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
     method: "PATCH",
     headers: {
@@ -49,7 +49,7 @@ async function notionSetBookingId(accessToken: string, pageId: string, bookingId
     body: JSON.stringify({
       properties: {
         BookingID44: { rich_text: [{ text: { content: bookingId } }] },
-        "Id Reserva": { rich_text: [{ text: { content: accommodationName } }] },
+        "Id Reserva": { rich_text: [{ text: { content: accommodationId } }] },
       },
     }),
   });
@@ -151,7 +151,7 @@ Deno.serve(async (req) => {
       // Dedupe fuerte por notion_page_id (si existe en schema)
       const existing = await findBookingByNotionPageId(base44, page.id);
       if (existing?.id) {
-        const patched = await notionSetBookingId(accessToken, page.id, existing.id, existing.accommodation_name || "");
+        const patched = await notionSetBookingId(accessToken, page.id, existing.id, existing.accommodation_id);
         deduped++;
         deduped_items.push({ notion_page_id: page.id, booking_id: existing.id, patched: patched.ok, patch_error: patched.details });
         continue;
@@ -220,7 +220,7 @@ Deno.serve(async (req) => {
       });
 
       // Escribir BookingID44 e Id Reserva en Notion
-      const patched = await notionSetBookingId(accessToken, page.id, booking.id, accRes.accommodation.name);
+      const patched = await notionSetBookingId(accessToken, page.id, booking.id, accRes.accommodation.id);
 
       created++;
       created_items.push({
