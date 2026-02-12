@@ -205,7 +205,7 @@ Deno.serve(async (req) => {
       // Crear booking
       const booking = await base44.asServiceRole.entities.Booking.create({
         accommodation_id: accRes.accommodation.id,
-        accommodation_name: accRes.accommodation.name,
+        accommodation_name: accommodationName,
         guest_name: guestName,
         guest_email: email,
         guest_phone: phone,
@@ -227,7 +227,7 @@ Deno.serve(async (req) => {
         notion_page_id: page.id,
         booking_id: booking.id,
         accommodation_id: accRes.accommodation.id,
-        accommodation_name: accRes.accommodation.name,
+        accommodation_name: accommodationName,
         accommodation_created_now: accRes.created,
         notion_patch_ok: patched.ok,
         notion_patch_error: patched.details,
