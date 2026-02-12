@@ -39,6 +39,16 @@ function artIso(dateOnlyStr: string, time: "14:00:00" | "18:00:00") {
 }
 
 async function notionSetBookingId(accessToken: string, pageId: string, bookingId: string, accommodationId: string) {
+  const payload = {
+    properties: {
+      BookingID44: { rich_text: [{ text: { content: bookingId } }] },
+      "Id Reserva": { rich_text: [{ text: { content: accommodationId } }] },
+    },
+  };
+  
+  console.log("Notion PATCH payload:", JSON.stringify(payload, null, 2));
+  console.log("Accommodation ID to write:", accommodationId);
+  
   const patch = await fetch(`https://api.notion.com/v1/pages/${pageId}`, {
     method: "PATCH",
     headers: {
@@ -46,16 +56,14 @@ async function notionSetBookingId(accessToken: string, pageId: string, bookingId
       "Content-Type": "application/json",
       "Notion-Version": NOTION_VERSION,
     },
-    body: JSON.stringify({
-      properties: {
-        BookingID44: { rich_text: [{ text: { content: bookingId } }] },
-        "Id Reserva": { rich_text: [{ text: { content: accommodationId } }] },
-      },
-    }),
+    body: JSON.stringify(payload),
   });
 
-  if (!patch.ok) return { ok: false, details: await patch.text() };
-  return { ok: true, details: null };
+  const responseText = await patch.text();
+  console.log("Notion PATCH response:", patch.status, responseText);
+  
+  if (!patch.ok) return { ok: false, details: responseText };
+  return { ok: true, details: responseText };
 }
 
 async function listAccommodations(base44: any) {
