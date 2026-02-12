@@ -68,9 +68,13 @@ async function getOrCreateAccommodationByName(base44: any, name: string) {
   const found = all.find((a: any) => (a?.name || "").trim() === name.trim());
   if (found) return { ok: true, accommodation: found, created: false, error: null };
 
-  // intentar crear con el payload mínimo: {name}
+  // Crear con los campos requeridos: name, type, capacity
   try {
-    const created = await base44.asServiceRole.entities.Accommodation.create({ name });
+    const created = await base44.asServiceRole.entities.Accommodation.create({ 
+      name,
+      type: "cabaña", // Valor por defecto
+      capacity: 5 // Valor por defecto
+    });
     return { ok: true, accommodation: created, created: true, error: null };
   } catch (e) {
     return { ok: false, accommodation: null, created: false, error: String(e) };
