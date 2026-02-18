@@ -736,7 +736,7 @@ export default function BookingsManager() {
                 </div>
               </CardHeader>
               {isExpanded && (
-              <CardContent>
+                <CardContent>
               {(() => {
                 const checkIn = new Date(booking.check_in);
                 const checkOut = new Date(booking.check_out);
@@ -815,7 +815,8 @@ export default function BookingsManager() {
                   <div className="text-sm">{booking.special_requests}</div>
                 </div>
               )}
-              </CardContent>
+                </CardContent>
+              )}
             </Card>
           );
         })}
