@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, Home, Image, FileText, Settings } from 'lucide-react';
+import { Calendar, Home, Image, FileText, CalendarDays } from 'lucide-react';
 import BookingsManager from '@/components/admin/BookingsManager';
 import AccommodationsManager from '@/components/admin/AccommodationsManager';
 import GalleryManager from '@/components/admin/GalleryManager';
 import ContentManager from '@/components/admin/ContentManager';
+import CalendarView from '@/components/admin/CalendarView';
 
 export default function Admin() {
   const [activeTab, setActiveTab] = useState('bookings');
@@ -63,10 +64,14 @@ export default function Admin() {
           <BookingsManager />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+            <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
               <TabsTrigger value="bookings" className="gap-2">
                 <Calendar className="w-4 h-4" />
                 Reservas
+              </TabsTrigger>
+              <TabsTrigger value="calendar" className="gap-2">
+                <CalendarDays className="w-4 h-4" />
+                Calendario
               </TabsTrigger>
               <TabsTrigger value="accommodations" className="gap-2">
                 <Home className="w-4 h-4" />
@@ -84,6 +89,10 @@ export default function Admin() {
 
             <TabsContent value="bookings">
               <BookingsManager />
+            </TabsContent>
+
+            <TabsContent value="calendar">
+              <CalendarView />
             </TabsContent>
 
             <TabsContent value="accommodations">

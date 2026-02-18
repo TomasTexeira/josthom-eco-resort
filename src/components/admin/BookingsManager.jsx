@@ -107,6 +107,8 @@ export default function BookingsManager() {
     check_in: '',
     check_out: '',
     status: 'pending',
+    payment_status: 'pending',
+    balance_status: 'pending',
     total_price: 0,
     special_requests: '',
     source: 'web',
@@ -122,6 +124,8 @@ export default function BookingsManager() {
       check_in: '',
       check_out: '',
       status: 'pending',
+      payment_status: 'pending',
+      balance_status: 'pending',
       total_price: 0,
       special_requests: '',
       source: 'web',
@@ -139,6 +143,8 @@ export default function BookingsManager() {
       check_in: booking.check_in?.split('T')[0] || '',
       check_out: booking.check_out?.split('T')[0] || '',
       status: booking.status,
+      payment_status: booking.payment_status || 'pending',
+      balance_status: booking.balance_status || 'pending',
       total_price: booking.total_price || 0,
       special_requests: booking.special_requests || '',
       source: booking.source || 'web',
@@ -353,6 +359,38 @@ export default function BookingsManager() {
                 </div>
 
                 <div>
+                  <Label>Estado del pago (reserva)</Label>
+                  <Select
+                    value={formData.payment_status}
+                    onValueChange={(value) => setFormData({ ...formData, payment_status: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pendiente</SelectItem>
+                      <SelectItem value="paid">Pagado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>Estado del saldo</Label>
+                  <Select
+                    value={formData.balance_status}
+                    onValueChange={(value) => setFormData({ ...formData, balance_status: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pendiente</SelectItem>
+                      <SelectItem value="paid">Pagado</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
                   <Label>Monto total (calculado automáticamente)</Label>
                   <Input
                     type="number"
@@ -477,28 +515,78 @@ export default function BookingsManager() {
               </div>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                <div>
-                  <div className="text-gray-500 mb-1">Check-In</div>
-                  <div className="font-medium">
-                    {booking.check_in ? format(new Date(booking.check_in), "d 'de' MMMM", { locale: es }) : '-'}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-500 mb-1">Check-Out</div>
-                  <div className="font-medium">
-                    {booking.check_out ? format(new Date(booking.check_out), "d 'de' MMMM", { locale: es }) : '-'}
-                  </div>
-                </div>
-                <div>
-                  <div className="text-gray-500 mb-1">Huéspedes</div>
-                  <div className="font-medium">{booking.number_of_guests || '-'}</div>
-                </div>
-                <div>
-                  <div className="text-gray-500 mb-1">Monto Total</div>
-                  <div className="font-medium">${booking.total_price || 0}</div>
-                </div>
-              </div>
+              {(() => {
+                const checkIn = new Date(booking.check_in);
+                const checkOut = new Date(booking.check_out);
+                const nights = Math.floor((checkOut - checkIn) / (1000 * 60 * 60 * 24));
+
+                // Calcular noches con descuento
+                let discountedNights = 0;
+                for (let i = 0; i < nights; i++) {
+                  const currentDate = new Date(checkIn);
+                  currentDate.setDate(currentDate.getDate() + i);
+                  const dayOfWeek = currentDate.getDay();
+                  if (dayOfWeek >= 1 && dayOfWeek <= 4) {
+                    discountedNights++;
+                  }
+                }
+
+                const depositAmount = Math.round((booking.total_price || 0) * 0.25);
+                const balanceAmount = (booking.total_price || 0) - depositAmount;
+
+                return (
+                  <>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                      <div>
+                        <div className="text-gray-500 mb-1">Check-In</div>
+                        <div className="font-medium">
+                          {booking.check_in ? format(checkIn, "d 'de' MMMM", { locale: es }) : '-'}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500 mb-1">Check-Out</div>
+                        <div className="font-medium">
+                          {booking.check_out ? format(checkOut, "d 'de' MMMM", { locale: es }) : '-'}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500 mb-1">Huéspedes</div>
+                        <div className="font-medium">{booking.number_of_guests || '-'}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500 mb-1">Cantidad de noches</div>
+                        <div className="font-medium">{nights} noches</div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                      <div>
+                        <div className="text-gray-500 mb-1">Noches con 15% off</div>
+                        <div className="font-medium text-green-600">{discountedNights} noches</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500 mb-1">Monto Total</div>
+                        <div className="font-medium text-lg">${(booking.total_price || 0).toLocaleString()}</div>
+                      </div>
+                      <div>
+                        <div className="text-gray-500 mb-1">Reserva (25%)</div>
+                        <div className="font-medium">${depositAmount.toLocaleString()}</div>
+                        <Badge className={booking.payment_status === 'paid' ? 'bg-green-100 text-green-800 mt-1' : 'bg-yellow-100 text-yellow-800 mt-1'}>
+                          {booking.payment_status === 'paid' ? 'Pagado' : 'Pendiente'}
+                        </Badge>
+                      </div>
+                      <div>
+                        <div className="text-gray-500 mb-1">Saldo Pendiente</div>
+                        <div className="font-medium">${balanceAmount.toLocaleString()}</div>
+                        <Badge className={booking.balance_status === 'paid' ? 'bg-green-100 text-green-800 mt-1' : 'bg-yellow-100 text-yellow-800 mt-1'}>
+                          {booking.balance_status === 'paid' ? 'Pagado' : 'Pendiente'}
+                        </Badge>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
+
               {booking.special_requests && (
                 <div className="mt-4 pt-4 border-t">
                   <div className="text-gray-500 text-sm mb-1">Notas</div>

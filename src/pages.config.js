@@ -49,26 +49,26 @@
  */
 import AccommodationDetail from './pages/AccommodationDetail';
 import Accommodations from './pages/Accommodations';
+import Admin from './pages/Admin';
 import Contact from './pages/Contact';
+import DebugUser from './pages/DebugUser';
 import Experience from './pages/Experience';
 import Gallery from './pages/Gallery';
 import Home from './pages/Home';
 import Location from './pages/Location';
-import Admin from './pages/Admin';
-import DebugUser from './pages/DebugUser';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AccommodationDetail": AccommodationDetail,
     "Accommodations": Accommodations,
+    "Admin": Admin,
     "Contact": Contact,
+    "DebugUser": DebugUser,
     "Experience": Experience,
     "Gallery": Gallery,
     "Home": Home,
     "Location": Location,
-    "Admin": Admin,
-    "DebugUser": DebugUser,
 }
 
 export const pagesConfig = {
