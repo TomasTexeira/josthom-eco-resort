@@ -744,24 +744,24 @@ export default function BookingsManager() {
                         <div className="font-medium text-xs sm:text-sm">
                           {booking.check_in ? format(checkIn, "d 'de' MMMM", { locale: es }) : '-'}
                         </div>
-                        </div>
-                        <div>
+                      </div>
+                      <div>
                         <div className="text-gray-500 text-xs sm:text-sm mb-1">Check-Out</div>
                         <div className="font-medium text-xs sm:text-sm">
                           {booking.check_out ? format(checkOut, "d 'de' MMMM", { locale: es }) : '-'}
                         </div>
-                        </div>
-                        <div>
+                      </div>
+                      <div>
                         <div className="text-gray-500 text-xs sm:text-sm mb-1">Huéspedes</div>
                         <div className="font-medium text-xs sm:text-sm">{booking.number_of_guests || '-'}</div>
-                        </div>
-                        <div>
+                      </div>
+                      <div>
                         <div className="text-gray-500 text-xs sm:text-sm mb-1">Noches</div>
                         <div className="font-medium text-xs sm:text-sm">{nights}</div>
-                        </div>
-                        </div>
+                      </div>
+                    </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                       <div>
                         <div className="text-gray-500 text-xs sm:text-sm mb-1">Descuento</div>
                         <div className="font-medium text-xs sm:text-sm text-green-600">{discountedNights} noches</div>
