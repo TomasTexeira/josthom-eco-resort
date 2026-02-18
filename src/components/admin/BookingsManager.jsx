@@ -19,6 +19,7 @@ export default function BookingsManager() {
   const [editingBooking, setEditingBooking] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterAccommodation, setFilterAccommodation] = useState('all');
+  const [expandedBookings, setExpandedBookings] = useState({});
   const queryClient = useQueryClient();
 
   const { data: rawBookings, isLoading } = useQuery({
@@ -612,11 +613,11 @@ export default function BookingsManager() {
 
       <div className="grid gap-4">
         {filteredBookings.map((booking) => {
-          const [isExpanded, setIsExpanded] = React.useState(false);
+          const isExpanded = expandedBookings[booking.id] || false;
           
           return (
             <Card key={booking.id}>
-              <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+              <CardHeader className="cursor-pointer" onClick={() => setExpandedBookings(prev => ({ ...prev, [booking.id]: !isExpanded }))}>
                 <div className="flex justify-between items-start">
                   <div className="space-y-2 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
