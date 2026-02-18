@@ -85,9 +85,32 @@ export default function BookingsManager() {
     mutationFn: ({ id, data }) => base44.entities.Booking.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-bookings'] });
       setIsDialogOpen(false);
       setEditingBooking(null);
       resetForm();
+    },
+  });
+
+  // Actualización rápida de estado
+  const quickUpdateMutation = useMutation({
+    mutationFn: ({ id, field, value }) => {
+      const updateData = { [field]: value };
+      
+      // Si se cambia payment_status a paid, confirmar la reserva automáticamente
+      if (field === 'payment_status' && value === 'paid') {
+        updateData.status = 'confirmed';
+      }
+      // Si se cambia payment_status a pending, poner reserva en pending
+      if (field === 'payment_status' && value === 'pending') {
+        updateData.status = 'pending';
+      }
+      
+      return base44.entities.Booking.update(id, updateData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['calendar-bookings'] });
     },
   });
 
@@ -157,11 +180,39 @@ export default function BookingsManager() {
     
     const accommodation = accommodations.find(a => a.id === formData.accommodation_id);
     
+    // Validar que las fechas no estén ocupadas
+    const checkIn = new Date(`${formData.check_in}T14:00:00-03:00`);
+    const checkOut = new Date(`${formData.check_out}T18:00:00-03:00`);
+    
+    const hasConflict = bookings.some(booking => {
+      // Ignorar la reserva actual si estamos editando
+      if (editingBooking && booking.id === editingBooking.id) return false;
+      
+      // Solo verificar reservas del mismo alojamiento
+      if (booking.accommodation_id !== formData.accommodation_id) return false;
+      
+      // Ignorar reservas canceladas
+      if (booking.status === 'cancelled') return false;
+      
+      const existingCheckIn = new Date(booking.check_in);
+      const existingCheckOut = new Date(booking.check_out);
+      
+      // Verificar solapamiento
+      return (checkIn < existingCheckOut && checkOut > existingCheckIn);
+    });
+    
+    if (hasConflict) {
+      alert('Las fechas seleccionadas se solapan con una reserva existente para este alojamiento.');
+      return;
+    }
+    
     const bookingData = {
       ...formData,
       accommodation_name: accommodation?.name || '',
-      check_in: new Date(`${formData.check_in}T14:00:00-03:00`).toISOString(),
-      check_out: new Date(`${formData.check_out}T18:00:00-03:00`).toISOString(),
+      check_in: checkIn.toISOString(),
+      check_out: checkOut.toISOString(),
+      // Sincronizar status con payment_status
+      status: formData.payment_status === 'paid' ? 'confirmed' : 'pending',
     };
 
     if (editingBooking) {
@@ -463,8 +514,8 @@ export default function BookingsManager() {
           <Card key={booking.id}>
             <CardHeader>
               <div className="flex justify-between items-start">
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
+                <div className="space-y-2 flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
                     <Home className="w-4 h-4 text-gray-500" />
                     <CardTitle className="text-lg">
                       {booking.accommodation_name || 'Sin alojamiento'}
@@ -473,7 +524,7 @@ export default function BookingsManager() {
                       {statusLabels[booking.status]}
                     </Badge>
                   </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
                     <div className="flex items-center gap-1">
                       <User className="w-3 h-3" />
                       {booking.guest_name || 'Sin nombre'}
@@ -491,8 +542,59 @@ export default function BookingsManager() {
                       </div>
                     )}
                   </div>
+
+                  {/* Selectores rápidos */}
+                  <div className="grid grid-cols-3 gap-2 pt-2">
+                    <div>
+                      <Label className="text-xs text-gray-500">Estado reserva</Label>
+                      <Select
+                        value={booking.status}
+                        onValueChange={(value) => quickUpdateMutation.mutate({ id: booking.id, field: 'status', value })}
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pendiente</SelectItem>
+                          <SelectItem value="confirmed">Confirmada</SelectItem>
+                          <SelectItem value="cancelled">Cancelada</SelectItem>
+                          <SelectItem value="completed">Completada</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500">Pago reserva</Label>
+                      <Select
+                        value={booking.payment_status || 'pending'}
+                        onValueChange={(value) => quickUpdateMutation.mutate({ id: booking.id, field: 'payment_status', value })}
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pendiente</SelectItem>
+                          <SelectItem value="paid">Pagado</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label className="text-xs text-gray-500">Estado saldo</Label>
+                      <Select
+                        value={booking.balance_status || 'pending'}
+                        onValueChange={(value) => quickUpdateMutation.mutate({ id: booking.id, field: 'balance_status', value })}
+                      >
+                        <SelectTrigger className="h-8 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="pending">Pendiente</SelectItem>
+                          <SelectItem value="paid">Pagado</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 ml-4">
                   <Button
                     variant="outline"
                     size="icon"

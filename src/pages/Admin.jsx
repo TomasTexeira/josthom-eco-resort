@@ -61,7 +61,26 @@ export default function Admin() {
         </div>
 
         {isBookingManager ? (
-          <BookingsManager />
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="bookings" className="gap-2">
+                <Calendar className="w-4 h-4" />
+                Reservas
+              </TabsTrigger>
+              <TabsTrigger value="calendar" className="gap-2">
+                <CalendarDays className="w-4 h-4" />
+                Calendario
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="bookings">
+              <BookingsManager />
+            </TabsContent>
+
+            <TabsContent value="calendar">
+              <CalendarView />
+            </TabsContent>
+          </Tabs>
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
