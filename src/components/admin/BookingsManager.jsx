@@ -1,0 +1,453 @@
+import React, { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Plus, Edit, Trash2, Calendar, User, Phone, Mail, Home } from 'lucide-react';
+import { format } from 'date-fns';
+import { es } from 'date-fns/locale';
+
+export default function BookingsManager() {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingBooking, setEditingBooking] = useState(null);
+  const [filterStatus, setFilterStatus] = useState('all');
+  const queryClient = useQueryClient();
+
+  const { data: bookings = [], isLoading } = useQuery({
+    queryKey: ['admin-bookings'],
+    queryFn: () => base44.entities.Booking.list({ limit: 500, sort: { created_date: -1 } }),
+  });
+
+  const { data: accommodations = [] } = useQuery({
+    queryKey: ['accommodations-list'],
+    queryFn: () => base44.entities.Accommodation.list({ limit: 100 }),
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (data) => base44.entities.Booking.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+      setIsDialogOpen(false);
+      resetForm();
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.Booking.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+      setIsDialogOpen(false);
+      setEditingBooking(null);
+      resetForm();
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => base44.entities.Booking.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+    },
+  });
+
+  const [formData, setFormData] = useState({
+    accommodation_id: '',
+    guest_name: '',
+    guest_email: '',
+    guest_phone: '',
+    number_of_guests: 2,
+    check_in: '',
+    check_out: '',
+    status: 'pending',
+    total_price: 0,
+    special_requests: '',
+    source: 'web',
+  });
+
+  const resetForm = () => {
+    setFormData({
+      accommodation_id: '',
+      guest_name: '',
+      guest_email: '',
+      guest_phone: '',
+      number_of_guests: 2,
+      check_in: '',
+      check_out: '',
+      status: 'pending',
+      total_price: 0,
+      special_requests: '',
+      source: 'web',
+    });
+  };
+
+  const handleEdit = (booking) => {
+    setEditingBooking(booking);
+    setFormData({
+      accommodation_id: booking.accommodation_id,
+      guest_name: booking.guest_name || '',
+      guest_email: booking.guest_email || '',
+      guest_phone: booking.guest_phone || '',
+      number_of_guests: booking.number_of_guests || 2,
+      check_in: booking.check_in?.split('T')[0] || '',
+      check_out: booking.check_out?.split('T')[0] || '',
+      status: booking.status,
+      total_price: booking.total_price || 0,
+      special_requests: booking.special_requests || '',
+      source: booking.source || 'web',
+    });
+    setIsDialogOpen(true);
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    const accommodation = accommodations.find(a => a.id === formData.accommodation_id);
+    
+    const bookingData = {
+      ...formData,
+      accommodation_name: accommodation?.name || '',
+      check_in: new Date(`${formData.check_in}T14:00:00-03:00`).toISOString(),
+      check_out: new Date(`${formData.check_out}T18:00:00-03:00`).toISOString(),
+    };
+
+    if (editingBooking) {
+      updateMutation.mutate({ id: editingBooking.id, data: bookingData });
+    } else {
+      createMutation.mutate(bookingData);
+    }
+  };
+
+  const statusColors = {
+    pending: 'bg-yellow-100 text-yellow-800',
+    confirmed: 'bg-green-100 text-green-800',
+    cancelled: 'bg-red-100 text-red-800',
+    completed: 'bg-blue-100 text-blue-800',
+  };
+
+  const statusLabels = {
+    pending: 'Pendiente',
+    confirmed: 'Confirmada',
+    cancelled: 'Cancelada',
+    completed: 'Completada',
+  };
+
+  const filteredBookings = filterStatus === 'all' 
+    ? bookings 
+    : bookings.filter(b => b.status === filterStatus);
+
+  if (isLoading) {
+    return <div className="flex justify-center py-12">Cargando...</div>;
+  }
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div className="flex gap-2">
+          <Button
+            variant={filterStatus === 'all' ? 'default' : 'outline'}
+            onClick={() => setFilterStatus('all')}
+            size="sm"
+          >
+            Todas
+          </Button>
+          <Button
+            variant={filterStatus === 'pending' ? 'default' : 'outline'}
+            onClick={() => setFilterStatus('pending')}
+            size="sm"
+          >
+            Pendientes
+          </Button>
+          <Button
+            variant={filterStatus === 'confirmed' ? 'default' : 'outline'}
+            onClick={() => setFilterStatus('confirmed')}
+            size="sm"
+          >
+            Confirmadas
+          </Button>
+        </div>
+
+        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          setIsDialogOpen(open);
+          if (!open) {
+            setEditingBooking(null);
+            resetForm();
+          }
+        }}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="w-4 h-4 mr-2" />
+              Nueva Reserva
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>
+                {editingBooking ? 'Editar Reserva' : 'Nueva Reserva'}
+              </DialogTitle>
+            </DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="col-span-2">
+                  <Label>Alojamiento</Label>
+                  <Select
+                    value={formData.accommodation_id}
+                    onValueChange={(value) => setFormData({ ...formData, accommodation_id: value })}
+                    required
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Seleccionar alojamiento" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {accommodations.map((acc) => (
+                        <SelectItem key={acc.id} value={acc.id}>
+                          {acc.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>Nombre del huésped</Label>
+                  <Input
+                    value={formData.guest_name}
+                    onChange={(e) => setFormData({ ...formData, guest_name: e.target.value })}
+                    placeholder="Nombre completo"
+                  />
+                </div>
+
+                <div>
+                  <Label>Email</Label>
+                  <Input
+                    type="email"
+                    value={formData.guest_email}
+                    onChange={(e) => setFormData({ ...formData, guest_email: e.target.value })}
+                    placeholder="email@ejemplo.com"
+                  />
+                </div>
+
+                <div>
+                  <Label>Teléfono / WhatsApp</Label>
+                  <Input
+                    value={formData.guest_phone}
+                    onChange={(e) => setFormData({ ...formData, guest_phone: e.target.value })}
+                    placeholder="+54 9 11..."
+                  />
+                </div>
+
+                <div>
+                  <Label>Cant. huéspedes</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    value={formData.number_of_guests}
+                    onChange={(e) => setFormData({ ...formData, number_of_guests: parseInt(e.target.value) })}
+                  />
+                </div>
+
+                <div>
+                  <Label>Check-In</Label>
+                  <Input
+                    type="date"
+                    value={formData.check_in}
+                    onChange={(e) => setFormData({ ...formData, check_in: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Check-Out</Label>
+                  <Input
+                    type="date"
+                    value={formData.check_out}
+                    onChange={(e) => setFormData({ ...formData, check_out: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label>Estado de la reserva</Label>
+                  <Select
+                    value={formData.status}
+                    onValueChange={(value) => setFormData({ ...formData, status: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pending">Pendiente</SelectItem>
+                      <SelectItem value="confirmed">Confirmada</SelectItem>
+                      <SelectItem value="cancelled">Cancelada</SelectItem>
+                      <SelectItem value="completed">Completada</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
+                  <Label>Monto total</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={formData.total_price}
+                    onChange={(e) => setFormData({ ...formData, total_price: parseFloat(e.target.value) })}
+                    placeholder="0"
+                  />
+                </div>
+
+                <div>
+                  <Label>Fuente</Label>
+                  <Select
+                    value={formData.source}
+                    onValueChange={(value) => setFormData({ ...formData, source: value })}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="web">Web</SelectItem>
+                      <SelectItem value="airbnb">Airbnb</SelectItem>
+                      <SelectItem value="booking">Booking</SelectItem>
+                      <SelectItem value="phone">Teléfono</SelectItem>
+                      <SelectItem value="whatsapp">WhatsApp</SelectItem>
+                      <SelectItem value="other">Otro</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="col-span-2">
+                  <Label>Notas / Solicitudes especiales</Label>
+                  <Textarea
+                    value={formData.special_requests}
+                    onChange={(e) => setFormData({ ...formData, special_requests: e.target.value })}
+                    placeholder="Notas adicionales..."
+                    rows={3}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setIsDialogOpen(false);
+                    setEditingBooking(null);
+                    resetForm();
+                  }}
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit">
+                  {editingBooking ? 'Guardar Cambios' : 'Crear Reserva'}
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <div className="grid gap-4">
+        {filteredBookings.map((booking) => (
+          <Card key={booking.id}>
+            <CardHeader>
+              <div className="flex justify-between items-start">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <Home className="w-4 h-4 text-gray-500" />
+                    <CardTitle className="text-lg">
+                      {booking.accommodation_name || 'Sin alojamiento'}
+                    </CardTitle>
+                    <Badge className={statusColors[booking.status]}>
+                      {statusLabels[booking.status]}
+                    </Badge>
+                  </div>
+                  <div className="flex items-center gap-4 text-sm text-gray-600">
+                    <div className="flex items-center gap-1">
+                      <User className="w-3 h-3" />
+                      {booking.guest_name || 'Sin nombre'}
+                    </div>
+                    {booking.guest_email && (
+                      <div className="flex items-center gap-1">
+                        <Mail className="w-3 h-3" />
+                        {booking.guest_email}
+                      </div>
+                    )}
+                    {booking.guest_phone && (
+                      <div className="flex items-center gap-1">
+                        <Phone className="w-3 h-3" />
+                        {booking.guest_phone}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => handleEdit(booking)}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => {
+                      if (confirm('¿Eliminar esta reserva?')) {
+                        deleteMutation.mutate(booking.id);
+                      }
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <div className="text-gray-500 mb-1">Check-In</div>
+                  <div className="font-medium">
+                    {booking.check_in ? format(new Date(booking.check_in), "d 'de' MMMM", { locale: es }) : '-'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-gray-500 mb-1">Check-Out</div>
+                  <div className="font-medium">
+                    {booking.check_out ? format(new Date(booking.check_out), "d 'de' MMMM", { locale: es }) : '-'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-gray-500 mb-1">Huéspedes</div>
+                  <div className="font-medium">{booking.number_of_guests || '-'}</div>
+                </div>
+                <div>
+                  <div className="text-gray-500 mb-1">Monto Total</div>
+                  <div className="font-medium">${booking.total_price || 0}</div>
+                </div>
+              </div>
+              {booking.special_requests && (
+                <div className="mt-4 pt-4 border-t">
+                  <div className="text-gray-500 text-sm mb-1">Notas</div>
+                  <div className="text-sm">{booking.special_requests}</div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+
+        {filteredBookings.length === 0 && (
+          <Card>
+            <CardContent className="py-12 text-center text-gray-500">
+              No hay reservas {filterStatus !== 'all' && statusLabels[filterStatus].toLowerCase()}
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+}

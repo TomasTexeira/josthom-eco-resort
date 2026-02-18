@@ -54,6 +54,7 @@ import Experience from './pages/Experience';
 import Gallery from './pages/Gallery';
 import Home from './pages/Home';
 import Location from './pages/Location';
+import Admin from './pages/Admin';
 import __Layout from './Layout.jsx';
 
 
@@ -65,6 +66,7 @@ export const PAGES = {
     "Gallery": Gallery,
     "Home": Home,
     "Location": Location,
+    "Admin": Admin,
 }
 
 export const pagesConfig = {
