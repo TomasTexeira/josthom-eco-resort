@@ -18,6 +18,7 @@ export default function BookingsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all');
+  const [filterAccommodation, setFilterAccommodation] = useState('all');
   const queryClient = useQueryClient();
 
   const { data: rawBookings, isLoading } = useQuery({
@@ -237,9 +238,9 @@ export default function BookingsManager() {
     completed: 'Completada',
   };
 
-  const filteredBookings = filterStatus === 'all' 
-    ? bookings 
-    : bookings.filter(b => b.status === filterStatus);
+  const filteredBookings = bookings
+    .filter(b => filterStatus === 'all' || b.status === filterStatus)
+    .filter(b => filterAccommodation === 'all' || b.accommodation_id === filterAccommodation);
 
   if (isLoading) {
     return <div className="flex justify-center py-12">Cargando...</div>;
@@ -247,8 +248,8 @@ export default function BookingsManager() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="flex gap-2">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-wrap gap-2">
           <Button
             variant={filterStatus === 'all' ? 'default' : 'outline'}
             onClick={() => setFilterStatus('all')}
@@ -270,6 +271,20 @@ export default function BookingsManager() {
           >
             Confirmadas
           </Button>
+          
+          <Select value={filterAccommodation} onValueChange={setFilterAccommodation}>
+            <SelectTrigger className="w-[200px] h-9">
+              <SelectValue placeholder="Filtrar por cabaña" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todas las cabañas</SelectItem>
+              {accommodations.map((acc) => (
+                <SelectItem key={acc.id} value={acc.id}>
+                  {acc.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
