@@ -9,9 +9,10 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Calendar, User, Phone, Mail, Home } from 'lucide-react';
-import { format } from 'date-fns';
+import { Plus, Edit, Trash2, Calendar as CalendarIcon, User, Phone, Mail, Home, AlertCircle } from 'lucide-react';
+import { format, parseISO, differenceInDays, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { Calendar } from '@/components/ui/calendar';
 
 export default function BookingsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -357,6 +358,71 @@ export default function BookingsManager() {
                   />
                 </div>
 
+                {/* Mostrar calendario si hay alojamiento seleccionado */}
+                {formData.accommodation_id && (
+                  <div className="col-span-2">
+                    <Label className="flex items-center gap-2 mb-2">
+                      <CalendarIcon className="w-4 h-4" />
+                      Fechas disponibles para {accommodations.find(a => a.id === formData.accommodation_id)?.name}
+                    </Label>
+                    <div className="border rounded-lg p-4 bg-gray-50">
+                      <Calendar
+                        mode="range"
+                        selected={{
+                          from: formData.check_in ? new Date(formData.check_in + 'T00:00:00') : undefined,
+                          to: formData.check_out ? new Date(formData.check_out + 'T00:00:00') : undefined,
+                        }}
+                        onSelect={(range) => {
+                          if (range?.from) {
+                            const checkInStr = format(range.from, 'yyyy-MM-dd');
+                            setFormData(prev => {
+                              const updated = { ...prev, check_in: checkInStr };
+                              if (range?.to) {
+                                const checkOutStr = format(range.to, 'yyyy-MM-dd');
+                                updated.check_out = checkOutStr;
+                                updated.total_price = calculateAutoPrice(checkInStr, checkOutStr, prev.number_of_guests);
+                              }
+                              return updated;
+                            });
+                          }
+                        }}
+                        disabled={[
+                          { before: new Date() },
+                          ...(bookings || [])
+                            .filter(b => 
+                              b.accommodation_id === formData.accommodation_id && 
+                              b.status !== 'cancelled' &&
+                              (!editingBooking || b.id !== editingBooking.id)
+                            )
+                            .flatMap(booking => {
+                              const checkIn = parseISO(booking.check_in);
+                              const checkOut = parseISO(booking.check_out);
+                              const days = differenceInDays(checkOut, checkIn);
+                              const dates = [];
+                              for (let i = 0; i <= days + 1; i++) {
+                                dates.push(addDays(checkIn, i));
+                              }
+                              return dates;
+                            })
+                        ]}
+                        locale={es}
+                        numberOfMonths={2}
+                        className="flex justify-center"
+                      />
+                      <div className="flex gap-4 mt-3 text-xs text-gray-600">
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-3 bg-gray-200 rounded"></div>
+                          <span>Ocupado</span>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <div className="w-3 h-3 bg-green-600 rounded"></div>
+                          <span>Seleccionado</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <Label>Check-In</Label>
                   <Input
@@ -372,6 +438,11 @@ export default function BookingsManager() {
                     }}
                     required
                   />
+                  {formData.accommodation_id && formData.check_in && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {format(new Date(formData.check_in + 'T00:00:00'), "d 'de' MMMM, yyyy", { locale: es })}
+                    </p>
+                  )}
                 </div>
 
                 <div>
@@ -389,6 +460,11 @@ export default function BookingsManager() {
                     }}
                     required
                   />
+                  {formData.accommodation_id && formData.check_out && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {format(new Date(formData.check_out + 'T00:00:00'), "d 'de' MMMM, yyyy", { locale: es })}
+                    </p>
+                  )}
                 </div>
 
                 <div>
