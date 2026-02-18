@@ -35,61 +35,70 @@ export default function Admin() {
     return null; // Redirigiendo...
   }
 
-  if (user.role !== 'admin') {
+  if (!['admin', 'booking_manager'].includes(user.role)) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Acceso Denegado</h1>
-          <p className="text-gray-600">Solo administradores pueden acceder al backoffice.</p>
+          <p className="text-gray-600">No tienes permisos para acceder al backoffice.</p>
         </div>
       </div>
     );
   }
+
+  // Solo mostrar pestaña de reservas si es booking_manager
+  const isBookingManager = user.role === 'booking_manager';
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Backoffice Josthom</h1>
-          <p className="text-gray-600 mt-2">Panel de administración</p>
+          <p className="text-gray-600 mt-2">
+            {isBookingManager ? 'Gestión de Reservas' : 'Panel de administración'}
+          </p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
-            <TabsTrigger value="bookings" className="gap-2">
-              <Calendar className="w-4 h-4" />
-              Reservas
-            </TabsTrigger>
-            <TabsTrigger value="accommodations" className="gap-2">
-              <Home className="w-4 h-4" />
-              Alojamientos
-            </TabsTrigger>
-            <TabsTrigger value="gallery" className="gap-2">
-              <Image className="w-4 h-4" />
-              Galería
-            </TabsTrigger>
-            <TabsTrigger value="content" className="gap-2">
-              <FileText className="w-4 h-4" />
-              Contenido
-            </TabsTrigger>
-          </TabsList>
+        {isBookingManager ? (
+          <BookingsManager />
+        ) : (
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+              <TabsTrigger value="bookings" className="gap-2">
+                <Calendar className="w-4 h-4" />
+                Reservas
+              </TabsTrigger>
+              <TabsTrigger value="accommodations" className="gap-2">
+                <Home className="w-4 h-4" />
+                Alojamientos
+              </TabsTrigger>
+              <TabsTrigger value="gallery" className="gap-2">
+                <Image className="w-4 h-4" />
+                Galería
+              </TabsTrigger>
+              <TabsTrigger value="content" className="gap-2">
+                <FileText className="w-4 h-4" />
+                Contenido
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="bookings">
-            <BookingsManager />
-          </TabsContent>
+            <TabsContent value="bookings">
+              <BookingsManager />
+            </TabsContent>
 
-          <TabsContent value="accommodations">
-            <AccommodationsManager />
-          </TabsContent>
+            <TabsContent value="accommodations">
+              <AccommodationsManager />
+            </TabsContent>
 
-          <TabsContent value="gallery">
-            <GalleryManager />
-          </TabsContent>
+            <TabsContent value="gallery">
+              <GalleryManager />
+            </TabsContent>
 
-          <TabsContent value="content">
-            <ContentManager />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="content">
+              <ContentManager />
+            </TabsContent>
+          </Tabs>
+        )}
       </div>
     </div>
   );

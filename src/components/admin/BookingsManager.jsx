@@ -26,11 +26,14 @@ export default function BookingsManager() {
 
   const { data: rawAccommodations } = useQuery({
     queryKey: ['accommodations-list'],
-    queryFn: () => base44.entities.Accommodation.list({ limit: 100 }),
+    queryFn: async () => {
+      const result = await base44.entities.Accommodation.list();
+      return Array.isArray(result) ? result : (result?.items || []);
+    },
   });
 
   const bookings = Array.isArray(rawBookings?.items) ? rawBookings.items : (Array.isArray(rawBookings) ? rawBookings : []);
-  const accommodations = Array.isArray(rawAccommodations?.items) ? rawAccommodations.items : (Array.isArray(rawAccommodations) ? rawAccommodations : []);
+  const accommodations = rawAccommodations || [];
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Booking.create(data),
