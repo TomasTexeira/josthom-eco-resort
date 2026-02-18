@@ -19,15 +19,18 @@ export default function BookingsManager() {
   const [filterStatus, setFilterStatus] = useState('all');
   const queryClient = useQueryClient();
 
-  const { data: bookings = [], isLoading } = useQuery({
+  const { data: rawBookings, isLoading } = useQuery({
     queryKey: ['admin-bookings'],
     queryFn: () => base44.entities.Booking.list({ limit: 500, sort: { created_date: -1 } }),
   });
 
-  const { data: accommodations = [] } = useQuery({
+  const { data: rawAccommodations } = useQuery({
     queryKey: ['accommodations-list'],
     queryFn: () => base44.entities.Accommodation.list({ limit: 100 }),
   });
+
+  const bookings = Array.isArray(rawBookings?.items) ? rawBookings.items : (Array.isArray(rawBookings) ? rawBookings : []);
+  const accommodations = Array.isArray(rawAccommodations?.items) ? rawAccommodations.items : (Array.isArray(rawAccommodations) ? rawAccommodations : []);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Booking.create(data),

@@ -15,10 +15,12 @@ export default function ContentManager() {
   const [editingItem, setEditingItem] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: items = [], isLoading } = useQuery({
+  const { data: rawData, isLoading } = useQuery({
     queryKey: ['admin-content'],
     queryFn: () => base44.entities.SiteContent.list({ limit: 100 }),
   });
+
+  const items = Array.isArray(rawData?.items) ? rawData.items : (Array.isArray(rawData) ? rawData : []);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.SiteContent.create(data),

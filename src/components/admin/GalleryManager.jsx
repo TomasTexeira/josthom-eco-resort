@@ -14,10 +14,12 @@ export default function GalleryManager() {
   const [editingItem, setEditingItem] = useState(null);
   const queryClient = useQueryClient();
 
-  const { data: items = [], isLoading } = useQuery({
+  const { data: rawData, isLoading } = useQuery({
     queryKey: ['admin-gallery'],
     queryFn: () => base44.entities.GalleryImage.list({ limit: 200 }),
   });
+
+  const items = Array.isArray(rawData?.items) ? rawData.items : (Array.isArray(rawData) ? rawData : []);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.GalleryImage.create(data),
