@@ -69,14 +69,6 @@ export default function Navbar() {
                   {link.name}
                 </Link>
               ))}
-              {user?.role === 'admin' && (
-                <Link
-                  to={createPageUrl('Admin')}
-                  className={`text-sm tracking-wide hover:opacity-70 transition-opacity ${textClass}`}
-                >
-                  Admin
-                </Link>
-              )}
               <Link to={createPageUrl("Accommodations")}>
                 <Button 
                   size="sm"
@@ -118,15 +110,6 @@ export default function Navbar() {
                   {link.name}
                 </Link>
               ))}
-              {user?.role === 'admin' && (
-                <Link
-                  to={createPageUrl('Admin')}
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="text-xl text-stone-800 hover:text-amber-700 transition-colors"
-                >
-                  Admin
-                </Link>
-              )}
               <Link to={createPageUrl("Accommodations")} onClick={() => setIsMobileMenuOpen(false)}>
                 <Button className="bg-amber-700 hover:bg-amber-800 text-white mt-4 px-8">
                   Reservar ahora
