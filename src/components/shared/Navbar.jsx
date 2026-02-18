@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { base44 } from '@/api/base44Client';
 import { Menu, X } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
   const location = useLocation();
   const isHome = location.pathname === '/' || location.pathname === '/Home';
 
@@ -17,6 +19,10 @@ export default function Navbar() {
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => setUser(null));
   }, []);
 
   const navLinks = [
@@ -63,6 +69,14 @@ export default function Navbar() {
                   {link.name}
                 </Link>
               ))}
+              {user?.role === 'admin' && (
+                <Link
+                  to={createPageUrl('Admin')}
+                  className={`text-sm tracking-wide hover:opacity-70 transition-opacity ${textClass}`}
+                >
+                  Admin
+                </Link>
+              )}
               <Link to={createPageUrl("Accommodations")}>
                 <Button 
                   size="sm"
@@ -104,6 +118,15 @@ export default function Navbar() {
                   {link.name}
                 </Link>
               ))}
+              {user?.role === 'admin' && (
+                <Link
+                  to={createPageUrl('Admin')}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="text-xl text-stone-800 hover:text-amber-700 transition-colors"
+                >
+                  Admin
+                </Link>
+              )}
               <Link to={createPageUrl("Accommodations")} onClick={() => setIsMobileMenuOpen(false)}>
                 <Button className="bg-amber-700 hover:bg-amber-800 text-white mt-4 px-8">
                   Reservar ahora
