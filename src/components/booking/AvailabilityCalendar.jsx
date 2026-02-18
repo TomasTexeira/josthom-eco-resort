@@ -19,15 +19,22 @@ export default function AvailabilityCalendar({
   const [numberOfGuests, setNumberOfGuests] = useState(2);
   
   // Fetch bookings for this accommodation
-  const { data: bookings, isLoading } = useQuery({
+  const { data: rawBookings, isLoading } = useQuery({
     queryKey: ['bookings', accommodationId],
-    queryFn: () => base44.entities.Booking.filter({ 
-      accommodation_id: accommodationId,
-      status: { $in: ['pending', 'confirmed'] }
-    }),
-    staleTime: 2 * 60 * 1000,
+    queryFn: async () => {
+      const result = await base44.entities.Booking.list();
+      const allBookings = Array.isArray(result) ? result : (result?.items || []);
+      // Filtrar por alojamiento y estados activos
+      return allBookings.filter(b => 
+        b.accommodation_id === accommodationId && 
+        (b.status === 'pending' || b.status === 'confirmed')
+      );
+    },
+    staleTime: 30 * 1000, // 30 segundos para refrescar más frecuentemente
     enabled: !!accommodationId,
   });
+
+  const bookings = rawBookings || [];
 
   // Get disabled dates (already booked + 1 night buffer)
   const getDisabledDates = () => {

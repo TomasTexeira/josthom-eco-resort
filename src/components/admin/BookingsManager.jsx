@@ -78,6 +78,8 @@ export default function BookingsManager() {
     mutationFn: (data) => base44.entities.Booking.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings'] }); // Invalidar calendarios de clientes
+      queryClient.invalidateQueries({ queryKey: ['calendar-bookings'] });
       setIsDialogOpen(false);
       resetForm();
     },
@@ -112,6 +114,7 @@ export default function BookingsManager() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings'] }); // Invalidar calendarios de clientes
       queryClient.invalidateQueries({ queryKey: ['calendar-bookings'] });
     },
   });
@@ -120,6 +123,8 @@ export default function BookingsManager() {
     mutationFn: (id) => base44.entities.Booking.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-bookings'] });
+      queryClient.invalidateQueries({ queryKey: ['bookings'] }); // Invalidar calendarios de clientes
+      queryClient.invalidateQueries({ queryKey: ['calendar-bookings'] });
     },
   });
 
