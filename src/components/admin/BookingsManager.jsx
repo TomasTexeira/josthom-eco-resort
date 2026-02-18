@@ -296,7 +296,7 @@ export default function BookingsManager() {
             </SelectContent>
           </Select>
 
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
           setIsDialogOpen(open);
           if (!open) {
             setEditingBooking(null);
@@ -607,6 +607,7 @@ export default function BookingsManager() {
             </form>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <div className="grid gap-4">
