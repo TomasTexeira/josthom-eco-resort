@@ -72,16 +72,6 @@ export default function BookingsManager() {
     return Math.round(total);
   };
 
-  // Actualizar precio automáticamente cuando cambien fechas o huéspedes
-  useEffect(() => {
-    if (formData.check_in && formData.check_out && formData.number_of_guests) {
-      const autoPrice = calculateAutoPrice(formData.check_in, formData.check_out, formData.number_of_guests);
-      if (autoPrice !== formData.total_price) {
-        setFormData(prev => ({ ...prev, total_price: autoPrice }));
-      }
-    }
-  }, [formData.check_in, formData.check_out, formData.number_of_guests]);
-
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Booking.create(data),
     onSuccess: () => {
@@ -299,7 +289,14 @@ export default function BookingsManager() {
                     type="number"
                     min="1"
                     value={formData.number_of_guests}
-                    onChange={(e) => setFormData({ ...formData, number_of_guests: parseInt(e.target.value) })}
+                    onChange={(e) => {
+                      const newGuests = parseInt(e.target.value);
+                      setFormData(prev => {
+                        const updated = { ...prev, number_of_guests: newGuests };
+                        updated.total_price = calculateAutoPrice(prev.check_in, prev.check_out, newGuests);
+                        return updated;
+                      });
+                    }}
                   />
                 </div>
 
@@ -308,7 +305,14 @@ export default function BookingsManager() {
                   <Input
                     type="date"
                     value={formData.check_in}
-                    onChange={(e) => setFormData({ ...formData, check_in: e.target.value })}
+                    onChange={(e) => {
+                      const newCheckIn = e.target.value;
+                      setFormData(prev => {
+                        const updated = { ...prev, check_in: newCheckIn };
+                        updated.total_price = calculateAutoPrice(newCheckIn, prev.check_out, prev.number_of_guests);
+                        return updated;
+                      });
+                    }}
                     required
                   />
                 </div>
@@ -318,7 +322,14 @@ export default function BookingsManager() {
                   <Input
                     type="date"
                     value={formData.check_out}
-                    onChange={(e) => setFormData({ ...formData, check_out: e.target.value })}
+                    onChange={(e) => {
+                      const newCheckOut = e.target.value;
+                      setFormData(prev => {
+                        const updated = { ...prev, check_out: newCheckOut };
+                        updated.total_price = calculateAutoPrice(prev.check_in, newCheckOut, prev.number_of_guests);
+                        return updated;
+                      });
+                    }}
                     required
                   />
                 </div>
