@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,10 @@ export default function BookingsManager() {
 
   const { data: rawBookings, isLoading } = useQuery({
     queryKey: ['admin-bookings'],
-    queryFn: () => base44.entities.Booking.list({ limit: 500, sort: { created_date: -1 } }),
+    queryFn: async () => {
+      const result = await base44.entities.Booking.list();
+      return Array.isArray(result) ? result : (result?.items || []);
+    },
   });
 
   const { data: rawAccommodations } = useQuery({
@@ -32,8 +35,52 @@ export default function BookingsManager() {
     },
   });
 
-  const bookings = Array.isArray(rawBookings?.items) ? rawBookings.items : (Array.isArray(rawBookings) ? rawBookings : []);
+  const bookings = rawBookings || [];
   const accommodations = rawAccommodations || [];
+
+  // Calcular precio automático según reglas
+  const calculateAutoPrice = (checkIn, checkOut, numGuests) => {
+    if (!checkIn || !checkOut || !numGuests) return 0;
+    
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    const nights = Math.floor((end - start) / (1000 * 60 * 60 * 24));
+    
+    if (nights < 1) return 0;
+    
+    // Precio base según huéspedes
+    let pricePerNight = 180000;
+    if (numGuests === 3) pricePerNight = 240000;
+    else if (numGuests === 4) pricePerNight = 300000;
+    else if (numGuests >= 5) pricePerNight = 360000;
+    
+    // Calcular noches entre lunes y jueves (descuento 15%)
+    let total = 0;
+    for (let i = 0; i < nights; i++) {
+      const currentDate = new Date(start);
+      currentDate.setDate(currentDate.getDate() + i);
+      const dayOfWeek = currentDate.getDay();
+      
+      // Lunes=1, Martes=2, Miércoles=3, Jueves=4
+      if (dayOfWeek >= 1 && dayOfWeek <= 4) {
+        total += pricePerNight * 0.85; // 15% descuento
+      } else {
+        total += pricePerNight;
+      }
+    }
+    
+    return Math.round(total);
+  };
+
+  // Actualizar precio automáticamente cuando cambien fechas o huéspedes
+  useEffect(() => {
+    if (formData.check_in && formData.check_out && formData.number_of_guests) {
+      const autoPrice = calculateAutoPrice(formData.check_in, formData.check_out, formData.number_of_guests);
+      if (autoPrice !== formData.total_price) {
+        setFormData(prev => ({ ...prev, total_price: autoPrice }));
+      }
+    }
+  }, [formData.check_in, formData.check_out, formData.number_of_guests]);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Booking.create(data),
@@ -295,14 +342,19 @@ export default function BookingsManager() {
                 </div>
 
                 <div>
-                  <Label>Monto total</Label>
+                  <Label>Monto total (calculado automáticamente)</Label>
                   <Input
                     type="number"
                     min="0"
                     value={formData.total_price}
                     onChange={(e) => setFormData({ ...formData, total_price: parseFloat(e.target.value) })}
                     placeholder="0"
+                    className="bg-gray-50"
+                    readOnly
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Se calcula según fechas y cantidad de huéspedes
+                  </p>
                 </div>
 
                 <div>
