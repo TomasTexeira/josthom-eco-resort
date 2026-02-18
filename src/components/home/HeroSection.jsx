@@ -6,14 +6,35 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
 export default function HeroSection({ content }) {
+  const [imageLoaded, setImageLoaded] = React.useState(false);
+  
+  // Optimizar la URL de la imagen agregando parámetros de compresión
+  const optimizedImageUrl = React.useMemo(() => {
+    if (!content?.image_url) return '';
+    const url = content.image_url;
+    // Si es de Unsplash, agregar parámetros de optimización
+    if (url.includes('unsplash.com')) {
+      return `${url}?w=1920&q=75&fm=webp&fit=crop`;
+    }
+    return url;
+  }, [content?.image_url]);
+
   return (
     <section className="relative h-screen w-full overflow-hidden">
       {/* Background Image */}
 <div className="absolute inset-0 z-0">
+  {/* Placeholder mientras carga */}
+  {!imageLoaded && (
+    <div className="absolute inset-0 bg-gradient-to-br from-amber-900 via-stone-800 to-green-900 animate-pulse" />
+  )}
+  
   <img
-    src={content?.image_url}
+    src={optimizedImageUrl}
     alt=""
-    className="w-full h-full object-cover object-center"
+    className={`w-full h-full object-cover object-center transition-opacity duration-700 ${
+      imageLoaded ? 'opacity-100' : 'opacity-0'
+    }`}
+    onLoad={() => setImageLoaded(true)}
     loading="eager"
     fetchpriority="high"
     decoding="async"
