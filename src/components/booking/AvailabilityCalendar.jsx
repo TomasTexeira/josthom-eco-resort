@@ -198,10 +198,19 @@ export default function AvailabilityCalendar({
                 selected={dateRange}
                 onSelect={handleSelect}
                 numberOfMonths={2}
-                disabled={[
-                  { before: new Date() },
-                  ...disabledDates
-                ]}
+                disabled={(date) => {
+                  // Deshabilitar fechas pasadas
+                  if (date < new Date(new Date().setHours(0, 0, 0, 0))) {
+                    return true;
+                  }
+                  
+                  // Deshabilitar fechas ocupadas
+                  return disabledDates.some(disabledDate => {
+                    return date.getDate() === disabledDate.getDate() &&
+                           date.getMonth() === disabledDate.getMonth() &&
+                           date.getFullYear() === disabledDate.getFullYear();
+                  });
+                }}
                 locale={es}
                 className="rounded-lg"
               />
