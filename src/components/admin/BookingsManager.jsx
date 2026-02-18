@@ -611,41 +611,57 @@ export default function BookingsManager() {
       </div>
 
       <div className="grid gap-4">
-        {filteredBookings.map((booking) => (
-          <Card key={booking.id}>
-            <CardHeader>
-              <div className="flex justify-between items-start">
-                <div className="space-y-2 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <Home className="w-4 h-4 text-gray-500" />
-                    <CardTitle className="text-lg">
-                      {booking.accommodation_name || 'Sin alojamiento'}
-                    </CardTitle>
-                    <Badge className={statusColors[booking.status]}>
-                      {statusLabels[booking.status]}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap">
-                    <div className="flex items-center gap-1">
-                      <User className="w-3 h-3" />
-                      {booking.guest_name || 'Sin nombre'}
+        {filteredBookings.map((booking) => {
+          const [isExpanded, setIsExpanded] = React.useState(false);
+          
+          return (
+            <Card key={booking.id}>
+              <CardHeader className="cursor-pointer" onClick={() => setIsExpanded(!isExpanded)}>
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <User className="w-4 h-4 text-gray-500" />
+                      <CardTitle className="text-lg">
+                        {booking.guest_name || 'Sin nombre'}
+                      </CardTitle>
+                      <Badge className={statusColors[booking.status]}>
+                        {statusLabels[booking.status]}
+                      </Badge>
                     </div>
-                    {booking.guest_email && (
+                    <div className="flex items-center gap-3 text-xs sm:text-sm text-gray-600 flex-wrap">
                       <div className="flex items-center gap-1">
-                        <Mail className="w-3 h-3" />
-                        {booking.guest_email}
+                        <Home className="w-3 h-3" />
+                        {booking.accommodation_name || 'Sin alojamiento'}
                       </div>
-                    )}
-                    {booking.guest_phone && (
                       <div className="flex items-center gap-1">
-                        <Phone className="w-3 h-3" />
-                        {booking.guest_phone}
+                        <CalendarIcon className="w-3 h-3" />
+                        {booking.check_in && format(new Date(booking.check_in), "d MMM", { locale: es })}
                       </div>
-                    )}
-                  </div>
+                      <div className="text-gray-400">ID: {booking.id.slice(0, 8)}</div>
+                    </div>
+                    <div className="text-xs text-gray-500">
+                      Reservado: {booking.created_date ? format(new Date(booking.created_date), "d MMM yyyy, HH:mm", { locale: es }) : '-'}
+                    </div>
 
-                  {/* Selectores rápidos */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
+                  {isExpanded && (
+                    <>
+                      <div className="flex items-center gap-4 text-sm text-gray-600 flex-wrap pt-2">
+                        {booking.guest_email && (
+                          <div className="flex items-center gap-1">
+                            <Mail className="w-3 h-3" />
+                            {booking.guest_email}
+                          </div>
+                        )}
+                        {booking.guest_phone && (
+                          <div className="flex items-center gap-1">
+                            <Phone className="w-3 h-3" />
+                            {booking.guest_phone}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Selectores rápidos */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
                     <div>
                       <Label className="text-xs text-gray-500">Estado reserva</Label>
                       <Select
@@ -692,10 +708,12 @@ export default function BookingsManager() {
                           <SelectItem value="paid">Pagado</SelectItem>
                         </SelectContent>
                       </Select>
+                      </div>
                     </div>
+                    </>
+                  )}
                   </div>
-                </div>
-                <div className="flex gap-2 ml-4">
+                  <div className="flex gap-2 ml-4">
                   <Button
                     variant="outline"
                     size="icon"
@@ -714,10 +732,11 @@ export default function BookingsManager() {
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>
+                  </div>
                 </div>
-              </div>
-            </CardHeader>
-            <CardContent>
+              </CardHeader>
+              {isExpanded && (
+              <CardContent>
               {(() => {
                 const checkIn = new Date(booking.check_in);
                 const checkOut = new Date(booking.check_out);
@@ -796,9 +815,10 @@ export default function BookingsManager() {
                   <div className="text-sm">{booking.special_requests}</div>
                 </div>
               )}
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
 
         {filteredBookings.length === 0 && (
           <Card>

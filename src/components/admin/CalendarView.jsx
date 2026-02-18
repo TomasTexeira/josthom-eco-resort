@@ -11,6 +11,7 @@ import { es } from 'date-fns/locale';
 export default function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedAccommodation, setSelectedAccommodation] = useState('all');
+  const [hoveredBooking, setHoveredBooking] = useState(null);
 
   const { data: rawBookings } = useQuery({
     queryKey: ['calendar-bookings'],
