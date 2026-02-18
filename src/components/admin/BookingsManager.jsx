@@ -253,12 +253,13 @@ export default function BookingsManager() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className="flex flex-col gap-4">
         <div className="flex flex-wrap gap-2">
           <Button
             variant={filterStatus === 'all' ? 'default' : 'outline'}
             onClick={() => setFilterStatus('all')}
             size="sm"
+            className="flex-1 sm:flex-none"
           >
             Todas
           </Button>
@@ -266,6 +267,7 @@ export default function BookingsManager() {
             variant={filterStatus === 'pending' ? 'default' : 'outline'}
             onClick={() => setFilterStatus('pending')}
             size="sm"
+            className="flex-1 sm:flex-none"
           >
             Pendientes
           </Button>
@@ -273,12 +275,15 @@ export default function BookingsManager() {
             variant={filterStatus === 'confirmed' ? 'default' : 'outline'}
             onClick={() => setFilterStatus('confirmed')}
             size="sm"
+            className="flex-1 sm:flex-none"
           >
             Confirmadas
           </Button>
-          
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-2">
           <Select value={filterAccommodation} onValueChange={setFilterAccommodation}>
-            <SelectTrigger className="w-[200px] h-9">
+            <SelectTrigger className="w-full sm:w-[200px] h-9">
               <SelectValue placeholder="Filtrar por cabaña" />
             </SelectTrigger>
             <SelectContent>
@@ -290,7 +295,6 @@ export default function BookingsManager() {
               ))}
             </SelectContent>
           </Select>
-        </div>
 
         <Dialog open={isDialogOpen} onOpenChange={(open) => {
           setIsDialogOpen(open);
@@ -300,7 +304,7 @@ export default function BookingsManager() {
           }
         }}>
           <DialogTrigger asChild>
-            <Button>
+            <Button className="w-full sm:w-auto">
               <Plus className="w-4 h-4 mr-2" />
               Nueva Reserva
             </Button>
@@ -640,7 +644,7 @@ export default function BookingsManager() {
                   </div>
 
                   {/* Selectores rápidos */}
-                  <div className="grid grid-cols-3 gap-2 pt-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
                     <div>
                       <Label className="text-xs text-gray-500">Estado reserva</Label>
                       <Select
@@ -734,49 +738,49 @@ export default function BookingsManager() {
 
                 return (
                   <>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                    <div className="grid grid-cols-2 gap-4 text-sm mb-4">
                       <div>
-                        <div className="text-gray-500 mb-1">Check-In</div>
-                        <div className="font-medium">
+                        <div className="text-gray-500 text-xs sm:text-sm mb-1">Check-In</div>
+                        <div className="font-medium text-xs sm:text-sm">
                           {booking.check_in ? format(checkIn, "d 'de' MMMM", { locale: es }) : '-'}
                         </div>
-                      </div>
-                      <div>
-                        <div className="text-gray-500 mb-1">Check-Out</div>
-                        <div className="font-medium">
+                        </div>
+                        <div>
+                        <div className="text-gray-500 text-xs sm:text-sm mb-1">Check-Out</div>
+                        <div className="font-medium text-xs sm:text-sm">
                           {booking.check_out ? format(checkOut, "d 'de' MMMM", { locale: es }) : '-'}
                         </div>
-                      </div>
-                      <div>
-                        <div className="text-gray-500 mb-1">Huéspedes</div>
-                        <div className="font-medium">{booking.number_of_guests || '-'}</div>
-                      </div>
-                      <div>
-                        <div className="text-gray-500 mb-1">Cantidad de noches</div>
-                        <div className="font-medium">{nights} noches</div>
-                      </div>
-                    </div>
+                        </div>
+                        <div>
+                        <div className="text-gray-500 text-xs sm:text-sm mb-1">Huéspedes</div>
+                        <div className="font-medium text-xs sm:text-sm">{booking.number_of_guests || '-'}</div>
+                        </div>
+                        <div>
+                        <div className="text-gray-500 text-xs sm:text-sm mb-1">Noches</div>
+                        <div className="font-medium text-xs sm:text-sm">{nights}</div>
+                        </div>
+                        </div>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm mb-4">
                       <div>
-                        <div className="text-gray-500 mb-1">Noches con 15% off</div>
-                        <div className="font-medium text-green-600">{discountedNights} noches</div>
+                        <div className="text-gray-500 text-xs sm:text-sm mb-1">Descuento</div>
+                        <div className="font-medium text-xs sm:text-sm text-green-600">{discountedNights} noches</div>
                       </div>
                       <div>
-                        <div className="text-gray-500 mb-1">Monto Total</div>
-                        <div className="font-medium text-lg">${(booking.total_price || 0).toLocaleString()}</div>
+                        <div className="text-gray-500 text-xs sm:text-sm mb-1">Total</div>
+                        <div className="font-medium text-base sm:text-lg">${(booking.total_price || 0).toLocaleString()}</div>
                       </div>
                       <div>
-                        <div className="text-gray-500 mb-1">Reserva (25%)</div>
-                        <div className="font-medium">${depositAmount.toLocaleString()}</div>
-                        <Badge className={booking.payment_status === 'paid' ? 'bg-green-100 text-green-800 mt-1' : 'bg-yellow-100 text-yellow-800 mt-1'}>
+                        <div className="text-gray-500 text-xs sm:text-sm mb-1">Reserva (25%)</div>
+                        <div className="font-medium text-xs sm:text-sm">${depositAmount.toLocaleString()}</div>
+                        <Badge className={booking.payment_status === 'paid' ? 'bg-green-100 text-green-800 mt-1 text-xs' : 'bg-yellow-100 text-yellow-800 mt-1 text-xs'}>
                           {booking.payment_status === 'paid' ? 'Pagado' : 'Pendiente'}
                         </Badge>
                       </div>
                       <div>
-                        <div className="text-gray-500 mb-1">Saldo Pendiente</div>
-                        <div className="font-medium">${balanceAmount.toLocaleString()}</div>
-                        <Badge className={booking.balance_status === 'paid' ? 'bg-green-100 text-green-800 mt-1' : 'bg-yellow-100 text-yellow-800 mt-1'}>
+                        <div className="text-gray-500 text-xs sm:text-sm mb-1">Saldo</div>
+                        <div className="font-medium text-xs sm:text-sm">${balanceAmount.toLocaleString()}</div>
+                        <Badge className={booking.balance_status === 'paid' ? 'bg-green-100 text-green-800 mt-1 text-xs' : 'bg-yellow-100 text-yellow-800 mt-1 text-xs'}>
                           {booking.balance_status === 'paid' ? 'Pagado' : 'Pendiente'}
                         </Badge>
                       </div>

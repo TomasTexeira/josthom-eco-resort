@@ -62,14 +62,16 @@ export default function Admin() {
 
         {isBookingManager ? (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="bookings" className="gap-2">
+            <TabsList className="grid w-full grid-cols-2 h-auto">
+              <TabsTrigger value="bookings" className="gap-2 py-3">
                 <Calendar className="w-4 h-4" />
-                Reservas
+                <span className="hidden sm:inline">Reservas</span>
+                <span className="sm:hidden">Reservas</span>
               </TabsTrigger>
-              <TabsTrigger value="calendar" className="gap-2">
+              <TabsTrigger value="calendar" className="gap-2 py-3">
                 <CalendarDays className="w-4 h-4" />
-                Calendario
+                <span className="hidden sm:inline">Calendario</span>
+                <span className="sm:hidden">Calendario</span>
               </TabsTrigger>
             </TabsList>
 
@@ -83,26 +85,26 @@ export default function Admin() {
           </Tabs>
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
-              <TabsTrigger value="bookings" className="gap-2">
+            <TabsList className="grid w-full grid-cols-3 gap-2 h-auto sm:grid-cols-5 lg:w-auto lg:inline-grid">
+              <TabsTrigger value="bookings" className="gap-1 sm:gap-2 py-3 text-xs sm:text-sm">
                 <Calendar className="w-4 h-4" />
-                Reservas
+                <span className="hidden sm:inline">Reservas</span>
               </TabsTrigger>
-              <TabsTrigger value="calendar" className="gap-2">
+              <TabsTrigger value="calendar" className="gap-1 sm:gap-2 py-3 text-xs sm:text-sm">
                 <CalendarDays className="w-4 h-4" />
-                Calendario
+                <span className="hidden sm:inline">Calendario</span>
               </TabsTrigger>
-              <TabsTrigger value="accommodations" className="gap-2">
+              <TabsTrigger value="accommodations" className="gap-1 sm:gap-2 py-3 text-xs sm:text-sm">
                 <Home className="w-4 h-4" />
-                Alojamientos
+                <span className="hidden sm:inline">Alojamientos</span>
               </TabsTrigger>
-              <TabsTrigger value="gallery" className="gap-2">
+              <TabsTrigger value="gallery" className="gap-1 sm:gap-2 py-3 text-xs sm:text-sm">
                 <Image className="w-4 h-4" />
-                Galería
+                <span className="hidden sm:inline">Galería</span>
               </TabsTrigger>
-              <TabsTrigger value="content" className="gap-2">
+              <TabsTrigger value="content" className="gap-1 sm:gap-2 py-3 text-xs sm:text-sm">
                 <FileText className="w-4 h-4" />
-                Contenido
+                <span className="hidden sm:inline">Contenido</span>
               </TabsTrigger>
             </TabsList>
 
