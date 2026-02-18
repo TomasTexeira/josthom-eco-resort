@@ -11,10 +11,17 @@ import ContentManager from '@/components/admin/ContentManager';
 export default function Admin() {
   const [activeTab, setActiveTab] = useState('bookings');
 
-  const { data: user, isLoading } = useQuery({
+  const { data: user, isLoading, error } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
   });
+
+  // Si no está autenticado, redirigir al login
+  React.useEffect(() => {
+    if (error || (!isLoading && !user)) {
+      base44.auth.redirectToLogin(window.location.pathname);
+    }
+  }, [error, isLoading, user]);
 
   if (isLoading) {
     return (
@@ -24,7 +31,11 @@ export default function Admin() {
     );
   }
 
-  if (!user || user.role !== 'admin') {
+  if (!user) {
+    return null; // Redirigiendo...
+  }
+
+  if (user.role !== 'admin') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
