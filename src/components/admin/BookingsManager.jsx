@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Plus, Edit, Trash2, Calendar as CalendarIcon, User, Phone, Mail, Home, AlertCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, Calendar as CalendarIcon, User, Phone, Mail, Home, AlertCircle, Search } from 'lucide-react';
 import { format, parseISO, differenceInDays, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Calendar } from '@/components/ui/calendar';
@@ -20,6 +20,7 @@ export default function BookingsManager() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [filterAccommodation, setFilterAccommodation] = useState('all');
   const [expandedBookings, setExpandedBookings] = useState({});
+  const [searchQuery, setSearchQuery] = useState('');
   const queryClient = useQueryClient();
 
   const { data: rawBookings, isLoading } = useQuery({
@@ -246,7 +247,18 @@ export default function BookingsManager() {
 
   const filteredBookings = bookings
     .filter(b => filterStatus === 'all' || b.status === filterStatus)
-    .filter(b => filterAccommodation === 'all' || b.accommodation_id === filterAccommodation);
+    .filter(b => filterAccommodation === 'all' || b.accommodation_id === filterAccommodation)
+    .filter(b => {
+      if (!searchQuery) return true;
+      const query = searchQuery.toLowerCase();
+      return (
+        b.guest_name?.toLowerCase().includes(query) ||
+        b.guest_email?.toLowerCase().includes(query) ||
+        b.guest_phone?.toLowerCase().includes(query) ||
+        b.accommodation_name?.toLowerCase().includes(query) ||
+        b.id?.toLowerCase().includes(query)
+      );
+    });
 
   if (isLoading) {
     return <div className="flex justify-center py-12">Cargando...</div>;
@@ -283,6 +295,16 @@ export default function BookingsManager() {
         </div>
 
         <div className="flex flex-col sm:flex-row gap-2">
+          <div className="relative flex-1 sm:flex-none sm:w-[250px]">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              placeholder="Buscar por nombre, email, teléfono..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9 h-9"
+            />
+          </div>
+
           <Select value={filterAccommodation} onValueChange={setFilterAccommodation}>
             <SelectTrigger className="w-full sm:w-[200px] h-9">
               <SelectValue placeholder="Filtrar por cabaña" />
