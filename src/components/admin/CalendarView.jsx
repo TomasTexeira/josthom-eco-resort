@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { ChevronLeft, ChevronRight, User, Mail, Phone, Home, Calendar as CalendarIcon } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, addMonths, subMonths } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -12,6 +14,7 @@ export default function CalendarView() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedAccommodation, setSelectedAccommodation] = useState('all');
   const [hoveredBooking, setHoveredBooking] = useState(null);
+  const [selectedBooking, setSelectedBooking] = useState(null);
 
   const { data: rawBookings } = useQuery({
     queryKey: ['calendar-bookings'],
@@ -58,6 +61,13 @@ export default function CalendarView() {
     confirmed: 'bg-green-100 border-green-300 text-green-800',
     cancelled: 'bg-red-100 border-red-300 text-red-800',
     completed: 'bg-blue-100 border-blue-300 text-blue-800',
+  };
+
+  const statusLabels = {
+    pending: 'Pendiente',
+    confirmed: 'Confirmada',
+    cancelled: 'Cancelada',
+    completed: 'Completada',
   };
 
   return (
@@ -156,6 +166,7 @@ export default function CalendarView() {
                         } ${hoveredBooking === booking.id ? 'ring-2 ring-blue-400 scale-105 z-10' : 'hover:opacity-80'}`}
                         onMouseEnter={() => setHoveredBooking(booking.id)}
                         onMouseLeave={() => setHoveredBooking(null)}
+                        onClick={() => setSelectedBooking(booking)}
                         title={`${booking.guest_name || 'Sin nombre'} - ${booking.accommodation_name}\n${format(new Date(booking.check_in), "d MMM", { locale: es })} → ${format(new Date(booking.check_out), "d MMM", { locale: es })}`}
                       >
                         <div className="truncate font-medium">{booking.guest_name || 'Sin nombre'}</div>
@@ -199,6 +210,104 @@ export default function CalendarView() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Dialog con información de la reserva */}
+      <Dialog open={!!selectedBooking} onOpenChange={(open) => !open && setSelectedBooking(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Información de Reserva</DialogTitle>
+          </DialogHeader>
+          {selectedBooking && (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <User className="w-5 h-5 text-gray-500" />
+                  <div>
+                    <div className="font-semibold">{selectedBooking.guest_name || 'Sin nombre'}</div>
+                    <div className="text-xs text-gray-500">ID: {selectedBooking.id.slice(0, 8)}</div>
+                  </div>
+                </div>
+                <Badge className={statusColors[selectedBooking.status]}>
+                  {statusLabels[selectedBooking.status]}
+                </Badge>
+              </div>
+
+              <div className="space-y-2 text-sm">
+                {selectedBooking.guest_email && (
+                  <div className="flex items-center gap-2">
+                    <Mail className="w-4 h-4 text-gray-400" />
+                    <span>{selectedBooking.guest_email}</span>
+                  </div>
+                )}
+                {selectedBooking.guest_phone && (
+                  <div className="flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-gray-400" />
+                    <span>{selectedBooking.guest_phone}</span>
+                  </div>
+                )}
+                <div className="flex items-center gap-2">
+                  <Home className="w-4 h-4 text-gray-400" />
+                  <span>{selectedBooking.accommodation_name}</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                <div>
+                  <div className="text-xs text-gray-500 mb-1">Check-In</div>
+                  <div className="font-medium">
+                    {format(new Date(selectedBooking.check_in), "d 'de' MMMM", { locale: es })}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {format(new Date(selectedBooking.check_in), "HH:mm", { locale: es })}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500 mb-1">Check-Out</div>
+                  <div className="font-medium">
+                    {format(new Date(selectedBooking.check_out), "d 'de' MMMM", { locale: es })}
+                  </div>
+                  <div className="text-xs text-gray-500">
+                    {format(new Date(selectedBooking.check_out), "HH:mm", { locale: es })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <div className="text-xs text-gray-500 mb-1">Huéspedes</div>
+                  <div className="font-medium">{selectedBooking.number_of_guests || '-'}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500 mb-1">Precio Total</div>
+                  <div className="font-medium text-lg">${(selectedBooking.total_price || 0).toLocaleString()}</div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                <div>
+                  <div className="text-xs text-gray-500 mb-1">Pago Reserva</div>
+                  <Badge className={selectedBooking.payment_status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                    {selectedBooking.payment_status === 'paid' ? 'Pagado' : 'Pendiente'}
+                  </Badge>
+                </div>
+                <div>
+                  <div className="text-xs text-gray-500 mb-1">Saldo</div>
+                  <Badge className={selectedBooking.balance_status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}>
+                    {selectedBooking.balance_status === 'paid' ? 'Pagado' : 'Pendiente'}
+                  </Badge>
+                </div>
+              </div>
+
+              {selectedBooking.special_requests && (
+                <div className="pt-2 border-t">
+                  <div className="text-xs text-gray-500 mb-1">Notas</div>
+                  <div className="text-sm">{selectedBooking.special_requests}</div>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
