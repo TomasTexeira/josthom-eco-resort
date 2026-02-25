@@ -684,7 +684,7 @@ export default function BookingsManager() {
                       </div>
 
                       {/* Selectores rápidos */}
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-2" onClick={(e) => e.stopPropagation()}>
                     <div>
                       <Label className="text-xs text-gray-500">Estado reserva</Label>
                       <Select
