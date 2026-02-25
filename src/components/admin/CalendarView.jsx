@@ -158,7 +158,7 @@ export default function CalendarView() {
                     {format(day, 'd')}
                   </div>
                   <div className="space-y-0.5">
-                    {dayBookings.slice(0, 2).map((booking) => (
+                    {dayBookings.map((booking) => (
                       <div
                         key={booking.id}
                         className={`text-[8px] sm:text-[10px] px-0.5 sm:px-1 py-0.5 rounded border truncate cursor-pointer transition-all ${
@@ -172,11 +172,6 @@ export default function CalendarView() {
                         <div className="truncate font-medium">{booking.guest_name || 'Sin nombre'}</div>
                       </div>
                     ))}
-                    {dayBookings.length > 2 && (
-                      <div className="text-[8px] sm:text-[10px] text-gray-500 text-center font-medium">
-                        +{dayBookings.length - 2}
-                      </div>
-                    )}
                   </div>
                 </div>
               );
