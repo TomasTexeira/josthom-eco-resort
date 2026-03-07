@@ -18,25 +18,25 @@ export default function BalanceDashboard() {
 
   const bookings = rawBookings || [];
 
-  // Filtrar solo reservas activas (no canceladas ni completadas)
-  const activeBookings = bookings.filter(b => 
-    b.status !== 'cancelled' && b.status !== 'completed'
-  );
+  // Todas las reservas no canceladas (incluye completadas para los totales históricos)
+  const nonCancelledBookings = bookings.filter(b => b.status !== 'cancelled');
+  // Solo reservas activas (pendientes o confirmadas) para pendientes de cobro
+  const activeBookings = bookings.filter(b => b.status === 'pending' || b.status === 'confirmed');
 
-  // Calcular estadísticas
+  // Calcular estadísticas usando todas las no canceladas
   const stats = {
-    totalReservations: activeBookings.length,
-    totalExpected: activeBookings.reduce((sum, b) => sum + (b.total_price || 0), 0),
-    depositReceived: activeBookings.filter(b => b.payment_status === 'paid').reduce((sum, b) => sum + Math.round((b.total_price || 0) * 0.25), 0),
+    totalReservations: nonCancelledBookings.length,
+    totalExpected: nonCancelledBookings.reduce((sum, b) => sum + (b.total_price || 0), 0),
+    depositReceived: nonCancelledBookings.filter(b => b.payment_status === 'paid').reduce((sum, b) => sum + Math.round((b.total_price || 0) * 0.25), 0),
     depositPending: activeBookings.filter(b => b.payment_status === 'pending').reduce((sum, b) => sum + Math.round((b.total_price || 0) * 0.25), 0),
-    balanceReceived: activeBookings.filter(b => b.balance_status === 'paid').reduce((sum, b) => sum + ((b.total_price || 0) - Math.round((b.total_price || 0) * 0.25)), 0),
+    balanceReceived: nonCancelledBookings.filter(b => b.balance_status === 'paid').reduce((sum, b) => sum + ((b.total_price || 0) - Math.round((b.total_price || 0) * 0.25)), 0),
     balancePending: activeBookings.filter(b => b.balance_status === 'pending').reduce((sum, b) => sum + ((b.total_price || 0) - Math.round((b.total_price || 0) * 0.25)), 0),
   };
 
   const totalReceived = stats.depositReceived + stats.balanceReceived;
   const totalPending = stats.depositPending + stats.balancePending;
 
-  // Reservas pendientes de pago
+  // Reservas pendientes de pago (solo activas)
   const pendingDeposits = activeBookings.filter(b => b.payment_status === 'pending');
   const pendingBalances = activeBookings.filter(b => b.payment_status === 'paid' && b.balance_status === 'pending');
 
