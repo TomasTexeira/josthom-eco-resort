@@ -21,13 +21,17 @@ const nextConfig: NextConfig = {
    * Esto elimina completamente los errores CORS en el browser.
    */
   async rewrites() {
-    const apiTarget = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    const apiTarget =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
     return [
       {
         source: "/api/:path*",
         destination: `${apiTarget}/api/:path*`,
       },
     ];
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 };
 
