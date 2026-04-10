@@ -1,5 +1,3 @@
 {
-  "comment": "Este archivo le dice a Vercel que el proyecto Next.js está en _migration/nextjs/",
-  "comment2": "Al importar en Vercel: Settings → Root Directory → _migration/nextjs",
-  "comment3": "Vercel detecta Next.js automáticamente una vez seteado el Root Directory."
+  "rootDirectory": "_migration/nextjs"
 }
