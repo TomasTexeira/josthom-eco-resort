@@ -14,11 +14,14 @@ export default async function PagarPage({ params }: Props) {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
   try {
-    const res = await fetch(`${apiUrl}/api/payments/create-preference/${booking_id}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      cache: "no-store",
-    });
+    const res = await fetch(
+      `${apiUrl}/api/payments/create-preference/${booking_id}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        cache: "no-store",
+      },
+    );
 
     if (!res.ok) {
       redirect(`/reserva/error?booking_id=${booking_id}`);
