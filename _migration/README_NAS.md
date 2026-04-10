@@ -1,137 +1,256 @@
-# Setup Synology NAS — Josthom Eco Resort
+# Deploy en Synology NAS — Josthom Eco Resort
 
-## Paso 1: Instalar Docker en la Synology
-
-1. Abrí el **Package Center** en DSM
-2. Buscá **Container Manager** e instalalo
-3. (Alternativa) Instalá Docker via SSH: no necesario, Container Manager es suficiente
+Guía paso a paso para levantar FastAPI + PostgreSQL + Redis + Celery en el NAS.
 
 ---
 
-## Paso 2: Crear carpeta del proyecto
+## Requisitos previos
 
-Via SSH o File Station:
-```
-/volume1/docker/josthom/
-  ├── api/          ← código FastAPI
-  ├── docker/       ← docker-compose.yml, nginx/
-  └── scripts/      ← script de migración
-```
+- Synology NAS con **DSM 7.x**
+- **Container Manager** instalado (Package Center → buscar "Container Manager")
+- SSH habilitado: Panel de control → Terminal y SNMP → habilitar SSH
+- Git instalado en el NAS (Package Center → Git)
 
 ---
 
-## Paso 3: Configurar DDNS (IP dinámica del ISP)
+## Paso 1 — Copiar el código al NAS
 
-1. En DSM → Control Panel → External Access → DDNS
-2. Activar Synology DDNS (gratis): `tu-nombre.synology.me`
-3. **Alternativa recomendada (Cloudflare Tunnel):**
-   - Sin necesidad de abrir puertos en el router
-   - Gratis
-   - Ver: https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/
-
----
-
-## Paso 4: Certificado SSL (solo si usás port forwarding, no Cloudflare Tunnel)
+Desde tu Mac, conectate por SSH y cloná el repo:
 
 ```bash
-# Desde Container Manager → Terminal del container nginx, o SSH a la NAS:
-docker exec josthom-nginx sh -c "
-  apk add certbot certbot-nginx && \
-  certbot --nginx -d api.tu-dominio.com.ar
-"
+ssh usuario@IP-DEL-NAS
+cd /volume1/docker
+git clone https://github.com/TomasTexeira/josthom-eco-resort.git josthom
 ```
 
-O usá el **Let's Encrypt integrado** de Synology DSM:
-- Control Panel → Security → Certificate → Add → Get a certificate from Let's Encrypt
+O si preferís copiar solo la carpeta `_migration/`:
+
+```bash
+# Desde tu Mac:
+scp -r ~/Desktop/josthom-eco-resort/_migration usuario@IP-DEL-NAS:/volume1/docker/josthom/
+```
 
 ---
 
-## Paso 5: Deploy
+## Paso 2 — Crear el archivo .env
 
 ```bash
-# En la NAS via SSH:
-cd /volume1/docker/josthom/docker
-
-# Copiar y completar variables de entorno:
+cd /volume1/docker/josthom/_migration/docker
 cp .env.example .env
-nano .env   # Completar con tus credenciales reales
+nano .env
+```
 
-# Levantar todos los servicios:
+Completá estos valores obligatorios:
+
+| Variable | Dónde conseguirla |
+|---|---|
+| `POSTGRES_PASSWORD` | Inventala vos (ej: `mi_password_segura_2024`) |
+| `SECRET_KEY` | Correr: `python3 -c "import secrets; print(secrets.token_hex(32))"` |
+| `MP_ACCESS_TOKEN` | Mercado Pago → Developers → Credenciales |
+| `MP_PUBLIC_KEY` | Idem |
+| `MP_WEBHOOK_SECRET` | Lo elegís vos, cualquier string largo |
+| `SMTP_USER` | Tu email de Gmail |
+| `SMTP_PASSWORD` | Gmail → Seguridad → Contraseñas de aplicación |
+| `ADMIN_EMAIL` | Tu email de admin |
+| `FRONTEND_URL` | La URL de Vercel (ej: `https://josthom-eco-resort.vercel.app`) |
+
+---
+
+## Paso 3 — Exponer el NAS a internet
+
+### Opción A — Cloudflare Tunnel (recomendada, sin abrir puertos)
+
+1. Crear cuenta gratis en [cloudflare.com](https://cloudflare.com)
+2. Zero Trust → Networks → Tunnels → Create a tunnel
+3. Instalar `cloudflared` en el NAS:
+```bash
+wget -O /usr/local/bin/cloudflared https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64
+chmod +x /usr/local/bin/cloudflared
+cloudflared tunnel login
+cloudflared tunnel create josthom-api
+```
+4. Apuntar el tunnel a `http://localhost:80`
+5. Configurar el hostname → `api.josthom.com.ar` (o el subdominio que prefieras)
+6. Obtenés HTTPS automático sin abrir ningún puerto en el router
+
+### Opción B — DDNS + port forwarding (si no usás Cloudflare)
+
+1. DSM → Panel de control → Acceso externo → DDNS → Agregar (`tunombre.synology.me`)
+2. En el router: abrir puertos 80 y 443 y redirigirlos a la IP local del NAS
+3. Certificado SSL: DSM → Panel de control → Seguridad → Certificado → Agregar → Let's Encrypt
+4. Copiar los certs:
+```bash
+cp /usr/syno/etc/certificate/system/default/fullchain.pem /volume1/docker/josthom/_migration/docker/nginx/certs/
+cp /usr/syno/etc/certificate/system/default/privkey.pem   /volume1/docker/josthom/_migration/docker/nginx/certs/
+```
+
+### Opción C — Sin SSL (solo para pruebas locales)
+
+En `docker-compose.yml`, comentar el servicio `nginx` y agregar a `api`:
+```yaml
+ports:
+  - "8000:8000"
+```
+En Vercel: `NEXT_PUBLIC_API_URL=http://IP-LOCAL-DEL-NAS:8000` (solo funciona en red local).
+
+---
+
+## Paso 4 — Levantar los contenedores
+
+```bash
+cd /volume1/docker/josthom/_migration/docker
+
+# Construir las imágenes (solo la primera vez o después de cambios)
+docker compose build
+
+# Levantar todo en background
 docker compose up -d
 
-# Verificar que estén corriendo:
+# Verificar que estén todos corriendo
 docker compose ps
 
-# Ver logs:
+# Ver logs de la API en tiempo real
 docker compose logs -f api
 ```
 
 ---
 
-## Paso 6: Migración de datos desde Base44
+## Paso 5 — Crear las tablas en la base de datos
 
 ```bash
-# En la NAS:
-cd /volume1/docker/josthom/scripts
+# Ejecutar Alembic dentro del contenedor api
+docker compose exec api alembic upgrade head
+```
 
-# Instalar dependencias:
-pip3 install httpx asyncpg sqlalchemy[asyncio] python-dotenv
-
-# Exportar de Base44 (necesita el .env del proyecto original):
-python3 migrate_from_base44.py --export-only
-
-# Importar a PostgreSQL:
-python3 migrate_from_base44.py --import-only
-
-# O ambas fases juntas:
-python3 migrate_from_base44.py
+Si es la primera vez y no hay migraciones generadas:
+```bash
+docker compose exec api alembic revision --autogenerate -m "initial"
+docker compose exec api alembic upgrade head
 ```
 
 ---
 
-## Verificación final
+## Paso 6 — Crear el usuario administrador
 
 ```bash
-# Health check de la API:
-curl https://api.tu-dominio.com.ar/health
+docker compose exec api python -c "
+import asyncio, uuid
+from app.database import AsyncSessionLocal
+from app.models.user import User
+from app.core.security import get_password_hash
 
-# Respuesta esperada:
-# {"status":"ok","version":"1.0.0"}
+async def run():
+    async with AsyncSessionLocal() as db:
+        admin = User(
+            id=str(uuid.uuid4()),
+            email='admin@josthom.com',
+            name='Admin Josthom',
+            hashed_password=get_password_hash('josthom2024'),
+            role='admin',
+            is_active=True
+        )
+        db.add(admin)
+        await db.commit()
+        print('✓ Admin creado:', admin.email)
 
-# Documentación interactiva (solo si DEBUG=true):
-# https://api.tu-dominio.com.ar/docs
+asyncio.run(run())
+"
+```
+
+> Cambiá la password `josthom2024` por una segura antes de correr esto.
+
+---
+
+## Paso 7 — Cargar las cabañas
+
+Desde tu Mac con la API ya accesible:
+
+```bash
+cd ~/Desktop/josthom-eco-resort
+API_URL=https://api.josthom.com.ar \
+ADMIN_EMAIL=admin@josthom.com \
+ADMIN_PASS=josthom2024 \
+python _migration/scripts/seed_accommodations.py
 ```
 
 ---
 
-## Seguridad — ¿Los usuarios se conectan a la NAS?
+## Paso 8 — Configurar el webhook de Mercado Pago
 
-**No.** Los usuarios del sitio web **nunca se conectan directamente a la NAS**.
-
-El flujo de conexiones es:
-```
-Usuario → Vercel (Next.js en la nube) → API en NAS (solo el servidor de Vercel)
-```
-
-- El usuario ve el sitio en Vercel
-- Vercel hace requests a tu API en la NAS en nombre del usuario
-- La NAS **solo recibe conexiones del servidor de Vercel y de Mercado Pago (webhooks)**
-- Los datos (PostgreSQL) nunca son accesibles desde internet, solo desde dentro del container
-
-### Puertos abiertos en el router:
-- Solo **443 (HTTPS)** → Nginx → FastAPI
-- **80** → redirige a 443
-- **PostgreSQL (5432), Redis (6379): nunca abiertos al exterior**
+1. [mercadopago.com.ar/developers/panel](https://www.mercadopago.com.ar/developers/panel)
+2. Tu aplicación → Webhooks → Configurar
+3. URL: `https://api.josthom.com.ar/api/payments/webhook/mercadopago`
+4. Eventos: `payment`
+5. Copiá el **Secret** generado → pegalo en `.env` como `MP_WEBHOOK_SECRET`
+6. Reiniciá: `docker compose restart api`
 
 ---
 
-## Backup automático
+## Paso 9 — Verificación final
 
-Agregar al `crontab` de la NAS:
+```bash
+# Health check
+curl https://api.josthom.com.ar/health
+# → {"status": "ok"}
+
+# Probar login admin
+curl -X POST https://api.josthom.com.ar/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@josthom.com","password":"josthom2024"}'
+# → {"access_token": "..."}
+```
+
+---
+
+## Arquitectura de conexiones
+
+```
+Usuario
+  └→ Vercel (Next.js) — josthom-eco-resort.vercel.app
+       └→ NAS / Synology (FastAPI + Nginx) — api.josthom.com.ar
+            ├→ PostgreSQL  (solo interno, nunca expuesto)
+            └→ Redis        (solo interno, nunca expuesto)
+
+Mercado Pago → webhook → api.josthom.com.ar/api/payments/webhook/mercadopago
+```
+
+Los usuarios **nunca se conectan directamente al NAS**. Solo Vercel (server-side) y MP (webhooks) lo hacen.
+
+---
+
+## Comandos útiles
+
+```bash
+# Reiniciar solo la API
+docker compose restart api
+
+# Actualizar código y redeployar
+git pull
+docker compose build api
+docker compose up -d api
+
+# Ver logs de Celery (tareas programadas)
+docker compose logs -f celery-beat
+
+# Backup de la base de datos
+docker compose exec postgres pg_dump -U josthom josthom \
+  | gzip > /volume1/backups/josthom-$(date +%Y%m%d).sql.gz
+
+# Restaurar backup
+gunzip -c backup.sql.gz | docker compose exec -T postgres psql -U josthom josthom
+```
+
+---
+
+## Backup automático (crontab en el NAS)
+
+DSM → Panel de control → Programador de tareas → Crear → Tarea programada → Script:
+
 ```bash
 # Backup diario a las 2am
-0 2 * * * docker exec josthom-postgres pg_dump -U josthom josthom | gzip > /volume1/backups/josthom-$(date +%Y%m%d).sql.gz
+docker exec josthom-postgres pg_dump -U josthom josthom \
+  | gzip > /volume1/backups/josthom-$(date +%Y%m%d).sql.gz
 
-# Limpiar backups de más de 30 días
-0 3 * * * find /volume1/backups -name "josthom-*.sql.gz" -mtime +30 -delete
+# Borrar backups de más de 30 días
+find /volume1/backups -name "josthom-*.sql.gz" -mtime +30 -delete
 ```
