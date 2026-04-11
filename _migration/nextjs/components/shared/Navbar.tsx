@@ -61,9 +61,9 @@ export default function Navbar() {
             <li key={link.href}>
               <Link
                 href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-green-700 ${
+                className={`text-sm font-medium transition-colors hover:text-amber-700 ${
                   transparent ? "text-white/90" : "text-gray-700"
-                } ${pathname === link.href ? "text-green-700 font-semibold" : ""}`}
+                } ${pathname === link.href ? "text-amber-700 font-semibold" : ""}`}
               >
                 {link.label}
               </Link>
@@ -74,7 +74,7 @@ export default function Navbar() {
         {/* CTA */}
         <Link
           href="/accommodations"
-          className="hidden lg:inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-green-800 text-white hover:bg-green-900 transition-colors"
+          className="hidden lg:inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-amber-800 text-white hover:bg-amber-900 transition-colors"
         >
           Reservar
         </Link>
@@ -97,7 +97,7 @@ export default function Navbar() {
               key={link.href}
               href={link.href}
               onClick={() => setMenuOpen(false)}
-              className="block py-2 text-sm font-medium text-gray-700 hover:text-green-700"
+              className="block py-2 text-sm font-medium text-gray-700 hover:text-amber-700"
             >
               {link.label}
             </Link>
@@ -105,7 +105,7 @@ export default function Navbar() {
           <Link
             href="/accommodations"
             onClick={() => setMenuOpen(false)}
-            className="block text-center py-2 px-4 rounded-lg bg-green-800 text-white text-sm font-medium"
+            className="block text-center py-2 px-4 rounded-lg bg-amber-800 text-white text-sm font-medium"
           >
             Reservar ahora
           </Link>

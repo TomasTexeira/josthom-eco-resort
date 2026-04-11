@@ -138,7 +138,7 @@ export default function AvailabilityCalendar({ accommodationId, onSelectDates }:
               onClick={() => setGuests(n)}
               className={`w-8 h-8 rounded-full text-sm font-medium transition-colors ${
                 guests === n
-                  ? "bg-green-700 text-white"
+                  ? "bg-amber-700 text-white"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
@@ -280,13 +280,13 @@ export default function AvailabilityCalendar({ accommodationId, onSelectDates }:
 
       {/* Resumen de precio */}
       {priceData && range?.from && range?.to && selectedNights >= MIN_NIGHTS && (
-        <div className="bg-green-50 rounded-lg p-3 space-y-2 text-sm">
+        <div className="bg-amber-50 rounded-lg p-3 space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-gray-600">{priceData.nights} noches</span>
             <span className="font-semibold">${priceData.total_price.toLocaleString("es-AR")}</span>
           </div>
           {priceData.weekday_discount_amount > 0 && (
-            <div className="flex justify-between text-green-700">
+            <div className="flex justify-between text-amber-700">
               <span>Descuento lun-jue</span>
               <span>-${priceData.weekday_discount_amount.toLocaleString("es-AR")}</span>
             </div>
@@ -312,7 +312,7 @@ export default function AvailabilityCalendar({ accommodationId, onSelectDates }:
 
           <button
             onClick={handleConfirm}
-            className="w-full mt-1 py-2.5 bg-green-700 text-white rounded-lg hover:bg-green-800 font-medium transition-colors text-sm"
+            className="w-full mt-1 py-2.5 bg-amber-700 text-white rounded-lg hover:bg-amber-800 font-medium transition-colors text-sm"
           >
             Reservar ahora
           </button>

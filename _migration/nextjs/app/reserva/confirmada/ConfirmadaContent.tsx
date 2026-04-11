@@ -12,11 +12,11 @@ export default function ConfirmadaContent() {
   return (
     <div className="w-full max-w-md">
       {/* Card de éxito */}
-      <div className="bg-white rounded-2xl shadow-sm border border-green-100 p-8 text-center space-y-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-amber-100 p-8 text-center space-y-6">
         {/* Icono */}
         <div className="flex justify-center">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center">
-            <CheckCircle size={40} className="text-green-600" />
+          <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center">
+            <CheckCircle size={40} className="text-amber-600" />
           </div>
         </div>
 
@@ -30,19 +30,19 @@ export default function ConfirmadaContent() {
         </div>
 
         {/* Info de contacto */}
-        <div className="bg-green-50 rounded-xl p-5 text-left space-y-3 text-sm">
+        <div className="bg-amber-50 rounded-xl p-5 text-left space-y-3 text-sm">
           <p className="font-semibold text-gray-800">¿Qué pasa ahora?</p>
           <ul className="space-y-2 text-gray-600">
             <li className="flex gap-2">
-              <span className="text-green-600 font-bold mt-0.5">✓</span>
+              <span className="text-amber-600 font-bold mt-0.5">✓</span>
               Recibirás un email de confirmación con los detalles de tu estadía.
             </li>
             <li className="flex gap-2">
-              <span className="text-green-600 font-bold mt-0.5">✓</span>
+              <span className="text-amber-600 font-bold mt-0.5">✓</span>
               El saldo restante (75%) se abona en efectivo o transferencia al retirarte.
             </li>
             <li className="flex gap-2">
-              <span className="text-green-600 font-bold mt-0.5">✓</span>
+              <span className="text-amber-600 font-bold mt-0.5">✓</span>
               Check-in desde las 15 hs · Check-out hasta las 11 hs.
             </li>
           </ul>
@@ -54,7 +54,7 @@ export default function ConfirmadaContent() {
             href="https://wa.me/5491138323695?text=Hola!%20Acabo%20de%20confirmar%20mi%20reserva%20online"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl px-5 py-3 transition-colors text-sm"
+            className="flex items-center justify-center gap-2 w-full bg-amber-700 hover:bg-amber-800 text-white font-semibold rounded-xl px-5 py-3 transition-colors text-sm"
           >
             <Phone size={16} /> Escribinos por WhatsApp
           </a>

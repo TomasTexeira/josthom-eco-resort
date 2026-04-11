@@ -11,7 +11,7 @@ export default async function ContactPage() {
 
   return (
     <>
-      <section className="bg-green-800 pt-20 pb-12 text-center text-white px-4">
+      <section className="bg-amber-800 pt-20 pb-12 text-center text-white px-4">
         <h1 className="text-4xl font-bold">{content?.title || "Contacto"}</h1>
         <p className="mt-2 text-white/80">{content?.subtitle || "Estamos para ayudarte"}</p>
       </section>
@@ -24,14 +24,14 @@ export default async function ContactPage() {
             <h2 className="text-xl font-semibold text-gray-900 mb-5">Hablemos</h2>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <Phone size={20} className="text-green-700 mt-0.5 shrink-0" />
+                <Phone size={20} className="text-amber-700 mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-gray-900">WhatsApp</p>
                   <a
                     href="https://wa.me/5491138323695"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-green-700 hover:underline"
+                    className="text-amber-700 hover:underline"
                   >
                     +54 9 11 3832-3695
                   </a>
@@ -39,23 +39,23 @@ export default async function ContactPage() {
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <Mail size={20} className="text-green-700 mt-0.5 shrink-0" />
+                <Mail size={20} className="text-amber-700 mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-gray-900">Email</p>
-                  <a href="mailto:reservas@josthom.com.ar" className="text-green-700 hover:underline">
+                  <a href="mailto:reservas@josthom.com.ar" className="text-amber-700 hover:underline">
                     reservas@josthom.com.ar
                   </a>
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <MapPin size={20} className="text-green-700 mt-0.5 shrink-0" />
+                <MapPin size={20} className="text-amber-700 mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-gray-900">Dirección</p>
                   <p className="text-gray-600">Villa Paranacito, Entre Ríos</p>
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                <Clock size={20} className="text-green-700 mt-0.5 shrink-0" />
+                <Clock size={20} className="text-amber-700 mt-0.5 shrink-0" />
                 <div>
                   <p className="font-medium text-gray-900">Horario de atención</p>
                   <p className="text-gray-600">Lunes a Domingo, 8:00 – 18:00 hs</p>

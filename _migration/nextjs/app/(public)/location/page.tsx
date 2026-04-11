@@ -18,7 +18,7 @@ export default async function LocationPage() {
   return (
     <>
       {/* Header */}
-      <section className="bg-green-800 pt-20 pb-12 text-center text-white px-4">
+      <section className="bg-amber-800 pt-20 pb-12 text-center text-white px-4">
         <h1 className="text-4xl font-bold">{content?.title || "¿Cómo llegar?"}</h1>
         <p className="mt-2 text-white/80">Villa Paranacito, Entre Ríos, Argentina</p>
       </section>
@@ -28,7 +28,7 @@ export default async function LocationPage() {
         {/* Mapa */}
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-            <MapPin size={20} className="text-green-700" /> Ubicación
+            <MapPin size={20} className="text-amber-700" /> Ubicación
           </h2>
           <div className="rounded-xl overflow-hidden border border-gray-200 shadow-sm h-80">
             <iframe
@@ -55,14 +55,14 @@ export default async function LocationPage() {
         {/* Info */}
         <div className="space-y-6">
           <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-2">
-            <Car size={20} className="text-green-700" /> Cómo llegar
+            <Car size={20} className="text-amber-700" /> Cómo llegar
           </h2>
           <p className="text-gray-600 leading-relaxed">
             {content?.content || "Seguí la Ruta Nacional 12 hasta Villa Paranacito. Al llegar al pueblo, tomá el camino costero hacia el Arroyo Sagastume. El complejo está señalizado."}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {TIPS.map((tip) => (
-              <div key={tip.title} className="bg-green-50 rounded-xl p-4 space-y-1">
+              <div key={tip.title} className="bg-amber-50 rounded-xl p-4 space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="text-2xl">{tip.icon}</span>
                   <h3 className="font-semibold text-sm text-gray-900">{tip.title}</h3>

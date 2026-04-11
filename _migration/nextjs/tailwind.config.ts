@@ -10,12 +10,13 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          50:  "#E8F5E9",
-          100: "#C8E6C9",
-          600: "#388E3C",
-          700: "#2E7D32",
-          800: "#1B5E20",
-          900: "#133A18",
+          50:  "#fffbeb",  // amber-50
+          100: "#fef3c7",  // amber-100
+          200: "#fde68a",  // amber-200
+          600: "#d97706",  // amber-600
+          700: "#b45309",  // amber-700
+          800: "#92400e",  // amber-800
+          900: "#78350f",  // amber-900
         },
       },
       fontFamily: {

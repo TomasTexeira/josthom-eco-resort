@@ -34,7 +34,7 @@ export default function AboutSection({ content }: Props) {
             className="object-cover"
           />
           {/* Decoración geométrica */}
-          <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-green-100 rounded-2xl -z-10" />
+          <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-amber-100 rounded-2xl -z-10" />
         </motion.div>
 
         {/* Texto */}
@@ -46,7 +46,7 @@ export default function AboutSection({ content }: Props) {
           className="space-y-6"
         >
           <div>
-            <p className="text-green-700 text-sm font-semibold uppercase tracking-widest mb-2">Sobre nosotros</p>
+            <p className="text-amber-700 text-sm font-semibold uppercase tracking-widest mb-2">Sobre nosotros</p>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
               {content?.title || "Un rincón único en Entre Ríos"}
             </h2>
@@ -58,8 +58,8 @@ export default function AboutSection({ content }: Props) {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
             {FEATURES.map(({ icon: Icon, label, desc }) => (
               <div key={label} className="space-y-1">
-                <div className="w-10 h-10 bg-green-50 rounded-xl flex items-center justify-center">
-                  <Icon size={20} className="text-green-700" />
+                <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
+                  <Icon size={20} className="text-amber-700" />
                 </div>
                 <p className="font-semibold text-gray-900 text-sm">{label}</p>
                 <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>

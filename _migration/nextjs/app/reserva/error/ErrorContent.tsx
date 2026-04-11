@@ -46,7 +46,7 @@ export default function ErrorContent() {
           {bookingId && (
             <Link
               href={`/reserva/pagar/${bookingId}`}
-              className="flex items-center justify-center gap-2 w-full bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl px-5 py-3 transition-colors text-sm"
+              className="flex items-center justify-center gap-2 w-full bg-amber-700 hover:bg-amber-800 text-white font-semibold rounded-xl px-5 py-3 transition-colors text-sm"
             >
               <RefreshCw size={16} /> Reintentar pago
             </Link>
@@ -56,7 +56,7 @@ export default function ErrorContent() {
             href="https://wa.me/5491138323695?text=Hola!%20Tuve%20un%20error%20al%20pagar%20mi%20reserva"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full border border-green-200 bg-green-50 hover:bg-green-100 text-green-800 font-medium rounded-xl px-5 py-3 transition-colors text-sm"
+            className="flex items-center justify-center gap-2 w-full border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 font-medium rounded-xl px-5 py-3 transition-colors text-sm"
           >
             <Phone size={16} /> Contactar por WhatsApp
           </a>

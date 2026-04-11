@@ -28,13 +28,13 @@ function AccommodationCard({ acc }: { acc: Accommodation }) {
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
-          <div className="w-full h-full bg-green-100 flex items-center justify-center">
-            <span className="text-green-600 text-sm">Sin imagen</span>
+          <div className="w-full h-full bg-amber-100 flex items-center justify-center">
+            <span className="text-amber-600 text-sm">Sin imagen</span>
           </div>
         )}
       </div>
       <div className="p-5 space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900 group-hover:text-green-800 transition-colors">
+        <h2 className="text-lg font-semibold text-gray-900 group-hover:text-amber-800 transition-colors">
           {acc.name}
         </h2>
         {acc.short_description && (
@@ -45,7 +45,7 @@ function AccommodationCard({ acc }: { acc: Accommodation }) {
           <span className="flex items-center gap-1"><BedDouble size={14} /> {acc.bedrooms} dorm.</span>
           <span className="flex items-center gap-1"><Bath size={14} /> {acc.bathrooms} baño{acc.bathrooms !== 1 ? "s" : ""}</span>
         </div>
-        <span className="inline-block text-sm font-medium text-green-700 group-hover:underline">
+        <span className="inline-block text-sm font-medium text-amber-700 group-hover:underline">
           Ver detalles →
         </span>
       </div>
@@ -65,7 +65,7 @@ export default async function AccommodationsPage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative h-64 flex items-center justify-center bg-green-900">
+      <section className="relative h-64 flex items-center justify-center bg-amber-900">
         {hero?.image_url && (
           <Image src={hero.image_url} alt="Alojamientos" fill className="object-cover opacity-40" priority />
         )}

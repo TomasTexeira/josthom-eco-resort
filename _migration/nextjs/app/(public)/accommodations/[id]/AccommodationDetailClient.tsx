@@ -57,7 +57,7 @@ export default function AccommodationDetailClient({ accommodation }: Props) {
                 priority
               />
             ) : (
-              <div className="w-full h-full bg-green-100 flex items-center justify-center text-green-600">
+              <div className="w-full h-full bg-amber-100 flex items-center justify-center text-amber-600">
                 Sin imagen
               </div>
             )}
@@ -108,7 +108,7 @@ export default function AccommodationDetailClient({ accommodation }: Props) {
               <ul className="grid grid-cols-2 gap-2">
                 {accommodation.amenities.map((amenity) => (
                   <li key={amenity} className="flex items-center gap-2 text-gray-600">
-                    <span className="text-green-600">✓</span> {amenity}
+                    <span className="text-amber-600">✓</span> {amenity}
                   </li>
                 ))}
               </ul>

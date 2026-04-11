@@ -55,7 +55,7 @@ export default function PendienteContent() {
             href="https://wa.me/5491138323695?text=Hola!%20Tengo%20una%20reserva%20pendiente%20de%20pago"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full bg-green-700 hover:bg-green-800 text-white font-semibold rounded-xl px-5 py-3 transition-colors text-sm"
+            className="flex items-center justify-center gap-2 w-full bg-amber-700 hover:bg-amber-800 text-white font-semibold rounded-xl px-5 py-3 transition-colors text-sm"
           >
             <Phone size={16} /> Contactar por WhatsApp
           </a>

@@ -7,7 +7,7 @@ export default function CTASection() {
   return (
     <section className="relative py-24 overflow-hidden">
       <Image src={BG} alt="Escapada al campo" fill className="object-cover" />
-      <div className="absolute inset-0 bg-green-900/70" />
+      <div className="absolute inset-0 bg-amber-900/70" />
       <div className="relative z-10 section-container text-center text-white space-y-6">
         <h2 className="text-4xl md:text-5xl font-bold">
           Tu escape al campo te espera

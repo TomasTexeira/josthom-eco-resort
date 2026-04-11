@@ -59,11 +59,11 @@ export default function Footer() {
           <h3 className="text-white text-sm font-semibold uppercase tracking-wider mb-4">Contacto</h3>
           <ul className="space-y-3 text-sm text-gray-400">
             <li className="flex items-start gap-2">
-              <MapPin size={16} className="mt-0.5 shrink-0 text-green-500" />
+              <MapPin size={16} className="mt-0.5 shrink-0 text-amber-500" />
               <span>Villa Paranacito, Entre Ríos, Argentina</span>
             </li>
             <li className="flex items-center gap-2">
-              <Phone size={16} className="shrink-0 text-green-500" />
+              <Phone size={16} className="shrink-0 text-amber-500" />
               <a href="https://wa.me/5491138323695" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
                 +54 9 11 3832-3695
               </a>

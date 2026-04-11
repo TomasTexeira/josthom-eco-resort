@@ -21,7 +21,7 @@ export default async function ExperiencePage() {
   return (
     <>
       {/* Hero */}
-      <section className="relative h-72 flex items-center justify-center bg-green-900">
+      <section className="relative h-72 flex items-center justify-center bg-amber-900">
         {hero?.image_url && (
           <Image src={hero.image_url} alt="Experiencias" fill className="object-cover opacity-40" priority />
         )}
@@ -48,7 +48,7 @@ export default async function ExperiencePage() {
       </section>
 
       {/* Quote */}
-      <section className="bg-green-800 py-16 text-center px-4">
+      <section className="bg-amber-800 py-16 text-center px-4">
         <blockquote className="text-white text-2xl md:text-3xl font-light italic max-w-3xl mx-auto">
           &ldquo;El mejor antídoto para la ciudad es el silencio del campo y el sonido del río.&rdquo;
         </blockquote>
