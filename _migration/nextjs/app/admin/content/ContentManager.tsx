@@ -56,7 +56,7 @@ export default function ContentManager({ token }: Props) {
 
   // Build a map for quick lookup
   const contentMap: Record<string, SiteContent> = {};
-  items.forEach(item => { contentMap[item.key] = item; });
+  items.forEach(item => { contentMap[item.section] = item; });
 
   const updateMutation = useMutation({
     mutationFn: ({ key, value }: { key: string; value: string }) =>
@@ -190,7 +190,7 @@ export default function ContentManager({ token }: Props) {
       {/* Contenido personalizado (claves no agrupadas) */}
       {(() => {
         const knownKeys = SECTIONS.flatMap(s => s.keys);
-        const otherItems = items.filter(item => !knownKeys.includes(item.key));
+        const otherItems = items.filter(item => !knownKeys.includes(item.section));
         if (otherItems.length === 0) return null;
         return (
           <div className="bg-white border border-gray-100 rounded-2xl shadow-sm overflow-hidden">
@@ -204,12 +204,12 @@ export default function ContentManager({ token }: Props) {
             {openSections["Otros"] && (
               <div className="px-5 pb-5 space-y-4 border-t border-gray-100 pt-4">
                 {otherItems.map(item => (
-                  <div key={item.key}>
-                    <label className="block text-xs font-medium text-gray-600 mb-1">{fieldLabel(item.key)}</label>
+                  <div key={item.section}>
+                    <label className="block text-xs font-medium text-gray-600 mb-1">{fieldLabel(item.section)}</label>
                     <input
                       type="text"
-                      value={getValue(item.key)}
-                      onChange={e => handleChange(item.key, e.target.value)}
+                      value={getValue(item.section)}
+                      onChange={e => handleChange(item.section, e.target.value)}
                       className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
                     />
                   </div>

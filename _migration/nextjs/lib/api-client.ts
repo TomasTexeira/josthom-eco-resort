@@ -75,6 +75,8 @@ export interface GalleryImage {
 export interface SiteContent {
   id: string;
   section: string;
+  key?: string;    // alias de section para compatibilidad con ContentManager
+  value?: string;  // valor genérico de la clave
   title?: string;
   subtitle?: string;
   content?: string;
