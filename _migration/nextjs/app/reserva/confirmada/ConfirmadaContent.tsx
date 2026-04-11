@@ -1,26 +1,13 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
 import { CheckCircle, Phone, Home } from "lucide-react";
 import Link from "next/link";
-import { format } from "date-fns";
-import { es } from "date-fns/locale";
-import { bookingsApi } from "@/lib/api-client";
 
 export default function ConfirmadaContent() {
   const params = useSearchParams();
-  const bookingId = params.get("booking_id");
-  const [booking, setBooking] = useState<any>(null);
-
-  useEffect(() => {
-    // Intentar obtener los datos de la reserva para mostrar el resumen
-    // El endpoint /api/bookings/{id} requiere staff token, así que
-    // usamos los datos de la sesión si están disponibles, o mostramos
-    // un mensaje genérico.
-    // En producción, el webhook ya habrá confirmado la reserva.
-    // Aquí solo mostramos una pantalla de éxito al huésped.
-  }, [bookingId]);
+  // booking_id disponible para uso futuro (ej: mostrar resumen)
+  const _bookingId = params.get("booking_id");
 
   return (
     <div className="w-full max-w-md">

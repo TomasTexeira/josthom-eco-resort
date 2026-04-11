@@ -4,7 +4,7 @@
  */
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Trash2, X, Star } from "lucide-react";
 import { galleryApi, type GalleryImage } from "@/lib/api-client";
 import Image from "next/image";
 import toast from "react-hot-toast";
@@ -14,7 +14,7 @@ interface Props { token: string; }
 const CATEGORIES = ["general", "cabañas", "piscina", "entorno", "instalaciones", "actividades"];
 
 const EMPTY: Partial<GalleryImage> = {
-  image_url: "", title: "", category: "general", order: 0,
+  image_url: "", title: "", category: "general", order: 0, is_featured: false,
 };
 
 export default function GalleryManager({ token }: Props) {

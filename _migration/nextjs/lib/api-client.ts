@@ -70,6 +70,7 @@ export interface GalleryImage {
   title?: string;
   category: string;
   order: number;
+  is_featured?: boolean;
 }
 
 export interface SiteContent {
