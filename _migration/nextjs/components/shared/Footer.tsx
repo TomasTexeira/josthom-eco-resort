@@ -7,7 +7,7 @@ const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/pub
 const LINKS = [
   { href: "/accommodations", label: "Alojamientos" },
   { href: "/gallery",        label: "Galería" },
-  { href: "/experience",     label: "Experiencias" },
+  { href: "/experience",     label: "La Experiencia" },
   { href: "/location",       label: "Ubicación" },
   { href: "/contact",        label: "Contacto" },
 ];
@@ -15,76 +15,86 @@ const LINKS = [
 export default function Footer() {
   const year = new Date().getFullYear();
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="bg-stone-900 text-white">
+      <div className="max-w-7xl mx-auto px-6 py-16">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-12">
 
-        {/* Brand */}
-        <div className="space-y-3">
-          <Image
-            src={LOGO_URL}
-            alt="Josthom Eco Resort"
-            width={130}
-            height={44}
-            className="h-10 w-auto object-contain brightness-0 invert opacity-90"
-          />
-          <p className="text-sm leading-relaxed text-gray-400">
-            Eco Resort en Villa Paranacito, Entre Ríos. Naturaleza, tranquilidad y el Río Uruguay.
-          </p>
-          <div className="flex gap-3 pt-1">
-            <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors" aria-label="Instagram">
-              <Instagram size={18} />
-            </a>
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors" aria-label="Facebook">
-              <Facebook size={18} />
-            </a>
-          </div>
-        </div>
-
-        {/* Links */}
-        <div>
-          <h3 className="text-white text-sm font-semibold uppercase tracking-wider mb-4">Navegación</h3>
-          <ul className="space-y-2">
-            {LINKS.map((l) => (
-              <li key={l.href}>
-                <Link href={l.href} className="text-sm text-gray-400 hover:text-white transition-colors">
-                  {l.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Contacto */}
-        <div>
-          <h3 className="text-white text-sm font-semibold uppercase tracking-wider mb-4">Contacto</h3>
-          <ul className="space-y-3 text-sm text-gray-400">
-            <li className="flex items-start gap-2">
-              <MapPin size={16} className="mt-0.5 shrink-0 text-amber-500" />
-              <span>Villa Paranacito, Entre Ríos, Argentina</span>
-            </li>
-            <li className="flex items-center gap-2">
-              <Phone size={16} className="shrink-0 text-amber-500" />
-              <a href="https://wa.me/5491138323695" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">
-                +54 9 11 3832-3695
+          {/* Brand — spans 2 cols on large screens */}
+          <div className="lg:col-span-2">
+            <Image
+              src={LOGO_URL}
+              alt="Josthom Eco Resort"
+              width={160}
+              height={64}
+              className="h-16 w-auto object-contain brightness-0 invert mb-4"
+            />
+            <p className="text-stone-400 max-w-md leading-relaxed mb-6">
+              Eco-resort de campo donde la naturaleza, la tranquilidad y los animales se unen
+              para crear una experiencia única.
+            </p>
+            <div className="flex gap-4">
+              <a
+                href="https://www.instagram.com/josthom_ok/?hl=es"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Instagram"
+                className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-amber-700 transition-colors"
+              >
+                <Instagram className="w-5 h-5" />
               </a>
-            </li>
-          </ul>
+              <a
+                href="https://www.facebook.com/profile.php?id=100069739778814"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Facebook"
+                className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center hover:bg-amber-700 transition-colors"
+              >
+                <Facebook className="w-5 h-5" />
+              </a>
+            </div>
+          </div>
+
+          {/* Quick Links */}
+          <div>
+            <h4 className="font-medium mb-6 text-amber-400">Enlaces</h4>
+            <ul className="space-y-3">
+              {LINKS.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-stone-400 hover:text-white transition-colors">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contacto */}
+          <div>
+            <h4 className="font-medium mb-6 text-amber-400">Contacto</h4>
+            <ul className="space-y-4">
+              <li className="flex items-start gap-3 text-stone-400">
+                <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0" />
+                <span>Arroyo Sagastume S/N, 2823 Villa Paranacito, Entre Ríos</span>
+              </li>
+              <li>
+                <a
+                  href="https://wa.me/5491138323695"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 text-stone-400 hover:text-white transition-colors"
+                >
+                  <Phone className="w-5 h-5" />
+                  <span>+54 9 11 3832-3695</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
         </div>
 
-        {/* Horarios */}
-        <div>
-          <h3 className="text-white text-sm font-semibold uppercase tracking-wider mb-4">Horarios</h3>
-          <ul className="space-y-1 text-sm text-gray-400">
-            <li>Atención: Lunes a Domingo</li>
-            <li>8:00 hs — 18:00 hs</li>
-            <li className="mt-3 pt-3 border-t border-gray-700">Check-in: 14:00 hs</li>
-            <li>Check-out: 18:00 hs</li>
-          </ul>
+        <div className="border-t border-stone-800 mt-12 pt-8 text-center text-stone-500 text-sm">
+          <p>© {year} Josthom Eco-Resort. Todos los derechos reservados.</p>
         </div>
-
-      </div>
-      <div className="border-t border-gray-800 py-4 text-center text-xs text-gray-500">
-        © {year} Josthom Eco Resort. Todos los derechos reservados.
       </div>
     </footer>
   );

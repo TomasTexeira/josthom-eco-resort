@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { Providers } from "./providers";
+import { Analytics } from "@vercel/analytics/next";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -12,7 +13,13 @@ export const metadata: Metadata = {
   },
   description:
     "Complejo de cabañas eco-turísticas en Villa Paranacito, Entre Ríos. A orillas del Arroyo Sagastume y el Río Uruguay. Naturaleza, tranquilidad y aventura.",
-  keywords: ["cabañas", "Villa Paranacito", "Entre Ríos", "ecoturismo", "río Uruguay"],
+  keywords: [
+    "cabañas",
+    "Villa Paranacito",
+    "Entre Ríos",
+    "ecoturismo",
+    "río Uruguay",
+  ],
   openGraph: {
     type: "website",
     locale: "es_AR",
@@ -21,10 +28,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="es" suppressHydrationWarning>
       <body className={inter.className}>
+        <Analytics />
         <Providers>{children}</Providers>
       </body>
     </html>
