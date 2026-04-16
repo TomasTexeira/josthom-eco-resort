@@ -7,7 +7,7 @@ import { notFound } from "next/navigation";
 import { accommodationsApi } from "@/lib/api-client";
 import AccommodationDetailClient from "./AccommodationDetailClient";
 
-export const revalidate = 3600; // 1 hora
+export const dynamic = "force-dynamic"; // 1 hora
 
 interface Props {
   params: Promise<{ id: string }>;

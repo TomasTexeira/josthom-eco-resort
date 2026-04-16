@@ -228,3 +228,19 @@ async def notify_booking_confirmed(booking: dict) -> None:
     if settings.ADMIN_EMAIL:
         subj, html = tpl_admin_booking_confirmed(booking)
         await _send(settings.ADMIN_EMAIL, subj, html)
+
+
+async def send_checkin_reminder(booking: dict) -> None:
+    """Recordatorio 48hs antes del check-in."""
+    subject = f"📅 Tu estadía en Josthom es en 2 días — {booking['accommodation_name']}"
+    body = _base_template(f"""
+      <p>Hola <strong>{booking['guest_name']}</strong>,</p>
+      <p>Te recordamos que tu estadía en <strong>{booking['accommodation_name']}</strong>
+         comienza en <strong>2 días</strong>. ¡Ya casi es hora!</p>
+      {_booking_card(booking)}
+      <p style="color:#78350f;font-size:13px;">
+        Check-in a partir de las 14:00 hs. Si tenés alguna consulta, respondé este email
+        o escribinos por WhatsApp.
+      </p>
+    """)
+    await _send(booking["guest_email"], subject, body)

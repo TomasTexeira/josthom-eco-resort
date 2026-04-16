@@ -8,7 +8,7 @@ import Link from "next/link";
 import { Users, BedDouble, Bath } from "lucide-react";
 import { accommodationsApi, contentApi, type Accommodation } from "@/lib/api-client";
 
-export const revalidate = 600;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Alojamientos",

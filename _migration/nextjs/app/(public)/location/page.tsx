@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { MapPin, Car, Phone } from "lucide-react";
 import { contentApi } from "@/lib/api-client";
 
-export const revalidate = 86400;
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Cómo llegar", description: "Ubicación y cómo llegar a Josthom Eco Resort en Villa Paranacito, Entre Ríos." };
 
 const TIPS = [

@@ -3,7 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { contentApi } from "@/lib/api-client";
 
-export const revalidate = 3600;
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Experiencias", description: "Río Uruguay, fauna nativa, deportes y más en Josthom Eco Resort." };
 
 const EXPERIENCES = [

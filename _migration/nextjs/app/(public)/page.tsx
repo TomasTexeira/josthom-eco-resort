@@ -11,7 +11,7 @@ import CTASection from "@/components/home/CTASection";
 import { contentApi, accommodationsApi } from "@/lib/api-client";
 
 // ISR: regenerar cada 10 minutos
-export const revalidate = 600;
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Josthom Eco Resort | Cabañas en Villa Paranacito",

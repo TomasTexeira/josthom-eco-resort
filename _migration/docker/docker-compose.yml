@@ -70,8 +70,10 @@ services:
       WHATSAPP_TOKEN: ${WHATSAPP_TOKEN}
       WHATSAPP_PHONE_ID: ${WHATSAPP_PHONE_ID}
       WHATSAPP_VERIFY_TOKEN: ${WHATSAPP_VERIFY_TOKEN}
-      # Frontend
+      # Frontend & URLs
       FRONTEND_URL: ${FRONTEND_URL:-https://josthom-eco-resort.vercel.app}
+      API_PUBLIC_URL: ${API_PUBLIC_URL:-https://api.josthom.com.ar}
+      MP_SANDBOX: ${MP_SANDBOX:-False}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       ADMIN_WHATSAPP: ${ADMIN_WHATSAPP:-5491138323695}
     volumes:
@@ -137,14 +139,23 @@ services:
     container_name: josthom-nginx
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "8080:80"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/certs:/etc/nginx/certs:ro
       - nginx_logs:/var/log/nginx
     depends_on:
       - api
+    networks:
+      - josthom-net
+
+  # ─── Cloudflare Tunnel (sin abrir puertos en el router) ─
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: josthom-cloudflared
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN}
+    depends_on:
+      - nginx
     networks:
       - josthom-net
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import GalleryClient from "./GalleryClient";
 import { galleryApi, contentApi } from "@/lib/api-client";
 
-export const revalidate = 600;
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Galería", description: "Fotografías de Josthom Eco Resort." };
 
 export default async function GalleryPage() {

@@ -3,7 +3,7 @@ import { Phone, Mail, MapPin, Clock } from "lucide-react";
 import ContactForm from "./ContactForm";
 import { contentApi } from "@/lib/api-client";
 
-export const revalidate = 86400;
+export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Contacto", description: "Contactá a Josthom Eco Resort por WhatsApp o email." };
 
 export default async function ContactPage() {
