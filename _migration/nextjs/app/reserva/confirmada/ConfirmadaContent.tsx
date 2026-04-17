@@ -1,13 +1,28 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle, Phone, Home } from "lucide-react";
+import { CheckCircle, Phone, Home, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 export default function ConfirmadaContent() {
   const params = useSearchParams();
-  // booking_id disponible para uso futuro (ej: mostrar resumen)
-  const _bookingId = params.get("booking_id");
+  const bookingId = params.get("booking_id") || params.get("external_reference");
+  // MP agrega payment_id y status al redirigir desde el checkout
+  const paymentId = params.get("payment_id") || params.get("collection_id");
+  const status = params.get("status") || params.get("collection_status");
+
+  const [confirming, setConfirming] = useState(false);
+
+  useEffect(() => {
+    // Confirmar el pago via redirect (fallback si el webhook falla)
+    if (!bookingId || !paymentId || status !== "approved") return;
+
+    setConfirming(true);
+    fetch(`/api/payments/confirm/${bookingId}?payment_id=${paymentId}&status=${status}`)
+      .catch(() => {/* silencioso — el webhook puede haberlo confirmado ya */})
+      .finally(() => setConfirming(false));
+  }, [bookingId, paymentId, status]);
 
   return (
     <div className="w-full max-w-md">
@@ -16,7 +31,11 @@ export default function ConfirmadaContent() {
         {/* Icono */}
         <div className="flex justify-center">
           <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center">
-            <CheckCircle size={40} className="text-amber-600" />
+            {confirming ? (
+              <Loader2 size={40} className="text-amber-600 animate-spin" />
+            ) : (
+              <CheckCircle size={40} className="text-amber-600" />
+            )}
           </div>
         </div>
 
@@ -29,7 +48,7 @@ export default function ConfirmadaContent() {
           </p>
         </div>
 
-        {/* Info de contacto */}
+        {/* Info */}
         <div className="bg-amber-50 rounded-xl p-5 text-left space-y-3 text-sm">
           <p className="font-semibold text-gray-800">¿Qué pasa ahora?</p>
           <ul className="space-y-2 text-gray-600">
@@ -67,7 +86,6 @@ export default function ConfirmadaContent() {
         </div>
       </div>
 
-      {/* Footer */}
       <p className="text-center text-xs text-gray-400 mt-6">
         Josthom Eco Resort · Villa Paranacito, Entre Ríos
       </p>
