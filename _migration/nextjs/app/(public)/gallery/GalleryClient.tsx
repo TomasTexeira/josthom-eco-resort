@@ -1,7 +1,4 @@
 "use client";
-/**
- * Galería con filtros y lightbox — migrada desde src/pages/Gallery.jsx
- */
 import { useState } from "react";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -27,7 +24,6 @@ export default function GalleryClient({ initialImages, heroContent }: Props) {
   const [category, setCategory] = useState("all");
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
-  // Filtrar formatos no-imagen (como en el original)
   const validImages = initialImages.filter(
     (img) => !img.image_url || VALID_IMAGE_EXTS.test(img.image_url)
   );
@@ -35,21 +31,33 @@ export default function GalleryClient({ initialImages, heroContent }: Props) {
   const filtered =
     category === "all" ? validImages : validImages.filter((img) => img.category === category);
 
-  const openLightbox = (i: number) => setLightboxIdx(i);
+  const openLightbox  = (i: number) => setLightboxIdx(i);
   const closeLightbox = () => setLightboxIdx(null);
   const prev = () => setLightboxIdx((i) => (i !== null ? (i - 1 + filtered.length) % filtered.length : null));
   const next = () => setLightboxIdx((i) => (i !== null ? (i + 1) % filtered.length : null));
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative h-64 flex items-center justify-center bg-green-900">
+      {/* Hero banner oscuro */}
+      <section className="relative h-64 flex items-center justify-center bg-charcoal-900 overflow-hidden">
         {heroContent?.image_url && (
-          <Image src={heroContent.image_url} alt="Galería" fill className="object-cover opacity-40" priority />
+          <Image
+            src={heroContent.image_url}
+            alt="Galería"
+            fill
+            className="object-cover opacity-40"
+            priority
+          />
         )}
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl font-bold">{heroContent?.title || "Galería"}</h1>
-          {heroContent?.subtitle && <p className="mt-2 text-white/80">{heroContent.subtitle}</p>}
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-10 text-center text-white px-4 space-y-2">
+          <p className="section-label text-brand-400">Galería</p>
+          <h1 className="font-display text-4xl md:text-5xl font-bold">
+            {heroContent?.title || "Nuestras fotos"}
+          </h1>
+          {heroContent?.subtitle && (
+            <p className="text-white/70 text-sm">{heroContent.subtitle}</p>
+          )}
         </div>
       </section>
 
@@ -60,9 +68,9 @@ export default function GalleryClient({ initialImages, heroContent }: Props) {
             <button
               key={cat.value}
               onClick={() => setCategory(cat.value)}
-              className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+              className={`px-5 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
                 category === cat.value
-                  ? "bg-green-800 text-white"
+                  ? "bg-brand-600 text-white shadow-sm"
                   : "bg-gray-100 text-gray-600 hover:bg-gray-200"
               }`}
             >
@@ -73,7 +81,7 @@ export default function GalleryClient({ initialImages, heroContent }: Props) {
       </div>
 
       {/* Grid masonry */}
-      <section className="section-container py-8">
+      <section className="section-container py-8 pb-16">
         {filtered.length === 0 ? (
           <p className="text-center text-gray-400 py-20">No hay imágenes en esta categoría.</p>
         ) : (
@@ -81,7 +89,7 @@ export default function GalleryClient({ initialImages, heroContent }: Props) {
             {filtered.map((img, i) => (
               <div
                 key={img.id}
-                className="break-inside-avoid cursor-pointer overflow-hidden rounded-xl group relative"
+                className="break-inside-avoid cursor-pointer overflow-hidden rounded-2xl group relative"
                 onClick={() => openLightbox(i)}
               >
                 <Image
@@ -89,11 +97,11 @@ export default function GalleryClient({ initialImages, heroContent }: Props) {
                   alt={img.title || `Foto ${i + 1}`}
                   width={600}
                   height={400}
-                  className="w-full object-cover group-hover:scale-105 transition-transform duration-400"
+                  className="w-full object-cover group-hover:scale-105 transition-transform duration-500"
                 />
                 {img.title && (
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors flex items-end p-3">
-                    <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-colors duration-300 flex items-end p-4">
+                    <span className="text-white text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       {img.title}
                     </span>
                   </div>
@@ -111,13 +119,13 @@ export default function GalleryClient({ initialImages, heroContent }: Props) {
           onClick={closeLightbox}
         >
           <button
-            className="absolute top-4 right-4 text-white/80 hover:text-white p-2"
+            className="absolute top-4 right-4 text-white/70 hover:text-white p-2 transition-colors"
             onClick={closeLightbox}
           >
             <X size={28} />
           </button>
           <button
-            className="absolute left-4 text-white/80 hover:text-white p-3"
+            className="absolute left-4 text-white/70 hover:text-white p-3 transition-colors"
             onClick={(e) => { e.stopPropagation(); prev(); }}
           >
             <ChevronLeft size={36} />
@@ -131,12 +139,12 @@ export default function GalleryClient({ initialImages, heroContent }: Props) {
             onClick={(e) => e.stopPropagation()}
           />
           <button
-            className="absolute right-4 text-white/80 hover:text-white p-3"
+            className="absolute right-4 text-white/70 hover:text-white p-3 transition-colors"
             onClick={(e) => { e.stopPropagation(); next(); }}
           >
             <ChevronRight size={36} />
           </button>
-          <div className="absolute bottom-4 text-white/60 text-sm">
+          <div className="absolute bottom-4 text-white/50 text-sm">
             {lightboxIdx + 1} / {filtered.length}
           </div>
         </div>

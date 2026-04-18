@@ -5,23 +5,24 @@ import { Clock, Phone, RefreshCw, Home } from "lucide-react";
 import Link from "next/link";
 
 export default function PendienteContent() {
-  const params = useSearchParams();
+  const params   = useSearchParams();
   const bookingId = params.get("booking_id");
   const isSandbox = params.get("sandbox") === "1";
 
   return (
     <div className="w-full max-w-md">
-      <div className="bg-white rounded-2xl shadow-sm border border-amber-100 p-8 text-center space-y-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center space-y-6">
+
         {/* Icono */}
         <div className="flex justify-center">
-          <div className="w-20 h-20 bg-amber-50 rounded-full flex items-center justify-center">
-            <Clock size={40} className="text-amber-500" />
+          <div className="w-20 h-20 bg-brand-50 rounded-full flex items-center justify-center">
+            <Clock size={40} className="text-brand-600" />
           </div>
         </div>
 
         {/* Título */}
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="font-display text-2xl font-bold text-gray-900">
             {isSandbox ? "Modo prueba activo" : "Pago en proceso"}
           </h1>
           <p className="text-gray-500 text-sm leading-relaxed">
@@ -32,7 +33,7 @@ export default function PendienteContent() {
         </div>
 
         {/* Info adicional */}
-        <div className="bg-amber-50 rounded-xl p-5 text-left space-y-2 text-sm text-amber-800">
+        <div className="bg-brand-50 rounded-xl p-5 text-left space-y-2 text-sm text-brand-800">
           {isSandbox ? (
             <>
               <p className="font-semibold">Reserva recibida ✓</p>
@@ -42,8 +43,8 @@ export default function PendienteContent() {
             <>
               <p className="font-semibold">¿Qué pasa si el pago no se acredita?</p>
               <p>
-                Tenés hasta <strong>24 horas</strong> para completar el pago antes de que la reserva
-                se cancele automáticamente. Si ya pagaste, contactanos por WhatsApp.
+                Tenés hasta <strong>24 horas</strong> para completar el pago antes de que la
+                reserva se cancele automáticamente. Si ya pagaste, contactanos.
               </p>
             </>
           )}
@@ -55,7 +56,7 @@ export default function PendienteContent() {
             href="https://wa.me/5491138323695?text=Hola!%20Tengo%20una%20reserva%20pendiente%20de%20pago"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full bg-amber-700 hover:bg-amber-800 text-white font-semibold rounded-xl px-5 py-3 transition-colors text-sm"
+            className="flex items-center justify-center gap-2 w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl px-5 py-3 transition-colors text-sm"
           >
             <Phone size={16} /> Contactar por WhatsApp
           </a>
@@ -63,7 +64,7 @@ export default function PendienteContent() {
           {!isSandbox && bookingId && (
             <Link
               href={`/reserva/pagar/${bookingId}`}
-              className="flex items-center justify-center gap-2 w-full border border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-800 font-medium rounded-xl px-5 py-3 transition-colors text-sm"
+              className="flex items-center justify-center gap-2 w-full border border-brand-200 bg-brand-50 hover:bg-brand-100 text-brand-800 font-medium rounded-xl px-5 py-3 transition-colors text-sm"
             >
               <RefreshCw size={16} /> Reintentar pago
             </Link>

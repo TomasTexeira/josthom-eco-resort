@@ -1,7 +1,3 @@
-/**
- * Página de alojamientos — migrada desde src/pages/Accommodations.jsx
- * Server Component con ISR.
- */
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,13 +8,16 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Alojamientos",
-  description: "Conocé nuestras 6 cabañas en Villa Paranacito. Capacidad para familias, parejas y grupos.",
+  description: "Conocé nuestras cabañas en Villa Paranacito. Capacidad para familias, parejas y grupos.",
 };
 
 function AccommodationCard({ acc }: { acc: Accommodation }) {
   return (
-    <Link href={`/accommodations/${acc.id}`} className="group block card hover:shadow-md transition-shadow">
-      <div className="relative h-56 overflow-hidden">
+    <Link
+      href={`/accommodations/${acc.id}`}
+      className="group bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 block"
+    >
+      <div className="relative h-56 overflow-hidden bg-gray-100">
         {acc.main_image ? (
           <Image
             src={acc.main_image}
@@ -28,26 +27,28 @@ function AccommodationCard({ acc }: { acc: Accommodation }) {
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
-          <div className="w-full h-full bg-amber-100 flex items-center justify-center">
-            <span className="text-amber-600 text-sm">Sin imagen</span>
+          <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+            Sin imagen
           </div>
+        )}
+        {acc.is_featured && (
+          <span className="absolute top-3 left-3 bg-brand-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+            Destacado
+          </span>
         )}
       </div>
       <div className="p-5 space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900 group-hover:text-amber-800 transition-colors">
+        <h2 className="font-display font-bold text-lg text-gray-900 group-hover:text-brand-600 transition-colors duration-200">
           {acc.name}
         </h2>
         {acc.short_description && (
-          <p className="text-sm text-gray-500 line-clamp-2">{acc.short_description}</p>
+          <p className="text-sm text-gray-500 line-clamp-2 leading-relaxed">{acc.short_description}</p>
         )}
-        <div className="flex items-center gap-4 text-sm text-gray-500">
-          <span className="flex items-center gap-1"><Users size={14} /> {acc.capacity} huésp.</span>
-          <span className="flex items-center gap-1"><BedDouble size={14} /> {acc.bedrooms} dorm.</span>
-          <span className="flex items-center gap-1"><Bath size={14} /> {acc.bathrooms} baño{acc.bathrooms !== 1 ? "s" : ""}</span>
+        <div className="flex items-center gap-4 text-xs text-gray-400 pt-1">
+          <span className="flex items-center gap-1"><Users size={13} /> {acc.capacity} huésp.</span>
+          <span className="flex items-center gap-1"><BedDouble size={13} /> {acc.bedrooms} dorm.</span>
+          <span className="flex items-center gap-1"><Bath size={13} /> {acc.bathrooms} baño{acc.bathrooms !== 1 ? "s" : ""}</span>
         </div>
-        <span className="inline-block text-sm font-medium text-amber-700 group-hover:underline">
-          Ver detalles →
-        </span>
       </div>
     </Link>
   );
@@ -64,14 +65,22 @@ export default async function AccommodationsPage() {
 
   return (
     <>
-      {/* Hero */}
-      <section className="relative h-64 flex items-center justify-center bg-amber-900">
+      {/* Hero banner oscuro */}
+      <section className="relative h-64 flex items-center justify-center bg-charcoal-900 overflow-hidden">
         {hero?.image_url && (
-          <Image src={hero.image_url} alt="Alojamientos" fill className="object-cover opacity-40" priority />
+          <Image
+            src={hero.image_url}
+            alt="Alojamientos"
+            fill
+            className="object-cover opacity-40"
+            priority
+          />
         )}
-        <div className="relative z-10 text-center text-white px-4">
-          <h1 className="text-4xl font-bold">Nuestros Alojamientos</h1>
-          <p className="mt-2 text-white/80">6 cabañas para cada tipo de estadía</p>
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-10 text-center text-white px-4 space-y-2">
+          <p className="section-label text-brand-400">Alojamientos</p>
+          <h1 className="font-display text-4xl md:text-5xl font-bold">Nuestras cabañas</h1>
+          <p className="text-white/70 text-sm mt-2">Cabañas para cada tipo de estadía</p>
         </div>
       </section>
 

@@ -4,68 +4,84 @@ import ContactForm from "./ContactForm";
 import { contentApi } from "@/lib/api-client";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Contacto", description: "Contactá a Josthom Eco Resort por WhatsApp o email." };
+export const metadata: Metadata = {
+  title: "Contacto",
+  description: "Contactá a Josthom Eco Resort por WhatsApp o email.",
+};
 
 export default async function ContactPage() {
   const content = await contentApi.get("contact").catch(() => null);
 
   return (
     <>
-      <section className="bg-amber-800 pt-20 pb-12 text-center text-white px-4">
-        <h1 className="text-4xl font-bold">{content?.title || "Contacto"}</h1>
-        <p className="mt-2 text-white/80">{content?.subtitle || "Estamos para ayudarte"}</p>
+      {/* Hero banner oscuro */}
+      <section className="bg-charcoal-900 pt-24 pb-14 text-center text-white px-4">
+        <p className="section-label text-brand-400">Contacto</p>
+        <h1 className="font-display text-4xl md:text-5xl font-bold mt-2">
+          {content?.title || "Hablemos"}
+        </h1>
+        <p className="mt-3 text-white/60 text-sm">
+          {content?.subtitle || "Estamos para ayudarte"}
+        </p>
       </section>
 
-      <div className="section-container py-14 grid grid-cols-1 lg:grid-cols-2 gap-12">
+      <div className="section-container py-16 grid grid-cols-1 lg:grid-cols-2 gap-14">
 
         {/* Info de contacto */}
         <div className="space-y-8">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-5">Hablemos</h2>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <Phone size={20} className="text-amber-700 mt-0.5 shrink-0" />
+            <h2 className="font-display text-2xl font-bold text-gray-900 mb-6">Información de contacto</h2>
+            <ul className="space-y-5">
+              <li className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0">
+                  <Phone size={18} className="text-brand-600" />
+                </div>
                 <div>
-                  <p className="font-medium text-gray-900">WhatsApp</p>
+                  <p className="font-semibold text-gray-900 text-sm">WhatsApp</p>
                   <a
                     href="https://wa.me/5491138323695"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-amber-700 hover:underline"
+                    className="text-brand-600 hover:text-brand-700 text-sm hover:underline"
                   >
                     +54 9 11 3832-3695
                   </a>
                   <p className="text-xs text-gray-400 mt-0.5">Respuesta rápida durante el día</p>
                 </div>
               </li>
-              <li className="flex items-start gap-3">
-                <Mail size={20} className="text-amber-700 mt-0.5 shrink-0" />
+              <li className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0">
+                  <Mail size={18} className="text-brand-600" />
+                </div>
                 <div>
-                  <p className="font-medium text-gray-900">Email</p>
-                  <a href="mailto:reservas@josthom.com.ar" className="text-amber-700 hover:underline">
+                  <p className="font-semibold text-gray-900 text-sm">Email</p>
+                  <a href="mailto:reservas@josthom.com.ar" className="text-brand-600 hover:text-brand-700 text-sm hover:underline">
                     reservas@josthom.com.ar
                   </a>
                 </div>
               </li>
-              <li className="flex items-start gap-3">
-                <MapPin size={20} className="text-amber-700 mt-0.5 shrink-0" />
+              <li className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0">
+                  <MapPin size={18} className="text-brand-600" />
+                </div>
                 <div>
-                  <p className="font-medium text-gray-900">Dirección</p>
-                  <p className="text-gray-600">Villa Paranacito, Entre Ríos</p>
+                  <p className="font-semibold text-gray-900 text-sm">Dirección</p>
+                  <p className="text-gray-500 text-sm">Villa Paranacito, Entre Ríos</p>
                 </div>
               </li>
-              <li className="flex items-start gap-3">
-                <Clock size={20} className="text-amber-700 mt-0.5 shrink-0" />
+              <li className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0">
+                  <Clock size={18} className="text-brand-600" />
+                </div>
                 <div>
-                  <p className="font-medium text-gray-900">Horario de atención</p>
-                  <p className="text-gray-600">Lunes a Domingo, 8:00 – 18:00 hs</p>
-                  <p className="text-xs text-gray-400 mt-0.5">Check-in: 14:00 hs · Check-out: 18:00 hs</p>
+                  <p className="font-semibold text-gray-900 text-sm">Horario de atención</p>
+                  <p className="text-gray-500 text-sm">Lunes a Domingo, 8:00 – 18:00 hs</p>
+                  <p className="text-xs text-gray-400 mt-0.5">Check-in: 15:00 hs · Check-out: 11:00 hs</p>
                 </div>
               </li>
             </ul>
           </div>
 
-          {/* CTA WhatsApp */}
           <a
             href="https://wa.me/5491138323695?text=Hola!%20Quiero%20consultar%20sobre%20disponibilidad"
             target="_blank"
@@ -77,7 +93,9 @@ export default async function ContactPage() {
         </div>
 
         {/* Formulario */}
-        <ContactForm />
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8">
+          <ContactForm />
+        </div>
       </div>
     </>
   );

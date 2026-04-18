@@ -15,6 +15,9 @@ const schema = z.object({
 
 type FormData = z.infer<typeof schema>;
 
+const inputClass =
+  "w-full border border-gray-200 rounded-xl px-4 py-2.5 text-sm bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-600 focus:border-transparent transition-shadow";
+
 export default function ContactForm() {
   const [sent, setSent] = useState(false);
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<FormData>({
@@ -22,7 +25,6 @@ export default function ContactForm() {
   });
 
   const onSubmit = async (data: FormData) => {
-    // Redirect a WhatsApp con el mensaje armado (igual que el original)
     const text = encodeURIComponent(
       `Hola! Soy ${data.name}.\n\nMensaje: ${data.message}\n\nEmail: ${data.email}${data.phone ? `\nTeléfono: ${data.phone}` : ""}`
     );
@@ -33,47 +35,85 @@ export default function ContactForm() {
 
   if (sent) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
-        <CheckCircle size={48} className="text-green-600" />
+      <div className="flex flex-col items-center justify-center py-16 text-center space-y-4">
+        <div className="w-16 h-16 rounded-full bg-brand-50 flex items-center justify-center">
+          <CheckCircle size={36} className="text-brand-600" />
+        </div>
         <h3 className="text-lg font-semibold text-gray-900">¡Mensaje listo!</h3>
-        <p className="text-gray-500 text-sm">Te abrimos WhatsApp con tu consulta. Si no se abrió solo, escribinos directo.</p>
-        <button onClick={() => setSent(false)} className="text-green-700 text-sm hover:underline">Enviar otro mensaje</button>
+        <p className="text-gray-500 text-sm max-w-xs">
+          Te abrimos WhatsApp con tu consulta. Si no se abrió, escribinos directo.
+        </p>
+        <button
+          onClick={() => setSent(false)}
+          className="text-brand-600 text-sm hover:underline mt-2"
+        >
+          Enviar otro mensaje
+        </button>
       </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-      <h2 className="text-xl font-semibold text-gray-900">Envianos un mensaje</h2>
+      <h2 className="font-display text-xl font-bold text-gray-900">Envianos un mensaje</h2>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
-        <input {...register("name")} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="Tu nombre" />
+        <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+          Nombre *
+        </label>
+        <input
+          {...register("name")}
+          className={inputClass}
+          placeholder="Tu nombre"
+        />
         {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name.message}</p>}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Email *</label>
-        <input {...register("email")} type="email" className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="tu@email.com" />
+        <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+          Email *
+        </label>
+        <input
+          {...register("email")}
+          type="email"
+          className={inputClass}
+          placeholder="tu@email.com"
+        />
         {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email.message}</p>}
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Teléfono (opcional)</label>
-        <input {...register("phone")} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600" placeholder="+54 9 11 ..." />
+        <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+          Teléfono (opcional)
+        </label>
+        <input
+          {...register("phone")}
+          className={inputClass}
+          placeholder="+54 9 11 ..."
+        />
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Mensaje *</label>
-        <textarea {...register("message")} rows={4} className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-600 resize-none" placeholder="¿En qué te podemos ayudar?" />
+        <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">
+          Mensaje *
+        </label>
+        <textarea
+          {...register("message")}
+          rows={4}
+          className={`${inputClass} resize-none`}
+          placeholder="¿En qué te podemos ayudar?"
+        />
         {errors.message && <p className="text-xs text-red-500 mt-1">{errors.message.message}</p>}
       </div>
 
-      <button type="submit" disabled={isSubmitting} className="btn-primary gap-2 w-full">
+      <button type="submit" disabled={isSubmitting} className="btn-primary w-full gap-2 py-3">
         <Send size={16} />
         {isSubmitting ? "Enviando..." : "Enviar por WhatsApp"}
       </button>
-      <p className="text-xs text-gray-400 text-center">Se abrirá WhatsApp con tu mensaje pre-cargado.</p>
+
+      <p className="text-xs text-gray-400 text-center">
+        Se abrirá WhatsApp con tu mensaje pre-cargado.
+      </p>
     </form>
   );
 }

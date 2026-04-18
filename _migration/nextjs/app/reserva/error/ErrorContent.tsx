@@ -5,12 +5,13 @@ import { XCircle, Phone, RefreshCw, Home } from "lucide-react";
 import Link from "next/link";
 
 export default function ErrorContent() {
-  const params = useSearchParams();
+  const params    = useSearchParams();
   const bookingId = params.get("booking_id");
 
   return (
     <div className="w-full max-w-md">
-      <div className="bg-white rounded-2xl shadow-sm border border-red-100 p-8 text-center space-y-6">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center space-y-6">
+
         {/* Icono */}
         <div className="flex justify-center">
           <div className="w-20 h-20 bg-red-50 rounded-full flex items-center justify-center">
@@ -20,14 +21,14 @@ export default function ErrorContent() {
 
         {/* Título */}
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-gray-900">El pago no se completó</h1>
+          <h1 className="font-display text-2xl font-bold text-gray-900">El pago no se completó</h1>
           <p className="text-gray-500 text-sm leading-relaxed">
             Hubo un problema al procesar tu pago. Tu reserva sigue guardada y podés
             intentar pagar de nuevo.
           </p>
         </div>
 
-        {/* Opciones de pago */}
+        {/* Sugerencias */}
         <div className="bg-red-50 rounded-xl p-5 text-left space-y-2 text-sm text-red-800">
           <p className="font-semibold">¿Qué puedo hacer?</p>
           <ul className="space-y-1.5 text-red-700">
@@ -46,7 +47,7 @@ export default function ErrorContent() {
           {bookingId && (
             <Link
               href={`/reserva/pagar/${bookingId}`}
-              className="flex items-center justify-center gap-2 w-full bg-amber-700 hover:bg-amber-800 text-white font-semibold rounded-xl px-5 py-3 transition-colors text-sm"
+              className="flex items-center justify-center gap-2 w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold rounded-xl px-5 py-3 transition-colors text-sm"
             >
               <RefreshCw size={16} /> Reintentar pago
             </Link>
@@ -56,7 +57,7 @@ export default function ErrorContent() {
             href="https://wa.me/5491138323695?text=Hola!%20Tuve%20un%20error%20al%20pagar%20mi%20reserva"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full border border-amber-200 bg-amber-50 hover:bg-amber-100 text-amber-800 font-medium rounded-xl px-5 py-3 transition-colors text-sm"
+            className="flex items-center justify-center gap-2 w-full border border-brand-200 bg-brand-50 hover:bg-brand-100 text-brand-800 font-medium rounded-xl px-5 py-3 transition-colors text-sm"
           >
             <Phone size={16} /> Contactar por WhatsApp
           </a>
