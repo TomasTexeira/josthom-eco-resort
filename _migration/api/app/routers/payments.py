@@ -4,12 +4,13 @@ Endpoints de Mercado Pago.
 - POST /api/payments/webhook/mercadopago             → recibe notificaciones de MP
 - GET  /api/payments/{booking_id}                    → lista pagos de una reserva
 """
+import asyncio
 import hashlib
 import hmac
 import json
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Header
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Header
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.orm import selectinload
@@ -141,10 +142,32 @@ async def mercadopago_webhook(
     return {"status": "ok"}
 
 
+# ─── Confirmación desde redirect de MP ─────────────────────────────────────────
+
+@router.get("/confirm/{booking_id}")
+async def confirm_from_redirect(
+    booking_id: str,
+    payment_id: Optional[str] = Query(None),
+    status: Optional[str] = Query(None),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    MP redirige al usuario a /reserva/confirmada?payment_id=xxx&status=approved.
+    El frontend llama a este endpoint para confirmar el pago sin depender del webhook.
+    """
+    if not payment_id or status != "approved":
+        return {"status": "skipped", "reason": "payment_id missing or status not approved"}
+
+    logger.info(f"[CONFIRM-REDIRECT] booking={booking_id} payment={payment_id} status={status}")
+    await _process_payment(payment_id, db)
+    return {"status": "ok"}
+
+
 async def _process_payment(mp_payment_id: str, db: AsyncSession) -> None:
     """Verifica el pago en MP y actualiza la reserva si corresponde."""
     try:
-        payment_info = get_payment_info(mp_payment_id)
+        loop = asyncio.get_event_loop()
+        payment_info = await loop.run_in_executor(None, get_payment_info, mp_payment_id)
     except Exception as e:
         logger.error(f"[WEBHOOK] Error consultando pago {mp_payment_id} en MP: {e}")
         return

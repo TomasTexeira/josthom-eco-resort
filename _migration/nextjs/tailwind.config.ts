@@ -10,25 +10,35 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          50:  "#fffbeb",  // amber-50
-          100: "#fef3c7",  // amber-100
-          200: "#fde68a",  // amber-200
-          600: "#d97706",  // amber-600
-          700: "#b45309",  // amber-700
-          800: "#92400e",  // amber-800
-          900: "#78350f",  // amber-900
+          50:  "#FEF6EE",  // muy claro — fondos de íconos
+          100: "#FDE8D0",  // claro
+          200: "#FBD0A1",  // medio claro
+          500: "#E07B2A",  // naranja suave
+          600: "#C2651A",  // naranja principal (botones, labels)
+          700: "#A85515",  // hover
+          800: "#8B4210",  // active / dark
+          900: "#6B3008",  // muy oscuro
+        },
+        charcoal: {
+          800: "#222222",
+          900: "#1A1A1A",
         },
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        sans:    ["var(--font-inter)", "system-ui", "-apple-system", "sans-serif"],
+        display: ["var(--font-playfair)", "Georgia", "serif"],
       },
       animation: {
-        "fade-in": "fadeIn 0.5s ease-out",
-        "slide-up": "slideUp 0.4s ease-out",
+        "fade-in":  "fadeIn 0.6s ease-out",
+        "slide-up": "slideUp 0.5s ease-out",
+        "slide-in-left":  "slideInLeft 0.7s ease-out",
+        "slide-in-right": "slideInRight 0.7s ease-out",
       },
       keyframes: {
-        fadeIn: { from: { opacity: "0" }, to: { opacity: "1" } },
-        slideUp: { from: { opacity: "0", transform: "translateY(16px)" }, to: { opacity: "1", transform: "translateY(0)" } },
+        fadeIn:       { from: { opacity: "0" },                               to: { opacity: "1" } },
+        slideUp:      { from: { opacity: "0", transform: "translateY(20px)" }, to: { opacity: "1", transform: "translateY(0)" } },
+        slideInLeft:  { from: { opacity: "0", transform: "translateX(-30px)" }, to: { opacity: "1", transform: "translateX(0)" } },
+        slideInRight: { from: { opacity: "0", transform: "translateX(30px)" },  to: { opacity: "1", transform: "translateX(0)" } },
       },
     },
   },

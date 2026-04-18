@@ -1,7 +1,7 @@
 "use client";
 /**
- * Navbar — migrada desde src/components/shared/Navbar.jsx
- * Transparente en hero, blanca al hacer scroll.
+ * Navbar — transparente en hero, blanca al hacer scroll.
+ * Estilo: base44 — logo izquierda, links centro, botón "Reservar" naranja derecha.
  */
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -12,21 +12,22 @@ import { Menu, X } from "lucide-react";
 const LOGO_URL = "https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/696a5cf868f1a8d949987da4/5107e3a19_LogoJosthomVect.png";
 
 const NAV_LINKS = [
-  { href: "/accommodations", label: "Alojamientos" },
-  { href: "/gallery",        label: "Galería" },
-  { href: "/experience",     label: "Experiencias" },
-  { href: "/location",       label: "Ubicación" },
-  { href: "/contact",        label: "Contacto" },
+  { href: "/",              label: "Inicio" },
+  { href: "/accommodations",label: "Alojamientos" },
+  { href: "/gallery",       label: "Galería" },
+  { href: "/experience",    label: "La Experiencia" },
+  { href: "/location",      label: "Ubicación" },
+  { href: "/contact",       label: "Contacto" },
 ];
 
 export default function Navbar() {
-  const [scrolled, setScrolled]   = useState(false);
-  const [menuOpen, setMenuOpen]   = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const isHome = pathname === "/";
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10);
+    const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
@@ -36,52 +37,63 @@ export default function Navbar() {
   return (
     <header
       className={`fixed top-0 inset-x-0 z-50 transition-all duration-300 ${
-        transparent ? "bg-transparent" : "bg-white shadow-sm"
+        transparent
+          ? "bg-transparent"
+          : "bg-white/95 backdrop-blur-sm shadow-sm border-b border-gray-100"
       }`}
     >
       <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
 
         {/* Logo */}
-        <Link href="/" className="flex items-center">
+        <Link href="/" className="flex items-center flex-shrink-0">
           <Image
             src={LOGO_URL}
             alt="Josthom Eco Resort"
             width={140}
             height={48}
-            className={`h-10 w-auto object-contain transition-all duration-300 ${
+            className={`h-9 w-auto object-contain transition-all duration-300 ${
               transparent ? "brightness-0 invert" : "brightness-100"
             }`}
             priority
           />
         </Link>
 
-        {/* Desktop nav */}
-        <ul className="hidden lg:flex items-center gap-6">
-          {NAV_LINKS.map((link) => (
-            <li key={link.href}>
-              <Link
-                href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-amber-700 ${
-                  transparent ? "text-white/90" : "text-gray-700"
-                } ${pathname === link.href ? "text-amber-700 font-semibold" : ""}`}
-              >
-                {link.label}
-              </Link>
-            </li>
-          ))}
+        {/* Desktop nav — centrado */}
+        <ul className="hidden lg:flex items-center gap-7 absolute left-1/2 -translate-x-1/2">
+          {NAV_LINKS.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className={`text-sm font-medium transition-colors duration-200 ${
+                    transparent
+                      ? "text-white/90 hover:text-white"
+                      : isActive
+                        ? "text-brand-600"
+                        : "text-gray-700 hover:text-brand-600"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
 
-        {/* CTA */}
+        {/* CTA Desktop */}
         <Link
           href="/accommodations"
-          className="hidden lg:inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium bg-amber-800 text-white hover:bg-amber-900 transition-colors"
+          className="hidden lg:inline-flex items-center px-5 py-2 rounded-lg text-sm font-semibold bg-brand-600 text-white hover:bg-brand-700 transition-colors duration-200 shadow-sm"
         >
           Reservar
         </Link>
 
-        {/* Mobile hamburger */}
+        {/* Hamburger Mobile */}
         <button
-          className={`lg:hidden p-2 rounded-md ${transparent ? "text-white" : "text-gray-700"}`}
+          className={`lg:hidden p-2 rounded-md transition-colors ${
+            transparent ? "text-white hover:bg-white/10" : "text-gray-700 hover:bg-gray-100"
+          }`}
           onClick={() => setMenuOpen((v) => !v)}
           aria-label="Menú"
         >
@@ -91,24 +103,30 @@ export default function Navbar() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="lg:hidden bg-white border-t border-gray-100 px-4 py-4 space-y-3 animate-slide-up">
+        <div className="lg:hidden bg-white border-t border-gray-100 px-4 py-5 space-y-1 shadow-lg animate-slide-up">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMenuOpen(false)}
-              className="block py-2 text-sm font-medium text-gray-700 hover:text-amber-700"
+              className={`block py-2.5 px-3 rounded-lg text-sm font-medium transition-colors ${
+                pathname === link.href
+                  ? "text-brand-600 bg-brand-50"
+                  : "text-gray-700 hover:text-brand-600 hover:bg-gray-50"
+              }`}
             >
               {link.label}
             </Link>
           ))}
-          <Link
-            href="/accommodations"
-            onClick={() => setMenuOpen(false)}
-            className="block text-center py-2 px-4 rounded-lg bg-amber-800 text-white text-sm font-medium"
-          >
-            Reservar ahora
-          </Link>
+          <div className="pt-2">
+            <Link
+              href="/accommodations"
+              onClick={() => setMenuOpen(false)}
+              className="block text-center py-2.5 px-4 rounded-lg bg-brand-600 text-white text-sm font-semibold hover:bg-brand-700 transition-colors"
+            >
+              Reservar ahora
+            </Link>
+          </div>
         </div>
       )}
     </header>

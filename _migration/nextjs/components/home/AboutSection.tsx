@@ -1,13 +1,25 @@
 "use client";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Leaf, Wind, Waves } from "lucide-react";
+import { Leaf, Sun, Wind } from "lucide-react";
 import type { SiteContent } from "@/lib/api-client";
 
 const FEATURES = [
-  { icon: Leaf,  label: "Naturaleza",    desc: "Rodeado de flora y fauna nativa del litoral argentino." },
-  { icon: Wind,  label: "Tranquilidad",  desc: "Sin ruidos de ciudad. Solo el río, los pájaros y el viento." },
-  { icon: Waves, label: "Río Uruguay",   desc: "A orillas del Arroyo Sagastume, a minutos del Río Uruguay." },
+  {
+    icon: Leaf,
+    label: "Naturaleza pura",
+    desc:  "Entorno natural y agreste del litoral entrerriano.",
+  },
+  {
+    icon: Sun,
+    label: "Tranquilidad",
+    desc:  "Desconexión total del ruido urbano.",
+  },
+  {
+    icon: Wind,
+    label: "Río Uruguay",
+    desc:  "A 10 minutos en lancha.",
+  },
 ];
 
 const FALLBACK_IMAGE = "https://rsqsoyrmqbnxqqxsauxk.supabase.co/storage/v1/object/public/Fotos%20josthom/fotosjosthomcabanas/b319622e-a9f1-4b85-b4d8-2cdddcc18354.JPG";
@@ -16,58 +28,66 @@ interface Props { content: SiteContent | null; }
 
 export default function AboutSection({ content }: Props) {
   return (
-    <section id="about" className="section-container py-20">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+    <section id="about" className="py-24 bg-white">
+      <div className="section-container">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
-        {/* Imagen */}
-        <motion.div
-          initial={{ opacity: 0, x: -24 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          className="relative h-96 rounded-2xl overflow-hidden shadow-xl"
-        >
-          <Image
-            src={content?.image_url || FALLBACK_IMAGE}
-            alt="Sobre Josthom"
-            fill
-            className="object-cover"
-          />
-          {/* Decoración geométrica */}
-          <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-amber-100 rounded-2xl -z-10" />
-        </motion.div>
+          {/* Imagen */}
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.8 }}
+            className="relative h-[480px] rounded-2xl overflow-hidden shadow-xl"
+          >
+            <Image
+              src={content?.image_url || FALLBACK_IMAGE}
+              alt="Josthom Eco Resort — naturaleza"
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 50vw"
+            />
+            {/* Gradiente sutil en el borde derecho para blend con el texto */}
+            <div className="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-white/20 to-transparent" />
+          </motion.div>
 
-        {/* Texto */}
-        <motion.div
-          initial={{ opacity: 0, x: 24 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, delay: 0.1 }}
-          className="space-y-6"
-        >
-          <div>
-            <p className="text-amber-700 text-sm font-semibold uppercase tracking-widest mb-2">Sobre nosotros</p>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight">
-              {content?.title || "Un rincón único en Entre Ríos"}
-            </h2>
-          </div>
-          <p className="text-gray-600 leading-relaxed text-lg">
-            {content?.content || "Josthom Eco Resort es un complejo de 6 cabañas a orillas del Arroyo Sagastume, en Villa Paranacito. Un lugar para desconectarse y reconectarse con la naturaleza, la familia y uno mismo."}
-          </p>
+          {/* Texto */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.8, delay: 0.1 }}
+            className="space-y-7"
+          >
+            <div>
+              <p className="section-label">Nuestra esencia</p>
+              <h2 className="section-title">
+                {content?.title || "Un refugio donde el tiempo se detiene"}
+              </h2>
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-            {FEATURES.map(({ icon: Icon, label, desc }) => (
-              <div key={label} className="space-y-1">
-                <div className="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center">
-                  <Icon size={20} className="text-amber-700" />
+            <p className="text-gray-600 leading-relaxed text-base">
+              {content?.content ||
+                "Josthom Eco Resort se encuentra en un entorno natural y agreste, ideal para el descanso y la desconexión. Estamos ubicados a 12 km de la Ruta Provincial 46 y a 22 km del centro comercial de Villa Paranacito. Desde las cabañas se aprecia el Arroyo Sagastume, que bordea todo el predio, y nos encontramos a tan solo 10 minutos en lancha del Río Uruguay."}
+            </p>
+
+            {/* Features */}
+            <div className="space-y-5 pt-1">
+              {FEATURES.map(({ icon: Icon, label, desc }) => (
+                <div key={label} className="flex items-center gap-4">
+                  <div className="w-11 h-11 rounded-full bg-brand-50 flex items-center justify-center flex-shrink-0">
+                    <Icon size={20} className="text-brand-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-gray-900 text-sm">{label}</p>
+                    <p className="text-sm text-gray-500">{desc}</p>
+                  </div>
                 </div>
-                <p className="font-semibold text-gray-900 text-sm">{label}</p>
-                <p className="text-xs text-gray-500 leading-relaxed">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </motion.div>
+              ))}
+            </div>
+          </motion.div>
 
+        </div>
       </div>
     </section>
   );
